@@ -1,0 +1,54 @@
+.ql-snow .ql-picker.ql-header {
+  width: 120px !important;
+}
+
+.ql-toolbar.ql-snow {
+  background: #f8f9fb;
+  border: none !important;
+
+  padding: 17px 30px 17px 30px !important;
+  border-radius: 15px 15px 0px 0px;
+  width: 100%;
+}
+.ql-picker-options {
+  background-color: #ffff !important;
+  border: none !important;
+}
+
+.ql-picker-options:hover {
+  /* background-color: #2f3033 !important; */
+}
+.ql-picker-label {
+  border: none !important;
+}
+
+.ql-editor {
+  border: none !important;
+  caret-color: black;
+  height: 200px !important;
+}
+.ql-editor p {
+  color: #0a1126;
+}
+.ql-editor::before {
+  /* color: #fff !important; */
+}
+.ql-picker-item:hover {
+  background-color: #989fad !important;
+}
+.p-editor-container {
+  background-color: #ffffff !important;
+  border: none !important;
+  /* color: #fff !important; */
+}
+
+@media (max-width: 768px) {
+  .ql-toolbar.ql-snow {
+    padding: 17px 17px 17px 16px !important;
+    width: 100% !important; 
+  }
+  .quill{
+    width: 100% !important;
+  }
+  
+}

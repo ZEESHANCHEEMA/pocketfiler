@@ -1,0 +1,302 @@
+/* The switch - the box around the slider */
+.switch {
+  font-size: 17px;
+  position: relative;
+  display: inline-block;
+  width: 70px;
+  height: 36px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0%;
+  bottom: 0;
+  background-color: #fff;
+  border: 1px solid #166fbf;
+  transition: 0.4s;
+  border-radius: 30px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 28px;
+  width: 28px;
+  border-radius: 20px;
+  left: 0.17em;
+  bottom: 0.15em;
+  background-color: #166fbf;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #166fbf;
+  border: 1px solid #166fbf;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #007bff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(2em);
+  background-color: #fff;
+}
+
+.Subscription__top-div {
+  margin-top: 50px;
+}
+.Subscription__top-div_switch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+.Subscription__top-div_switch p {
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 30px;
+  letter-spacing: -0.02em;
+  text-align: left;
+}
+.Subscription__top-div_img {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2.63px;
+  /* position: relative; */
+}
+.Subscription__top-div_img p {
+  width: 84px;
+  height: 29px;
+  border-radius: 30px;
+  background: #166fbf4d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  letter-spacing: -0.02em;
+  text-align: left;
+  margin-left: 80px !important;
+  margin-top: 24px !important;
+}
+.Subscription__top-div_img img {
+  width: 57.07px;
+  height: 50.03px;
+  /* position: absolute; */
+  /* transform: rotate(-153.04 deg) !important; */
+}
+.Subscription__cards {
+  margin-top: 33.75px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  overflow-x: auto;
+}
+.Subscription__card1 {
+  width: 320px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding-left: 26.67px;
+  padding-top: 26.67px;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+}
+/* .Subscription__card1:hover {
+  border: 2px solid #166fbf;
+} */
+.Subscription__card1-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.Subscription__card1-header-txt p {
+  margin-right: 30px !important;
+  width: 71.67px;
+  height: 26.67px;
+  border-radius: 25px;
+  background-color: #166fbf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 13.33px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+  text-align: left;
+  color: #ffffff;
+}
+.Subscription__card1-head {
+  display: flex;
+  gap: 10px;
+  /* justify-content: center; */
+  align-items: center;
+}
+.Subscription__card1-head h4 {
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 26.67px;
+  font-weight: 500;
+  line-height: 40px;
+  letter-spacing: -0.03em;
+  text-align: left;
+  color: #0a1126;
+}
+.Subscription__card1-head img {
+  width: 26.67px;
+  height: 26.67px;
+}
+.Subscription__card1-head-p {
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 13.33px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+  text-align: left;
+  color: #596780;
+  padding-top: 10px !important;
+  padding-bottom: 20px !important;
+}
+.Subscription__card1-head-amount {
+  display: flex;
+  gap: 9.33px;
+}
+.Subscription__card1-head-amount h4 {
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 33.33px;
+  font-weight: 500;
+  line-height: 50px;
+  letter-spacing: -0.03em;
+  text-align: center;
+  color: #0a1126;
+}
+.Subscription__card1-head-amount p {
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 22.5px;
+  letter-spacing: -0.02em;
+  text-align: left;
+  color: #596780;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.Subscription__card1-head-amount-p {
+  /* font-family: "poppins"; */
+  font-size: 13.33px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+  text-align: left;
+  color: #1a202c;
+  padding-bottom: 26.67px !important;
+  padding-top: 20px !important;
+  padding-right: 26.67px !important;
+}
+.Subscription__card1-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.Subscription__card1-body-txt {
+  display: flex;
+  gap: 10px;
+}
+.Subscription__card1-body-txt img {
+  width: 20px;
+  height: 20px;
+}
+.Subscription__card1-body-txt p {
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 22.5px;
+  letter-spacing: -0.02em;
+  text-align: left;
+  color: #0a1126;
+}
+.Subscription__card1-body-txt1 {
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 22.5px;
+  letter-spacing: -0.02em;
+  text-align: left;
+  color: #596780 !important;
+}
+/* .Subscription__card1-body-btn{
+    margin-top: 30.67px;
+    margin-bottom: 16.67px;
+    margin-left: 0.33px;
+    width: 266px;
+    height: 53px;
+    border-radius: 12px;
+    background: #0A11261A;
+} */
+.Subscription__card1-body-btn {
+  margin-top: 30.67px;
+  margin-bottom: 16.67px;
+  margin-left: 0.33px;
+  width: 266px;
+  height: 53px;
+  border-radius: 12px;
+  background: #0a1126;
+  color: #ffffff;
+  transition: background-color 0.3s;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  text-align: center;
+}
+.active-btn {
+  margin-top: 30.67px;
+  margin-bottom: 16.67px;
+  margin-left: 0.33px;
+  width: 266px;
+  height: 53px;
+  border-radius: 12px;
+  background: #0a11261a;
+
+  color: #0a1126;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  text-align: center;
+
+  transition: background-color 0.3s;
+}
+/* .Subscription__card1:hover .Subscription__card1-body-btn {
+  background: #0a11261a;
+  color: #0a1126;
+} */
+
+.subscription__slider {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  color: #166fbf;
+  align-items: center;
+  justify-content: center;
+}
+.Subscription__cards-mobile {
+  display: flex;
+  justify-content: center;
+  margin-top: 33.75px;
+  overflow-x: auto;
+}

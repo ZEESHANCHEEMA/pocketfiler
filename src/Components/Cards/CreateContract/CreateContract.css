@@ -1,0 +1,77 @@
+.contract-card {
+  width: 398px;
+  height: 281px;
+
+  padding: 40px 30px;
+  gap: 40px;
+  border-radius: 20px;
+  border: 1px solid #f4f4f4;
+
+  background: #ffffff;
+}
+
+.card-contract-head {
+  font-size: 24px;
+  font-weight: 550;
+  line-height: 29.52px;
+  text-align: center;
+  color: #0a1126;
+  padding-bottom: 16px !important;
+}
+
+.card-contract-sub {
+  font-family: Poppins;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: center;
+  color: #858585;
+}
+.card-contract-btn {
+  /* width: Fixed (338px)px;
+height: Hug (67px)px; */
+  width: 338px !important;
+  height: 67px !important;
+  padding: 20px !important;
+  gap: 10px;
+  border-radius: 12px !important ;
+  background: #0a1126 !important;
+  font-family: "Poppins";
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff !important;
+  margin-top: 40px !important;
+  text-transform: none !important;
+}
+.card-contract-btn:hover {
+  background: #ffffff !important;
+  color: #0a1126 !important;
+  border: 1px solid #0a1126 !important;
+}
+
+
+@media (max-width: 768px) {
+  .contract-card {
+    width: 100%;
+  }
+  .card-contract-head {
+    font-size: 20px !important;
+    line-height: 24.6px !important;
+  }
+  .card-contract-sub {
+    font-size: 12px !important;
+    line-height: 18px !important;
+  }
+  .card-contract-btn {
+    margin-top: 30px !important;
+    font-size: 16px !important;
+    line-height: 24px !important; 
+    height: 64px !important;
+    width: 100% !important;
+  }
+}

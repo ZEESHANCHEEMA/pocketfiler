@@ -1,0 +1,180 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 0;
+  margin: 0;
+}
+
+.Upload__project-file {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+  align-items: center;
+  gap: 8px;
+}
+.Upload__project-file-phone {
+  width: 440px;
+  height: 64px;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  /* justify-content: center; */
+  align-items: center;
+  cursor: pointer;
+}
+.Upload__project-file-phone ::before {
+  content: "";
+  position: absolute;
+  left: 20px; /* Adjust the position of the image */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px; /* Adjust the size of the image */
+  height: 34px;
+  background-image: url("/public/Images/Projects/device.svg"); /* Path to your image */
+  background-size: cover;
+}
+.Upload__project-file-phone span {
+  padding-left: 72px;
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: left;
+  color: #0a1126;
+}
+.Upload__project-file-phone1 {
+  width: 440px;
+  height: 64px;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  /* justify-content: center; */
+  align-items: center;
+  cursor: pointer;
+}
+.Upload__project-file-phone1 ::before {
+  content: "";
+  position: absolute;
+  left: 20px; /* Adjust the position of the image */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px; /* Adjust the size of the image */
+  height: 34px;
+  background-image: url("/public/Images/Projects/drive.svg"); /* Path to your image */
+  background-size: cover;
+}
+.Upload__project-file-phone1 span {
+  padding-left: 72px;
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: left;
+  color: #0a1126;
+}
+.Upload__project-file-phone2 {
+  width: 440px;
+  height: 64px;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  /* justify-content: center; */
+  align-items: center;
+  cursor: pointer;
+}
+.Upload__project-file-phone2 ::before {
+  content: "";
+  position: absolute;
+  left: 20px; /* Adjust the position of the image */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px; /* Adjust the size of the image */
+  height: 34px;
+  background-image: url("/public/Images/Projects/cloud.svg"); /* Path to your image */
+  background-size: cover;
+}
+.Upload__project-file-phone2 span {
+  padding-left: 72px;
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: left;
+  color: #0a1126;
+}
+.Upload__project-file-phone3 {
+  width: 440px;
+  height: 64px;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  /* justify-content: center; */
+  align-items: center;
+  cursor: pointer;
+}
+.Upload__project-file-phone3 ::before {
+  content: "";
+  position: absolute;
+  left: 20px; /* Adjust the position of the image */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px; /* Adjust the size of the image */
+  height: 34px;
+  background-image: url("/public/Images/Projects/dropbox.svg"); /* Path to your image */
+  background-size: cover;
+}
+.Upload__project-file-phone3 span {
+  padding-left: 72px;
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: left;
+  color: #0a1126;
+}
+.upload-project__main-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.upload-project__btn {
+  width: 440px !important;
+  height: 67px !important;
+  border: 1px solid #166fbf0a !important;
+  background: #0a1126 !important;
+  padding: 20px !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  color: #ffffff !important;
+  margin-top: 50px !important;
+  font-family: "ClashGrotesk";
+  /* margin-bottom: 60px !important; */
+}
+
+.upload-project__btn:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+}
+
+@media (max-width: 768px) {
+  .Upload__project-file-phone,
+  .Upload__project-file-phone1,
+  .Upload__project-file-phone3 {
+    width: 100%;
+  }
+}

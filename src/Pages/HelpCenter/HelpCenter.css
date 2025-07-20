@@ -1,0 +1,114 @@
+.help-body {
+  padding-top: 72px;
+  /* padding-left:50px; */
+}
+
+.help-r1 {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.email-input-noicon {
+  border: 1px solid #eaeaea !important;
+  border-radius: 12px !important;
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+  padding-left: 22px !important;
+  /* font-family: "Montserrat", sans-serif !important; */
+  width: 480px !important;
+  height: 67px;
+  position: relative;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  color: #0a1126 !important;
+  font-family: "Poppins";
+}
+.email-input-noicon::placeholder {
+  font-family: "Poppins";
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  line-height: 24px !important;
+  color: #afafaf !important;
+
+  /* text-align: left; */
+}
+.help-r2 {
+  padding-top: 50px;
+}
+.important-head {
+  font-family: "Poppins";
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 36px;
+  color: #0a1126;
+  padding-bottom: 20px !important;
+}
+.imp-subtxt {
+  font-family: "Poppins";
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 37px;
+  color: #0a1126;
+}
+.help-r2-box {
+  margin-top: 25px;
+  padding: 30px;
+  background-color: #ffff;
+  border-radius: 20px;
+}
+.helpCenter__btn{
+  background-color: #0A1126;
+  width: 338px;
+  height: 67px;
+  border-radius: 12px;
+  font-family: "Poppins";
+font-size: 18px;
+font-weight: 500;
+line-height: 27px;
+text-align: center;
+color: #FFFFFF;
+margin-top: 60px;
+}
+@media (max-width: 768px) {
+  .help-body {
+    padding-top: 30px;
+    padding-left: 12px;
+  }
+  .email-input-noicon {
+    width: 100% !important;
+    font-size: 16px !important;
+    line-height: 24px !important;
+    height: 65px !important;
+    padding-top: 21px !important;
+  }
+  .email-input-noicon::placeholder {
+    font-size: 16px !important;
+    line-height: 24px !important;
+  }
+  .help-r1 {
+    gap: 25px;
+  }
+  .imp-subtxt br {
+    display: none;
+  }
+  .help-r2 {
+    padding-top: 25px;
+  }
+  .important-head {
+    font-size: 20px;
+    line-height: 30px;
+    padding-bottom: 30px !important;
+  }
+  .imp-subtxt {
+    font-size: 16px;
+    line-height: 37px;
+  }
+  
+}
+@media (max-width: 440px) {
+  .helpCenter__btn{
+    width: 100% !important;
+  }
+}

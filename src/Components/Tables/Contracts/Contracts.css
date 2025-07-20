@@ -1,0 +1,81 @@
+.column-head-contract {
+  font-family: "ClashGrotesk";
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 17.22px !important;
+  color: #0a1126 !important;
+  padding-top: 21px !important;
+  padding-left: 20px !important;
+  padding-bottom: 21px !important;
+}
+
+.inner-column {
+  color: #0f68ff !important;
+  font-size: 14px !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  line-height: 22.4px !important;
+}
+.columns-contract {
+  background: #f8f9fb;
+  border-top-left-radius: 15px !important;
+  border-top-right-radius: 15px !important;
+}
+.no-referral-contain {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 198px;
+  padding-bottom: 197px;
+}
+
+.no-referral-txt {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 26px;
+  text-align: left;
+  color: #1d1f2c;
+  padding-top: 15px;
+}
+
+.no-referral-des {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15.6px;
+  color: #667085;
+  padding-top: 10px;
+}
+.css-t7ucc8-MuiTableCell-root {
+  border-bottom: none !important;
+}
+
+.drop-contract-dot {
+  padding-left: 0px;
+}
+.drop-contract-dot .dropdown-toggle::after {
+  background-repeat: no-repeat !important;
+  border: none !important;
+  content: " " !important;
+  vertical-align: middle !important;
+}
+.dropdown-dot {
+  border-radius: 0 !important;
+  border: none !important;
+  /* border: 1px solid var(--grey-100-primary-outline-color, #ededed) !important; */
+  background: transparent !important;
+  display: flex !important;
+  padding: 0px !important;
+  /* padding: 16px 22px !important; */
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 12px !important;
+  color: #0a1126 !important;
+  font-size: 18px !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  line-height: 160% !important;
+  font-family: "ClashGrotesk";
+
+  /* 22.4px */
+}

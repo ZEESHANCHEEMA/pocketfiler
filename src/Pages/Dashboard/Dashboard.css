@@ -1,0 +1,250 @@
+.Dash-body {
+  padding-top: 50px;
+  /* padding-left: 14px; */
+}
+.contract-contain {
+  border-radius: 20px;
+  background-color: #ffffff;
+  width: 100%;
+  height: 100%;
+  padding: 30px 30px 30px 30px;
+}
+
+.contract-r1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 25px;
+}
+.contract-head {
+  font-family: "ClashGrotesk";
+  font-size: 24px;
+  font-weight: 550;
+  line-height: 29.52px;
+  color: #0a1126;
+}
+.drop-view-main {
+  display: flex;
+  align-items: center;
+}
+.drop-view-main .dropdown-toggle::after {
+  background-repeat: no-repeat !important;
+  border: none !important;
+  content: url("/public/Images/Dashboard/chevron-right.svg") !important;
+  vertical-align: middle !important;
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+.dropdown-view {
+  width: 126px !important;
+  height: 48px !important;
+  border-radius: 50px !important;
+  border: 1px solid var(--grey-100-primary-outline-color, #ededed) !important;
+  background: var(--Black-0---Primary, #fff) !important;
+  display: flex !important;
+  padding: 16px 22px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 12px !important;
+  color: var(--Grey-500---Primary, #667085) !important;
+  font-size: 14px !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  line-height: 160% !important;
+  /* 22.4px */
+}
+
+.contract-project-contain {
+  border-radius: 20px;
+  background-color: #ffffff;
+  width: 100%;
+  height: 100%;
+  padding: 30px 30px 30px 30px;
+  margin-top: 20px;
+}
+
+.create-contract-div {
+  background-image: url("/public/Images/Dashboard/bg.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 484px;
+  /* width: 1000px; */
+  width: 100%;
+  border-radius: 20px;
+}
+
+.noproject-div {
+  background-image: url("/public/Images/Dashboard/noproject.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 334px;
+  margin-top: 20px;
+  width: 100%;
+  border-radius: 20px;
+}
+.org-card-r1 {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 50px;
+  gap: 12.5px;
+  /* padding-left: 14px; */
+}
+
+.org-card-inner {
+  background-color: #ffffff;
+  width: 31%;
+
+  /* width: 322px; */
+  /* height: 163px; */
+
+  padding: 25px 30px 25px 30px;
+  border-radius: 20px;
+  border-top: 3px solid #e0f3f1;
+  border-left: 3px solid #e0f3f1;
+}
+.org-card-inner2 {
+  background-color: #ffffff;
+  width: 31%;
+  /* width: 322px; */
+  /* height: 163px; */
+
+  padding: 25px 30px 25px 30px;
+  border-radius: 20px;
+  border-bottom: 3px solid #f2d5cf;
+  border-right: 3px solid #f2d5cf;
+}
+.org-lhs-rhs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.total-p-txt {
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #676666;
+  padding-bottom: 20px !important;
+}
+.total-plus-p {
+  font-size: 18px;
+  font-weight: 550;
+  line-height: 17.22px;
+  font-family: "ClashGrotesk";
+  color: #62c3b8;
+}
+.total-minus-p {
+  font-size: 18px;
+  font-weight: 550;
+  line-height: 17.22px;
+  font-family: "ClashGrotesk";
+  color: #d65245;
+}
+
+.total-value-p {
+  font-size: 28px;
+  font-weight: 550;
+  line-height: 34.44px;
+  font-family: "ClashGrotesk";
+  color: #242a31;
+  padding-bottom: 33px !important;
+}
+
+.view-all-contain {
+  /* width: Hug (126px)px; */
+  height: 48px;
+  padding: 16px 22px 16px 22px !important;
+  border-radius: 50px;
+  border: 1px solid #ededed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #0a1126;
+  font-family: "Poppins";
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  cursor: pointer;
+}
+.view-add-btn{
+  display: flex;
+  gap: 8px;
+  
+}
+
+@media (max-width: 768px) {
+  .view-add-btn,.new-add-btn,.view-all-btn-div{
+    width: 100%;
+  }
+  .view-add-btn{
+    flex-wrap: wrap;
+  }
+  .drop-view-main,
+  .dropdown-view {
+    width: 100% !important;
+  }
+  /* .drop-view-div {
+    width: 100%;
+  } */
+  .Dash-body {
+    padding-top: 20px;
+    padding-left: 12px;
+  }
+  .org-card-r1 {
+    padding-left: 12px;
+  }
+  .contract-head {
+    font-size: 24px;
+    line-height: 29.52px;
+  }
+  .dropdown-view {
+    font-size: 12px !important;
+    line-height: 18px !important;
+    width: 91px !important;
+    padding: 11px 11.5px !important;
+    height: 30px !important;
+  }
+  .drop-view-main .dropdown-toggle::after {
+    content: url("/public/Images/Dashboard/chevron-right-mb.svg") !important;
+    margin-top: 2px;
+  }
+  .org-card-r1 {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .org-card-inner,
+  .org-card-inner2 {
+    width: 100%;
+  }
+  .create-contract-div {
+    padding: 30px;
+    padding-top: 42px;
+  }
+  .noproject-div {
+    padding: 30px;
+    padding-top: 42px;
+  }
+  .total-value-p {
+    font-size: 24px;
+    line-height: 29.52px;
+  }
+  .view-all-contain {
+    /* width: Hug (126px)px; */
+    height: 30px;
+    padding: 10px 22px 10px 22px !important;
+    border: 0.62px solid #ededed;
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .contract-r1 {
+    gap: 10px
+  }
+}

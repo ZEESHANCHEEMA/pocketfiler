@@ -1,0 +1,110 @@
+.request-pay-modal .modal-dialog {
+  max-width: 398px !important;
+}
+.request-pay-modal .modal-header {
+  border-radius: 20px 20px 0 0 !important;
+  border-bottom: none !important;
+  display: none !important;
+}
+.request-pay-modal .modal-body {
+  padding: 0px !important;
+  padding-top: 50px !important;
+
+  padding-bottom: 50px !important;
+}
+.request-pay-modal .modal-content {
+  border-radius: 20px !important;
+  height: 491px;
+}
+.email-sent-body {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.email-sent-head {
+  font-family: "ClashGrotesk";
+  font-size: 24px;
+  font-weight: 550;
+  line-height: 29.52px;
+  text-align: center;
+  color: #242a31;
+  padding-bottom: 16px !important;
+  padding-top: 40px !important;
+}
+
+.email-msg {
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400 !important;
+  line-height: 24px;
+  text-align: center;
+  color: #676666;
+}
+
+.email-span {
+  font-size: 16px;
+  font-weight: 500 !important;
+  color: #676666;
+  line-height: 24px;
+  font-family: "Poppins";
+}
+
+.btn-request-pay {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 338px !important;
+  height: 67px !important;
+  border: 1px solid #166fbf0a !important;
+  background: #0a1126 !important;
+  padding: 20px !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  color: #ffffff !important;
+  margin-top: 50px !important;
+}
+.btn-request-pay:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+}
+.top-pd {
+  padding-top: 40px !important;
+}
+@media (max-width: 768px) {
+  .request-pay-modal .modal-body {
+    padding: 61.5px 30px 61.5px 30px !important;
+  }
+  .btn-request-pay {
+    width: 100% !important;
+    margin-bottom: 0px !important;
+    font-size: 16px !important;
+    line-height: 24px !important;
+  }
+  .email-msg br {
+    display: none;
+  }
+  .request-pay-modal .modal-dialog {
+    max-width: 100% !important;
+  }
+  .email-sent-head {
+    padding-bottom: 25px !important;
+    font-size: 18px;
+    line-height: 22.14px;
+    text-align: center;
+  }
+  .email-msg {
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .email-span {
+    font-size: 14px;
+    line-height: 21px;
+  }
+}

@@ -1,0 +1,47 @@
+.disputing-bg__text p {
+  width: 76px;
+  height: 29px;
+  border-radius: 50px;
+  background-color: #fbeded;
+  /* font-family: Clash Grotesk Variable; */
+  font-size: 14px;
+  font-weight: 500;
+  /* line-height: 17.22px; */
+  /* text-align: center; */
+  color: #d32121;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.disputing__top-btn {
+  width: 176px;
+  height: 48px;
+  border-radius: 100px;
+  border: 1px solid #0a1126;
+  color: #0a1126;
+  background-color: #fff;
+  font-family: "Poppins";
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  text-align: center;
+  color: #0a1126;
+}
+.disputing__box{
+    display: flex;
+    justify-content: space-between;
+}
+.disputing__profiles{
+    position: relative;
+}
+.disputing__profiles1{
+    padding-right: 30px !important;
+}
+.disputing__profiles2{
+    position: absolute;
+    right: 80%;
+}
+.disputing__profiles3{
+    position: absolute;
+    right: 120%;
+}

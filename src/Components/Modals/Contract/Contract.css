@@ -1,0 +1,237 @@
+.contract-modal .modal-dialog {
+  max-width: 1078px;
+}
+.contract-modal .modal-header {
+  border-bottom: none !important;
+}
+.contract-modal .modal-content {
+  border-radius: 0px !important;
+}
+.contract-title-top {
+  display: flex;
+  /* justify-content: space-between !important; */
+  width: 100%;
+  border: none !important;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+
+.contract-name-head {
+  font-family: "ClashGrotesk";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  text-align: left;
+  color: #0a1126;
+  padding-bottom: 10px;
+}
+
+.contract-top {
+  margin-top: 20px;
+}
+
+.contract-btm {
+  padding-top: 36px;
+}
+.sign-edit {
+  display: flex;
+  align-items: center;
+  padding-bottom: 12px !important;
+  justify-content: space-between;
+}
+.Upload-sign-txt {
+  text-decoration: underline;
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #0a1126;
+  cursor: pointer;
+  /* border-bottom: 1px solid #D8D8D8 ; */
+}
+.sign-txt {
+  font-family: "Poppins";
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 27px;
+  color: #0a1126;
+  padding-top: 10px !important;
+  border-top: 1px solid #d8d8d8;
+  width: 228px;
+}
+.sign-date-contain {
+  display: flex;
+  justify-content: space-between;
+}
+.margin-btn-top {
+  padding: 60px 0px !important;
+}
+.save-contract-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 350px !important;
+  height: 67px !important;
+  border: 1px solid #166fbf0a !important;
+  background: #0a1126 !important;
+  padding: 20px !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  color: #ffffff !important;
+  margin-top: 60px !important;
+  margin-bottom: 40px !important;
+}
+.save-contract-btn:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+}
+.input-date {
+  padding: 0px !important;
+}
+.input-date::placeholder {
+  text-decoration: underline;
+  font-family: "Poppins";
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 24px !important;
+  color: #0a1126 !important;
+  padding-bottom: 12px !important;
+}
+/* .css-23p0if-MuiButtonBase-root-MuiPickersDay-root:not(.Mui-selected){
+    background-color: #1976d2 !important;
+    border: 1px solid #eaeaea !important;
+} */
+.css-1d3z3hw-MuiOutlinedInput-notchedOutline {
+  border: none !important;
+}
+
+.contract-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 30px;
+  border-top: 1px solid #c3c3c3;
+  padding-left: 80px;
+  padding-right: 80px;
+}
+
+.www-txt {
+  color: #0a1126;
+  font-size: 24px;
+  font-weight: 450;
+  line-height: 29.52px;
+  font-family: "ClashGrotesk";
+}
+
+.react-datepicker__input-container input:focus {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.pb-date {
+  padding-bottom: 12px !important;
+}
+.contract-title {
+  font-size: 24px;
+  font-weight: 550;
+  line-height: 29.52px;
+  color: #0a1126;
+  font-family: "ClashGrotesk";
+}
+.custom-datepicker {
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  cursor: pointer;
+  text-decoration: underline;
+  color: #0a1126;
+}
+.edit-icon-name {
+  cursor: pointer;
+}
+@media (max-width: 768px) {
+  .add-contract__input {
+    width: 100%;
+  }
+  .add-contract__input input {
+    width: 100% !important;
+  }
+  .sign-date-contain {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px;
+    width: 100%;
+  }
+  .sign-edit {
+    width: 100%;
+  }
+  .sign-txt {
+    width: 100%;
+  }
+  .sign-inner-contain {
+    width: 100%;
+  }
+  .pb-date {
+    justify-content: space-between;
+  }
+
+  .contract-modal .modal-header {
+    padding-top: 27px !important;
+    padding-left: 28px !important;
+    padding-right: 28px !important;
+  }
+  .contract-title {
+    font-size: 16px;
+    line-height: 19.68px;
+  }
+  .contract-btm {
+    padding-top: 36px;
+  }
+  .Upload-sign-txt,
+  .sign-txt {
+    font-size: 10px;
+    line-height: 15px;
+  }
+  .custom-datepicker {
+    font-family: "Poppins";
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 15px;
+  }
+
+  .save-contract-btn {
+    margin-top: 40px !important;
+    margin-bottom: 20px !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
+  }
+  .contract-footer {
+    padding-top: 10.3px;
+    padding-left: 27.46px;
+    padding-right: 27.46px;
+  }
+  .www-txt {
+    font-size: 8.24px;
+    font-weight: 450;
+    line-height: 10.13px;
+  }
+  .contract-logo {
+    width: 46.34px;
+    height: 19.91px;
+  }
+  .contract-modal .modal-body {
+    padding-top: 20px !important;
+    padding-bottom: 12.82px !important;
+  }
+}
+@media (max-width: 550px) {
+  .save-contract-btn {
+    width: 100% !important;
+  }
+}

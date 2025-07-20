@@ -1,0 +1,152 @@
+/* Call.css */
+.meet-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #1c1e29;
+  color: white;
+  padding: 20px;
+}
+
+.meeting-header {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2c2f3e;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.audio-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  width: 80%;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.audio-box {
+  width: 150px;
+  height: 150px;
+  background: #3c3f50;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  position: relative;
+}
+
+.user-name {
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #2c2f3e;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+.control-btn.on {
+  background: #28a745;
+}
+
+.control-btn.off {
+  background: #d9534f;
+}
+
+.control-btn.end {
+  background: #dc3545;
+}
+
+.sidebar {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  background: #2c2f3e;
+  padding: 15px;
+  border-radius: 10px;
+  width: 200px;
+}
+
+.participant-list {
+  margin-top: 10px;
+}
+
+.participant {
+  background: #3c3f50;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #3c3f50;
+  border-radius: 5px;
+  background-color: #2c2f3e;
+  position: relative;
+  height: 300px;
+}
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 5px;
+  z-index: 2;
+  background: #0a1126;
+}
+
+.user-info .user-name {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 3;
+}
+.user-info.user-info1 img {
+  border-radius: 100%;
+  width: 600px;
+  height: 600px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.user-info.user-info1 {
+  height: 600px;
+  width: 100%;
+  top: -50px;
+}

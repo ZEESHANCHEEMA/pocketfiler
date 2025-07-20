@@ -1,0 +1,365 @@
+p,
+h1,
+h2,
+h3,
+h4,
+h5 {
+  padding: 0px !important;
+  margin: 0px !important;
+}
+.login-main {
+  margin: 0px !important;
+  padding: 0px !important;
+  /* height: 100vh !important; */
+  /* min-height: 100% !important; */
+  overflow: hidden !important;
+}
+.main-inner {
+  height: 100%;
+}
+.row-login {
+  padding: 0px !important;
+  margin: 0px !important;
+}
+.login-col-lhs {
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+}
+.LHS-login {
+  /* padding-top: 96px !important; */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.RHS-login {
+  width: 100%;
+}
+.rhs-login-col {
+  padding: 0px !important;
+  margin: 0px !important;
+}
+.login-img-div {
+  width: 100%;
+}
+.login-rhs-img {
+  width: 100%;
+}
+
+.login-head {
+  font-size: 24px;
+  color: #0a1126;
+  font-family: "ClashGrotesk";
+  font-weight: 550;
+  line-height: 29.52px;
+  padding-top: 24px !important;
+}
+.login-subtxt {
+  font-family: Poppins;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #858585;
+  padding-top: 7px !important;
+  padding-bottom: 24px !important;
+}
+.common-label {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  color: #0a1126;
+  padding-bottom: 10px !important;
+  margin-bottom: 0px !important;
+}
+.label-diff {
+  padding-top: 20px;
+}
+.email-div {
+  position: relative;
+}
+.img-at {
+  position: absolute;
+  top: 67%;
+  left: 0px;
+  padding-left: 20px !important;
+  transform: translateY(-50%);
+}
+.email-input {
+  border: 1px solid #eaeaea !important;
+  border-radius: 12px !important;
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+  padding-left: 44px !important;
+  /* font-family: "Montserrat", sans-serif !important; */
+  width: 440px !important;
+  height: 64px;
+  position: relative;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 24px !important;
+  color: #0a1126 !important;
+}
+.email-input::placeholder {
+  /* font-family: Poppins; */
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 24px !important;
+  color: #afafaf !important;
+
+  /* text-align: left; */
+}
+.email-input-div :hover {
+  border: 1.5px solid #0161f033 !important;
+}
+
+.img-lock {
+  position: absolute;
+  top: 63%;
+  left: 20px;
+}
+
+.img-eye {
+  position: absolute !important;
+  top: 54%;
+  right: 20px;
+}
+
+.forgot-txt {
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 21px;
+  text-align: left;
+  padding-top: 8px !important;
+  padding-bottom: 24px !important;
+  cursor: pointer;
+  color: #0a1126;
+}
+.login-logo-div {
+  padding: 16px 0 !important;
+  border-bottom: 1px solid #eaeaea;
+  width: 440px;
+}
+
+.Login-btn {
+  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 440px;
+  height: 67px;
+  padding: 20px !important;
+  border-radius: 12px !important;
+  background: #0a1126 !important;
+  text-transform: capitalize !important;
+  /* font-family: Poppins; */
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  color: #ffffff !important;
+}
+
+.Login-btn:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+
+  /* transform: scale(1.05); */
+}
+.custom-hr {
+  border: 1px solid #eaeaea;
+  opacity: 1;
+  width: 360px;
+}
+
+.Or-div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-top: 24px !important;
+  padding-bottom: 25px !important;
+}
+
+.or-login-txt {
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 14.76px;
+  color: #0a1126;
+  font-family: "ClashGrotesk";
+}
+
+.options-login-div {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding-bottom: 50px !important;
+}
+.option-login {
+  border: 1px solid #eaeaeaae;
+  width: 216px;
+  height: 48px;
+  padding: 12px 59px 12px 59px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.dont-txt {
+  font-family: "ClashGroteskRegular";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 19.68px;
+  color: #0a1126;
+  padding-bottom: 20px !important;
+}
+.signup-span {
+  font-family: "ClashGrotesk";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  color: #0a1126;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.login-col-lhs::-webkit-scrollbar {
+  display: none;
+}
+@media (max-width: 1440px) {
+  .login-rhs-img {
+    height: 100vh;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .login-img-div {
+    height: 100%;
+  }
+}
+@media (max-width: 990px) {
+  .rhs-login-col {
+    display: none;
+  }
+  .LHS-login,
+  .email-div,
+  .email-input,
+  .login-col-lhs {
+    width: 100%;
+  }
+  .email-input {
+    width: 100% !important;
+  }
+  .Login-btn {
+    width: 100%;
+  }
+
+  .login-logo-div {
+    width: 100%;
+  }
+  .custom-hr {
+    width: 80%;
+  }
+  .or-login-txt {
+    width: 15%;
+  }
+  .LHS-login {
+    height: 100%;
+    padding-top: 0 !important;
+  }
+  .dont-txt {
+    padding-bottom: 40px !important;
+  }
+  .login-col-lhs {
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    padding-top: 68.5px !important;
+  }
+  .login-logo-div {
+    padding-bottom: 40px !important;
+  }
+  .login-head {
+    font-size: 18px;
+    line-height: 22.14px;
+  }
+  .login-subtxt {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+  }
+
+  .common-label {
+    font-size: 14px;
+    line-height: 17.22px;
+  }
+  .email-input {
+    padding-top: 22px !important ;
+    padding-bottom: 21px !important;
+    padding-left: 52px !important;
+  }
+  .email-input,
+  .email-input::placeholder {
+    font-size: 14px !important;
+    line-height: 21px !important;
+  }
+  .forgot-txt {
+    padding-top: 10px !important;
+    font-family: "Poppins";
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .Login-btn {
+    font-size: 16px !important;
+    line-height: 24px !important;
+  }
+  .or-login-txt {
+    font-size: 10px;
+    line-height: 12.3px;
+    /* width: 10%; */
+  }
+  /* .custom-hr {
+    width: 90%;
+  } */
+  .option-login {
+    width: 180px;
+  }
+  .dont-txt {
+    font-size: 14px;
+    line-height: 17.22px;
+    padding-bottom: 0px !important;
+  }
+  .signup-span {
+    font-size: 14px;
+    line-height: 17.22px;
+  }
+}
+
+@media (max-width: 576px) {
+  .custom-hr {
+    width: 80%;
+  }
+  .or-login-txt {
+    width: 20%;
+  }
+}
+
+@media (max-width: 400px) {
+  .options-login-div {
+    flex-wrap: wrap;
+  }
+
+  p.dont-txt {
+    padding-top: 0;
+    padding-bottom: 35px !important;
+  }
+}
+
+.email-input:focus {
+  border-color: none !important;
+  box-shadow: none !important;
+}

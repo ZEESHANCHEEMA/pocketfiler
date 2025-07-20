@@ -1,0 +1,46 @@
+.noproject-card {
+  width: 398px;
+  height: 281px;
+
+  padding: 40px 30px;
+  border-radius: 20px;
+  border: 1px solid #f4f4f4;
+
+  background: #ffffff;
+}
+
+.noproject-card2 {
+  width: 387px;
+  height: 150px;
+
+  padding: 40px 30px;
+  border-radius: 20px;
+  border: 1px solid #f4f4f4;
+
+  background: #ffffff;
+}
+
+.card-contract-head {
+  font-size: 24px;
+  font-weight: 550;
+  line-height: 29.52px;
+  text-align: center;
+  color: #0a1126;
+  padding-bottom: 16px !important;
+}
+
+.card-contract-sub {
+  font-family: Poppins;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: center;
+  color: #858585;
+}
+
+@media(max-width:768px)
+{
+  .noproject-card{
+    width: 100%;
+  }
+}

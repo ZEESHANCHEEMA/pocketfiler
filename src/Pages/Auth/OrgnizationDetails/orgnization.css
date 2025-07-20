@@ -1,0 +1,29 @@
+.LHS-organization{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.Organization-Submit-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 440px;
+    height: 67px;
+    padding: 20px !important;
+    border-radius: 12px !important;
+    background: #0a1126 !important;
+    text-transform: none !important;
+    font-family: "Poppins";
+  
+    font-size: 18px !important;
+    font-weight: 500 !important;
+    line-height: 27px !important;
+    color: #ffffff !important;
+    margin-top: 50px !important;
+  }
+  
+  .Organization-Submit-btn:hover {
+    border: 1px solid #0a1126 !important;
+    background-color: #ffffff !important;
+    color: #0a1126 !important;
+  }

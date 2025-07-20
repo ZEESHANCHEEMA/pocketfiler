@@ -1,0 +1,98 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 0;
+}
+.clients__top-txt {
+  padding-bottom: 28px !important;
+  font-family: "ClashGrotesk";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  text-align: left;
+  color: #606060;
+}
+.table-above-row-info1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.client__body__main {
+  background-color: #fff;
+  max-width: 100%;
+  border-radius: 20px;
+  margin-top: 35px;
+}
+
+@media (max-width: 768px) {
+  .client__body__main {
+    margin-top: 20px;
+  }
+  .clients__top-txt {
+    padding-bottom: 30px !important;
+  }
+  .empty__state-main{
+    padding-left: 12px;
+  }
+}
+
+.empty__state-main {
+  height: 80vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.empty__state {
+  width: 813px;
+  height: 571px;
+  border-radius: 20px;
+  border: 1px solid #f4f4f4;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* margin-top: 185.5px !important; */
+}
+.empty__state-head {
+  font-size: 36px;
+  font-weight: 550;
+  color: #242a31;
+  margin-top: 50px !important;
+  margin-bottom: 20px !important;
+  text-align: center;
+}
+.empty__state-p {
+  font-family: "Poppins";
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 40px;
+  text-align: center;
+  color: #676666;
+  max-width: 513px;
+}
+.empty__state-btn {
+  width: 338px;
+  height: 67px;
+  border-radius: 12px;
+  background-color: #0a1126;
+  font-family: "Poppins";
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 27px;
+  text-align: center;
+  color: #ffffff;
+  margin-top: 50px !important;
+  border: 1px solid #0a1126;
+}
+.empty__state-btn:hover {
+  background-color: transparent;
+  color: #0a1126;
+}

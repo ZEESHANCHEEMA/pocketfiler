@@ -1,0 +1,306 @@
+.contract-editor-modal .modal-dialog {
+  max-width: 1000px;
+}
+.contract-editor-modal {
+  backdrop-filter: blur(5px) !important;
+}
+.contract-editor-modal .modal-header {
+  border-bottom: none !important;
+  padding: 30px 30px 30px 30px !important;
+}
+.contract-editor-modal .modal-content {
+  border-radius: 20px !important;
+  /* height: 462px; */
+}
+.add-project__header {
+  display: flex;
+  justify-content: space-between !important;
+  width: 100%;
+  border: none !important;
+}
+
+.editor-title {
+  font-family: "ClashGrotesk";
+  font-size: 24px;
+  font-weight: 550;
+  line-height: 29.52px;
+  color: #0a1126;
+}
+
+.contract-editor-header {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.ql-toolbar.ql-snow {
+  background: #f8f9fb;
+  border: none !important;
+
+  padding: 17px 251px 17px 30px !important;
+  border-radius: 15px 15px 0px 0px;
+}
+.ql-picker-options {
+  background-color: #ffff !important;
+  border: none !important;
+  /* color: #fff !important ; */
+}
+.ql-container.ql-snow {
+  border: none !important;
+  border-bottom: 1px solid #e2e2e2 !important;
+}
+
+.ql-picker-options:hover {
+  /* background-color: #2f3033 !important; */
+}
+.ql-picker-label {
+  /* background-color: #2f3033 !important; */
+  border: none !important;
+  /* color: #fff !important; */
+}
+
+.ql-editor {
+  /* background-color: #2f3033 !important; */
+  border: none !important;
+  /* color: #fff !important; */
+}
+.ql-editor::before {
+  /* color: #fff !important; */
+}
+.ql-picker-item:hover {
+  background-color: #989fad !important;
+}
+.p-editor-container {
+  background-color: #ffffff !important;
+  border: none !important;
+  /* color: #fff !important; */
+}
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  font-size: 74px;
+  color: red !important; /* Adjust font size as needed */
+}
+
+/* .p-editor-toolbar.ql-toolbar {
+      border-bottom: 0.996px solid #2f3033 !important;
+    } */
+
+.add-contract__input {
+  display: flex;
+  flex-direction: column;
+}
+.contract-name-head {
+  font-family: "ClashGrotesk";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  text-align: left;
+  color: #0a1126;
+  padding-bottom: 10px;
+}
+.add-contract__input input {
+  width: 440px;
+  height: 64px;
+  border-radius: 12px;
+  border: 1px solid #eaeaea;
+  padding-left: 22px;
+}
+
+.add-project__main-btn {
+  width: 100%;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.add-contract__input input::placeholder {
+  color: #afafaf !important;
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.contract-top {
+  margin-top: 20px;
+}
+.btn-preview-div {
+  padding-top: 30px !important;
+}
+.btn-preview {
+  border-radius: 12px !important;
+  background-color: #0a1126 !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 21px !important;
+  text-align: center !important;
+  font-family: "Poppins" !important;
+  padding: 20px !important;
+  text-transform: none !important;
+  height: 67px !important;
+  max-height: 67px !important;
+  width: 350px !important;
+  cursor: pointer;
+}
+
+.btn-submit-txt {
+  border-radius: 12px !important;
+  background-color: #0a1126 !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 21px !important;
+  text-align: center !important;
+  font-family: "Poppins" !important;
+  padding: 9px 22px !important;
+  text-transform: none !important;
+  height: 39px !important;
+  max-height: 39px !important;
+  width: 95px !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.btn-submit-txt:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+}
+.btn-preview:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+}
+.btn-upload-contract {
+  border-radius: 12px !important;
+  border: 1px solid #0a1126 !important;
+  background-color: transparent !important;
+  color: #0a1126 !important;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  text-align: center !important;
+  font-family: "Poppins" !important;
+  /* padding: 14px 50px !important; */
+  text-transform: none !important;
+  height: 55px !important;
+  max-height: 55px !important;
+  width: 248px !important;
+  margin-bottom: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+}
+.btn-upload-contract:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #0a1126 !important;
+  color: #ffffff !important;
+}
+
+.chatgpt-div {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+.chatglt-chld {
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.input-app {
+  width: 85%;
+}
+.input-app::placeholder {
+  color: #858585;
+}
+.main-img-send {
+  position: absolute;
+  right: 3%;
+  top: 13%;
+  cursor: pointer;
+}
+.chat-input-box-area {
+  margin-top: 10px;
+  border: 1px solid #eaeaea;
+  width: 940px;
+  padding: 20px 10px 20px 20px;
+  border-radius: 12px;
+  position: relative;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.prompt-textarea {
+  /* width: 940px; */
+  /* height: 130px; */
+  /* border-radius: 12px; */
+  /* border: 1px solid #eaeaea; */
+  /* padding-left: 22px; */
+  /* padding-top: 20px; */
+  font-family: "ClashGrotesk";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  border: none !important;
+  width: 900px;
+  height: 250px;
+  resize: none !important;
+}
+.prompt-textarea::placeholder {
+  color: #858585;
+}
+.prompt-textarea:focus {
+  border: none !important;
+  outline: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .add-contract__input {
+    width: 100%;
+  }
+  .add-contract__input input {
+    width: 100% !important;
+  }
+  .contract-editor-modal .modal-header {
+    padding-top: 35px !important;
+    padding-bottom: 40px !important;
+  }
+  .editor-title {
+    font-size: 20px;
+    line-height: 24.6px;
+  }
+  .contract-editor-header {
+    align-items: flex-end;
+  }
+  .btn-preview {
+    width: 100% !important;
+  }
+  .chat-input-box-area {
+    width: 100%;
+  }
+  .prompt-textarea {
+    width: 100%;
+  }
+  .btn-clear-upload {
+    cursor: pointer;
+  }
+}

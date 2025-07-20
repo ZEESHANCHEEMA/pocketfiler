@@ -1,0 +1,146 @@
+.contract-rhs {
+  display: flex;
+  gap: 5px;
+}
+.add-btn-contract {
+  /* width: 143px !important;
+  height: 48px !important; */
+  border-radius: 100px !important;
+  background-color: #0a1126 !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 21px !important;
+  text-align: center !important;
+  font-family: "Poppins" !important;
+  padding: 13.5px 25px !important;
+  text-transform: none !important;
+  /* height: 48px !important; */
+  max-height: 48px !important;
+  border: 1px solid #0a1126 !important;
+}
+.add-btn-contract:hover {
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+  /* height: 48px !important; */
+}
+
+.search-input-contract {
+  /* padding: 11px 11px 15px 16px; */
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 22.4px !important;
+  letter-spacing: 0.005em;
+  border: 1px solid #ededed;
+  border-radius: 50px;
+  width: 263px;
+  height: 48px;
+  padding-left: 50px;
+  /* background-color: #fafafa !important; */
+  font-family: "Poppins" !important;
+  background-color: #fafafa;
+}
+/* .search-input-contract input[type="text"]:not(:focus) {
+  background-color: #fafafa !important;
+} */
+
+.year-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 32px;
+  font-size: 16px;
+  color: #333;
+}
+
+.year-display .calendar-icon {
+  width: 20px;
+  height: 20px;
+}
+.search-input-contract::placeholder {
+  font-family: "Poppins";
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 21px !important;
+
+  /* background: #fafafa !important; */
+  background: transparent !important;
+  color: #c5c5c5 !important;
+}
+
+.total-contracts-txt {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  padding-top: 20px !important;
+  padding-bottom: 28px !important;
+  color: #606060;
+  font-family: "ClashGrotesk";
+}
+
+.pb-allcontract {
+  padding-bottom: 35px !important;
+}
+
+@media (max-width: 978px) {
+  .contract-r1 {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .Add-con-btn-div {
+    width: 100% !important;
+  }
+  /* 
+  .contract-rhs {
+    flex-wrap: wrap;
+    gap: 12px;
+  } */
+  .contract-r1 {
+    /* justify-content: center; */
+    /* flex-direction: column; */
+    /* gap: 12px; */
+  }
+  .dropdown-week span {
+    display: none;
+  }
+  .calendar-dropimg {
+    width: 13.09px;
+    height: 13.09px;
+  }
+  .add-btn-contract {
+    height: 34px !important;
+    border-radius: 30px !important;
+    padding: 8px 15px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 18px !important;
+    /* width: 107px !important; */
+    max-height: 34px !important;
+  }
+  .search-mb-contain {
+    display: flex;
+    gap: 10px;
+  }
+  .search-input-contract {
+    height: 34px !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+  .search-input-contract {
+    padding-left: 35px !important;
+  }
+  .search-icon-allcontract {
+    left: 12px !important;
+    /* top: 60%; */
+  }
+}
+
+@media (max-width: 576px) {
+  /* .contract-rhs{
+    flex-wrap: wrap;
+  } */
+}

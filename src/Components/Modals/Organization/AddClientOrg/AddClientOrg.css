@@ -1,0 +1,239 @@
+.add-client-org-modal .modal-dialog {
+  max-width: 580px;
+}
+.add-client-org-modal {
+  backdrop-filter: blur(5px) !important;
+}
+.add-client-org-modal .modal-header {
+  border-bottom: none !important;
+}
+.add-client-org-modal .modal-content {
+  border-radius: 20px !important;
+}
+.add-project__header {
+  display: flex;
+  justify-content: space-between !important;
+  width: 100%;
+  border: none !important;
+}
+.add-contract-m-heading h6 {
+  font-family: "ClashGrotesk";
+  font-size: 24px;
+  font-weight: 550;
+  line-height: 29.52px;
+  text-align: left;
+  color: #0a1126;
+  padding-bottom: 7px;
+}
+.add-contract-m-heading p {
+  font-family: Poppins;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  text-align: left;
+  color: #858585;
+}
+.add-contract__input {
+  display: flex;
+  flex-direction: column;
+}
+.contract-name-head {
+  font-family: "ClashGrotesk";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  text-align: left;
+  color: #0a1126;
+  padding-bottom: 10px;
+}
+.mt-contract-name{
+  padding-top: 20px;
+}
+.add-contract__input input {
+  width: 440px;
+  height: 64px;
+  border-radius: 12px;
+  border: 1px solid #eaeaea;
+  padding-left: 22px;
+}
+
+.add-contract__input input::placeholder {
+  color: #afafaf !important;
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.contract-top {
+  margin-top: 20px;
+}
+.continue-add-btn {
+  width: 440px !important;
+  height: 67px !important;
+  border: 1px solid #166fbf0a !important;
+  background: #0a1126 !important;
+  padding: 20px !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  color: #ffffff !important;
+  margin-top: 50px !important;
+  font-family: "ClashGrotesk";
+  /* margin-bottom: 60px !important; */
+}
+
+.continue-add-btn:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+}
+.custom-hr-org {
+  border: 1px solid #eaeaea;
+  opacity: 1;
+  width: 72%;
+}
+
+.Or-div-org {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-top: 30px !important;
+  padding-bottom: 30px !important;
+}
+
+.or-add-client {
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 14.76px;
+  color: #0a1126;
+  font-family: "ClashGrotesk";
+}
+.drop-main-org{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.drop-add-client-org {
+  display: flex;
+  align-items: center;
+}
+
+/* .drop-add-client-org .dropdown-toggle::after {
+  background-repeat: no-repeat !important;
+  border: none !important;
+  content: url("/public/Images/Dashboard/chevron-right.svg") !important;
+  vertical-align: middle !important;
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+} */
+.dropdown-add-client-org {
+  width: 440px !important;
+  height: 64px !important;
+  border-radius: 12px !important;
+  border: 1px solid #eaeaea !important;
+  background: transparent !important;
+  display: flex !important;
+  padding: 20px 22px 20px 22px !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
+  color: #858585 !important;
+  font-size: 16px !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  line-height: 24px !important;
+  /* 22.4px */
+}
+.top-space{
+    padding-top: 20px;
+}
+
+.dropdown-add-client-org2 {
+  width: 100% !important;
+    /* width: 384px !important; */
+    height: 64px !important;
+    border-radius: 12px !important;
+    border: 1px solid #eaeaea !important;
+    background: transparent !important;
+    display: flex !important;
+    padding: 20px 22px 20px 22px !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+    color: #0a1126 !important;
+    font-size: 16px !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    line-height: 24px !important;
+    /* 22.4px */
+  }
+.drop-add-client-org .dropdown-menu.show {
+  width: 100%;
+}
+
+.add-m-clients {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 20px;
+  cursor: pointer;
+}
+.add-m-txt {
+  font-family: "ClashGrotesk";
+  color: #0a1126;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  cursor: pointer;
+}
+.add-cli-inner{
+  overflow: auto;
+  max-height: 280px;
+  
+}
+.add-cli-inner::-webkit-scrollbar {
+  display: none;
+}
+@media (max-width: 768px) {
+  .add-contract__input {
+    width: 100%;
+  }
+  .add-contract__input input {
+    width: 100% !important;
+  }
+  .add-contract-close {
+    display: flex;
+    align-items: flex-end;
+    justify-content: end;
+  }
+  .add-contract-header {
+    flex-direction: column-reverse;
+    gap: 11px;
+  }
+  .add-contract-m-heading h6 {
+    font-size: 20px;
+    line-height: 24.6px;
+  }
+  .add-contract-m-heading p {
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .add-client-org-modal .modal-header {
+    padding: 35px 30px 0px 30px !important;
+  }
+  .add-client-org-modal .modal-body {
+    padding: 40px 30px 70px 30px !important;
+  }
+  .contract-name-head {
+    font-size: 14px !important;
+    line-height: 17.22px !important;
+  }
+  .continue-add-btn {
+    width: 100% !important;
+    margin-top: 40px !important;
+  }
+}

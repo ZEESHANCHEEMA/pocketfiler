@@ -1,0 +1,34 @@
+{
+  "files": {
+    "main.css": "/static/css/main.3997f5e4.css",
+    "main.js": "/static/js/main.6d460f45.js",
+    "static/js/453.6324694e.chunk.js": "/static/js/453.6324694e.chunk.js",
+    "static/media/login-bg.svg": "/static/media/login-bg.8769814f5b0285e8e4c6.svg",
+    "static/media/Poppins-Regular.ttf": "/static/media/Poppins-Regular.35d26b781dc5fda684cc.ttf",
+    "static/media/bg.png": "/static/media/bg.5d685645c345a9334b79.png",
+    "static/media/ClashGrotesk-Medium.ttf": "/static/media/ClashGrotesk-Medium.b069c91b9e31d834f2d9.ttf",
+    "static/media/ClashGrotesk-Regular.ttf": "/static/media/ClashGrotesk-Regular.4a7d0a7e0185e0218b72.ttf",
+    "static/media/drive.svg": "/static/media/drive.e3103316ad09045f4f7a.svg",
+    "static/media/noproject.png": "/static/media/noproject.a7808ef38a86c07402dd.png",
+    "static/media/notification_sound.mp3": "/static/media/notification_sound.5f1fee46481f6a9e2585.mp3",
+    "static/media/dropbox.svg": "/static/media/dropbox.19c51bc3194e83e91f66.svg",
+    "static/media/message-notification-190034.mp3": "/static/media/message-notification-190034.f56e4409b24785ef45aa.mp3",
+    "static/media/cloud.svg": "/static/media/cloud.6475564451992fd4765a.svg",
+    "static/media/phone-call-01.svg": "/static/media/phone-call-01.d0b7eeaf21ae653633ea.svg",
+    "static/media/at-sign.svg": "/static/media/at-sign.86355d0656bc9dfaa006.svg",
+    "static/media/device.svg": "/static/media/device.252a477aa650c693bca1.svg",
+    "static/media/lock-01.svg": "/static/media/lock-01.d141fe470d8dcc3cc563.svg",
+    "static/media/orgnization.svg": "/static/media/orgnization.489adc294ea619f3d63c.svg",
+    "index.html": "/index.html",
+    "static/media/user-03.svg": "/static/media/user-03.a1eff66856999cb1408d.svg",
+    "static/media/chevron-right-mb.svg": "/static/media/chevron-right-mb.ae85d1a2980f11492288.svg",
+    "static/media/chevron-right.svg": "/static/media/chevron-right.64a5a4713c2b892dace8.svg",
+    "main.3997f5e4.css.map": "/static/css/main.3997f5e4.css.map",
+    "main.6d460f45.js.map": "/static/js/main.6d460f45.js.map",
+    "453.6324694e.chunk.js.map": "/static/js/453.6324694e.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3997f5e4.css",
+    "static/js/main.6d460f45.js"
+  ]
+}

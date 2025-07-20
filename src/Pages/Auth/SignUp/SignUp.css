@@ -1,0 +1,205 @@
+.signup-col-lhs {
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100vh !important;
+  overflow-y: auto !important;
+}
+.signup-col-lhs::-webkit-scrollbar {
+  display: none;
+}
+.LHS-signup {
+  padding-top: 20px !important;
+  height: 100%;
+}
+
+.switch-main {
+  display: flex;
+  align-items: center;
+  background: #f9f9f9;
+  width: 342px;
+  height: 49px;
+  padding: 5px;
+  gap: 2px;
+  border-radius: 15px;
+  margin-top: 50px;
+}
+.btn-user {
+  cursor: pointer;
+  width: 137px;
+  height: 39px;
+  font-family: "ClashGrotesk";
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  color: #808080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-org {
+  cursor: pointer;
+  width: 193px;
+  height: 39px;
+  font-family: "ClashGrotesk";
+
+  /* padding: 14px 20px; */
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  color: #808080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-active {
+  cursor: pointer;
+  background: #ffffff;
+  width: 137px;
+  height: 39px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "ClashGrotesk";
+
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  color: #166fbf;
+}
+.btn-active-org {
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  width: 193px;
+  height: 39px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "ClashGrotesk";
+  /* padding: 14px 20px; */
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  color: #166fbf;
+}
+.signup-img-at {
+  position: absolute;
+  top: 62%;
+  left: 0px;
+  padding-left: 20px !important;
+}
+.img-org {
+  position: absolute;
+  top: 64%;
+  left: 0px;
+  padding-left: 20px !important;
+}
+.option-signup {
+  border: 1px solid #eaeaeaae;
+  width: 216px;
+  height: 48px;
+  padding: 12px 96px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-top {
+  margin-top: 50px !important;
+}
+.btn-top:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+
+  /* transform: scale(1.05); */
+}
+
+.account-img-lock {
+  position: absolute;
+  top: 62.5%;
+  left: 20px;
+}
+.options-signup-div {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding-bottom: 50px !important;
+  cursor: pointer;
+}
+.already-txt {
+  font-family: "ClashGroteskRegular";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 19.68px;
+  color: #0a1126;
+  padding-bottom: 20px !important;
+}
+.checkbox-top {
+  padding-top: 20px;
+}
+.checkbox-top label {
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #0a1126;
+}
+@media (max-width: 990px) {
+  .LHS-signup {
+    width: 100%;
+    height: 100%;
+    padding-top: 0px !important;
+  }
+  .switch-main,
+  .btn-user,
+  .btn-active,
+  .btn-active-org,
+  .btn-org {
+    width: 100%;
+  }
+  .option-signup {
+    width: 100%;
+  }
+  .signup-col-lhs {
+    width: 100%;
+
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    padding-top: 61.5px !important;
+    padding-bottom: 61.5px !important;
+  }
+  .img-org {
+    top: 62%;
+  }
+  .checkbox-top label {
+    font-size: 14px;
+    line-height: 21px;
+  }
+}
+@media (max-width: 576px) {
+  .options-signup-div {
+    flex-wrap: wrap;
+  }
+  /* .option-signup{
+    width: 180px;
+  } */
+  
+}
+.Login-btn:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+
+  /* transform: scale(1.05); */
+}
+

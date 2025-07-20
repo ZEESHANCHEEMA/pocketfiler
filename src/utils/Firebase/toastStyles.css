@@ -1,0 +1,8 @@
+.custom-toast {
+  background: rgba(0, 0, 0, 0.3) !important; /* Translucent dark background */
+  color: white !important; /* Ensure text is readable */
+  backdrop-filter: blur(10px); /* Blur effect for a frosted glass look */
+  border-radius: 10px; /* Rounded corners */
+  padding: 10px 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}

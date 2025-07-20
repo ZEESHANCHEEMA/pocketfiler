@@ -1,0 +1,32 @@
+
+.status-txt-progress {
+  border-radius: 50px;
+  background: #d3212114;
+
+  display: flex;
+  padding: 15px 18px;
+  justify-content: center;
+  align-items: center;
+  width: max-content;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.22px;
+  text-align: left;
+  width: 111px;
+  height: 39px;
+}
+.status-txt-compl {
+  border-radius: 50px;
+  background: #f1f6fb;
+  display: flex;
+  padding: 15px 18px;
+  justify-content: center;
+  align-items: center;
+  width: max-content;
+  width: 105px;
+  height: 39px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17.22px;
+  text-align: left;
+}

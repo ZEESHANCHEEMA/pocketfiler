@@ -1,0 +1,388 @@
+.profit-table {
+  width: 100%;
+}
+
+.profittable__main {
+  background-color: #fff;
+  max-width: 100%;
+  /* height: 100%; */
+  border-radius: 20px;
+  margin-top: 35px;
+  /* margin-right: 80px; */
+}
+.profit-table__main-data {
+  margin: 30px !important;
+}
+
+.projecttable__main-headingbtn button {
+  width: 140px;
+  height: 48px;
+  border-radius: 100px;
+  background-color: #0a1126;
+  color: #fff;
+  font-family: Poppins;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  text-align: center;
+  font-family: "Poppins" !important;
+}
+.projecttable__main-headingbtn button:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+}
+
+.column-head {
+  font-family: "ClashGrotesk";
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 17.22px;
+  text-align: left;
+  color: #0a1126 !important;
+  letter-spacing: 1px;
+}
+
+.user-heading {
+  font-family: "ClashGrotesk";
+  font-size: 24px !important;
+  font-weight: 500 !important;
+  line-height: 44.28px !important;
+  text-align: left;
+  color: #0a1126;
+  letter-spacing: 1px;
+}
+
+.search-input-icon {
+  position: relative;
+}
+.search-input-icon img {
+  width: 16px;
+  height: 16px;
+}
+.search-input-icon input::placeholder {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22.4px;
+  letter-spacing: 0.005em;
+  color: #667085 !important;
+  background-color: #fafafa !important;
+}
+.search-bar {
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  /* padding: 11px 11px 15px 16px; */
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22.4px;
+  letter-spacing: 0.005em;
+  border: 1px solid #ededed;
+  border-radius: 50px;
+  width: 263px;
+  height: 48px;
+  padding-left: 50px;
+  background-color: #fafafa;
+}
+.table-above-row-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 25px;
+}
+.table-main-head-info {
+  display: flex;
+  align-items: center;
+  gap: 82px;
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  top: 50% !important;
+}
+
+.search-icon:hover {
+  stroke: #007bff; /* Change the color on hover */
+}
+
+#dropdown-basic {
+  width: 163px;
+  height: 48px;
+  background-color: #fff !important;
+  border-radius: 50px !important;
+  color: #0a1126 !important;
+}
+.dropdown-week {
+  border-radius: 8px !important;
+  border: 1px solid var(--grey-100-primary-outline-color, #f0f1f3) !important;
+  background: var(--Black-0---Primary, #fff) !important;
+  display: flex !important;
+  padding: 14px 20px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: var(--Grey-500---Primary, #667085) !important;
+  font-size: 14px !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  line-height: 160% !important;
+  /* 22.4px */
+}
+.dropdown__menu {
+  border-radius: 8px !important;
+  border: 1px solid var(--grey-100-primary-outline-color, #f0f1f3) !important;
+  background: var(--Black-0---Primary, #fff) !important;
+  display: flex !important;
+  padding: 14px 20px !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: var(--Grey-500---Primary, #667085) !important;
+  font-size: 14px !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  line-height: 160% !important;
+  margin-bottom: 15px;
+}
+.dropdown__text {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
+.dropdown__text:hover {
+  background-color: #fff !important;
+}
+
+.dropdown__text p {
+  border: 0.5px solid #e2e2e2;
+  border-radius: 10px;
+  width: 100% !important;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+.dropdown__text p:hover {
+  /* background-color: #0f68ff !important; */
+  color: #fff !important;
+}
+.projecttable__main-head {
+  display: flex;
+  gap: 5px;
+}
+
+.columns-name {
+  border-bottom: none !important;
+  background: var(--grey-0-primary-screen-color, #f8f9fb);
+}
+
+.page-table__pagenation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 35px;
+}
+
+.MuiPaginationItem-root {
+  font-family: Poppins !important;
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  line-height: 27px !important;
+  /* color: #9CA3AF !important; */
+}
+
+.MuiPaginationItem-root.Mui-selected {
+  background-color: #f0f0f0; /* Change background color of selected number */
+}
+
+.MuiPaginationItem-icon {
+  border: 1px solid #0a1126;
+  border-radius: 50px;
+  color: #0a1126 !important;
+
+  /* padding: 20px; */
+}
+
+@media (max-width: 1220px) {
+  .profittable__main {
+    margin-right: 5px;
+  }
+}
+
+/* to add a project */
+.Add-project {
+  background-color: #fff;
+  width: 100%;
+  /* height: 100vh; */
+  border-radius: 20px;
+  margin-top: 50px;
+  margin-right: 80px;
+}
+.add-project__value {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 90px;
+}
+.add-project__value img {
+  width: 80px;
+  height: 80px;
+}
+.add-project__value h6 {
+  font-family: "ClashGrotesk";
+  font-size: 36px !important;
+  font-weight: 550 !important;
+  line-height: 44.28px !important;
+  text-align: center;
+  margin-top: 50px;
+  color: #242a31;
+  letter-spacing: 1px;
+}
+.add-project__value p {
+  font-family: "Poppins";
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 40px;
+  text-align: center;
+  color: #676666;
+  margin-top: 20px !important;
+  margin-bottom: 50px !important;
+}
+.add-project__value button {
+  width: 338px;
+  height: 67px;
+  border-radius: 12px;
+  background-color: #0a1126;
+  font-family: "Poppins" !important;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 27px;
+  text-align: center;
+  color: #fff;
+  margin-bottom: 90px;
+}
+.status__text {
+  padding-top: 8px !important;
+}
+.add-project__value button:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+}
+
+@media (max-width: 768px) {
+  .profit-table {
+    padding-left: 12px;
+  }
+  .drop-week .dropdown-menu.show {
+    width: 100% !important;
+  }
+  .drop-week .dropdown-menu {
+    width: 100% !important;
+  }
+  /* #dropdown-basic {
+    width: 100% !important;
+  } */
+  .dropdown-week {
+    width: 34px !important;
+    height: 34px !important;
+    padding: 13.08px 17px 13.08px 17px !important;
+    gap: 9.15px;
+    border-radius: 39.23px !important;
+    border: 0.82px 0px 0px 0px;
+    opacity: 0px;
+  }
+  .drop-week .dropdown-toggle::after {
+    display: none;
+  }
+  /* .dropdown-menu.show{
+    width: 100%;
+  } */
+  .MuiPaginationItem-root {
+    font-size: 12px !important;
+  }
+
+  .Add-project {
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-right: 0;
+    border: 1px solid #f4f4f4;
+    margin-top: 0px;
+  }
+  .add-project__value {
+    padding-top: 40px;
+  }
+  .add-project__value img {
+    width: 60px;
+    height: 60px;
+  }
+  .add-project__value h6 {
+    margin-top: 30px;
+    font-size: 20px !important;
+    line-height: 24.6px !important;
+    margin-bottom: 0px;
+  }
+  .add-project__value p {
+    margin-top: 16px !important;
+    font-size: 12px;
+    line-height: 18px;
+    margin-bottom: 30px !important;
+  }
+  .add-project__value button {
+    margin-bottom: 40px;
+    width: 100%;
+    height: 64px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .Add-project-main {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 12px;
+  }
+  .Add-project-inner {
+    background: #ffffffb2;
+    padding: 30px;
+    border-radius: 20px;
+    width: 100%;
+  }
+
+  .profittable__main {
+    margin-top: 25px;
+  }
+  .projecttable__main-headingbtn {
+    width: 100%;
+  }
+  .projecttable__main-headingbtn button {
+    height: 34px !important;
+    border-radius: 30px !important;
+    padding: 8px 15px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 18px !important;
+    /* width: 107px !important; */
+    max-height: 34px !important;
+  }
+  .user-heading {
+    font-size: 20px !important;
+    line-height: 24.6px !important;
+  }
+  .table-above-row-info {
+    flex-wrap: wrap;
+    padding-bottom: 0px;
+    gap: 10px;
+  }
+  .project-table-container {
+    margin-top: 10px;
+  }
+}

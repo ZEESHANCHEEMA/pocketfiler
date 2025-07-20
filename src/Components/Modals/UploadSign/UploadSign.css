@@ -1,0 +1,164 @@
+.upload-sign-modal .modal-dialog {
+  max-width: 580px;
+}
+.picker-framepane-root {
+  z-index: 1800 !important; /* Adjust the value as needed */
+}
+.picker-dialog-bg {
+  z-index: 20000 !important;
+}
+
+.picker-dialog {
+  z-index: 20001 !important;
+}
+.upload-sign-modal {
+  backdrop-filter: blur(5px) !important;
+}
+.upload-sign-modal .modal-header {
+  border-bottom: none !important;
+}
+.upload-sign-modal .modal-content {
+  border-radius: 20px !important;
+  /* height: 597px; */
+}
+
+.add-contract__input {
+  display: flex;
+  flex-direction: column;
+}
+.previewImage {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+  padding: 10px;
+  border-radius: 8px;
+  display: inline-block;
+}
+.previewImageStyle {
+  height: 200px;
+  width: 100%;
+  object-fit: contain;
+}
+.contract-name-head {
+  font-family: "ClashGrotesk";
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 19.68px;
+  text-align: left;
+  color: #0a1126;
+  padding-bottom: 10px;
+}
+.add-contract__input input {
+  width: 440px;
+  height: 64px;
+  border-radius: 12px;
+  border: 1px solid #eaeaea;
+  padding-left: 22px;
+}
+
+.add-project__main-btn {
+  width: 100%;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.add-contract__input input::placeholder {
+  color: #afafaf !important;
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.contract-top {
+  margin-top: 20px;
+}
+
+.upload-option {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid #eaeaea;
+  background-color: #ffffff;
+  padding: 15px 0px 15px 20px;
+  border-radius: 12px;
+  height: 64px;
+  cursor: pointer;
+}
+
+.option-name {
+  font-family: "Poppins";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #0a1126;
+}
+.pt-option {
+  margin-top: 8px;
+  margin-bottom: 8px;
+
+  
+}
+
+.btn-save-sign {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 67px !important;
+  border: 1px solid #166fbf0a !important;
+  background: #0a1126 !important;
+  padding: 20px !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  color: #ffffff !important;
+  margin-top: 50px !important;
+}
+.btn-save-sign:hover {
+  border: 1px solid #0a1126 !important;
+  background-color: #ffffff !important;
+  color: #0a1126 !important;
+}
+
+@media (max-width: 768px) {
+  .upload-sign-modal .modal-dialog {
+    max-width: 100%;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  .upload-header {
+    flex-direction: column-reverse;
+    gap: 11px;
+  }
+  .upload-sign-modal .modal-header {
+    padding-top: 35px !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+  }
+  .upload-sign-modal .modal-body {
+    padding-top: 40px !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    padding-bottom: 70px !important;
+  }
+  .upload-option {
+    padding: 17px 0 17px 22px !important;
+  }
+  .upload-img {
+    width: 30px;
+    height: 30px;
+  }
+  .upload-sign-heading {
+    font-size: 20px !important;
+    font-weight: 550 !important;
+    line-height: 24.6px !important;
+  }
+  .btn-save-sign {
+    font-size: 16px !important;
+    line-height: 24px !important;
+    margin-top: 40px !important;
+  }
+}

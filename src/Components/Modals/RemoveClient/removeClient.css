@@ -1,0 +1,47 @@
+.btn-awesome-client {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 338px !important;
+  height: 67px !important;
+  border: 1px solid #166fbf0a !important;
+  background: #0a1126 !important;
+  padding: 20px !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  color: #ffffff !important;
+  margin-top: 35px !important;
+  /* margin-bottom: 40px !important; */
+}
+.btn-awesome-client1 {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 338px !important;
+  height: 67px !important;
+  border: 1px solid #0a1126 !important;
+  background: #ffffff !important;
+  padding: 20px !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+  font-size: 18px !important;
+  font-weight: 500 !important;
+  line-height: 27px !important;
+  color: #0a1126 !important;
+  margin-top: 5px !important;
+  margin-bottom: 35px !important;
+}
+@media (max-width: 440px) {
+  .btn-awesome-client {
+    width: 100% !important;
+  }
+  .btn-awesome-client1 {
+    width: 100% !important;
+  }
+}
+.email-sent-body {
+  padding: 16px;
+}
