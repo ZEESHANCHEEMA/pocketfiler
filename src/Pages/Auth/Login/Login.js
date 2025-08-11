@@ -9,8 +9,9 @@ import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useLinkedIn } from "react-linkedin-login-oauth2";
 import { ErrorToast, SuccessToast } from "../../../Components/toast/Toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { LinkdinAuth, signin } from "../../../services/redux/middleware/signin";
+import { clearError } from "../../../services/redux/reducer/authSlice";
 import ScreenLoader from "../../../Components/loader/ScreenLoader";
 import { debounce } from "lodash";
 
@@ -18,6 +19,9 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
+  
+  // Get auth state from Redux
+  const { error } = useSelector(state => state.auth);
 
   const input1 = "/Images/Auth/at-sign1.svg";
   const input2 = "/Images/Auth/Icon.svg";
@@ -27,6 +31,14 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  // Handle auth errors
+  React.useEffect(() => {
+    if (error) {
+      ErrorToast(error);
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => {

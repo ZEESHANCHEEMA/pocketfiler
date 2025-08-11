@@ -2,9 +2,9 @@ import Button from "@mui/material/Button";
 import Modal from "react-bootstrap/Modal";
 import "./AddContract.css";
 import * as React from "react";
-import ContractEditor from "../ContractEditor/ContractEditor";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { setContract } from "../../../services/redux/reducer/addcontract";
 import { SuccessToast, ErrorToast } from "../../toast/Toast";
 import Contract from "../Contract/Contract";
@@ -12,6 +12,7 @@ import { getContract } from "../../../services/redux/middleware/getContract";
 
 export default function AddContract(props) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [modalShow, setModalShow] = useState(false);
   const [modalPreview, setModalPreview] = useState(false);
   const [contractName, setContractName] = useState("");
@@ -48,7 +49,9 @@ export default function AddContract(props) {
     // SuccessToast("Contract Added Successfully");
 
     if (props?.showpreview) {
-      setModalShow(true);
+      // Navigate to the new contract editor page
+      props.onHide(); // Close the current modal
+      navigate("/ContractEditor");
     } else {
       setModalPreview(true);
       setModalShow(false);
@@ -56,6 +59,7 @@ export default function AddContract(props) {
     }
     // props.onHide();
   };
+
   const contract = useSelector((state) => state?.addcontract);
   console.log("contract is", contract);
 
@@ -139,11 +143,6 @@ export default function AddContract(props) {
           </div>
         </Modal.Body>
       </Modal>
-      <ContractEditor
-        show={modalShow}
-        onHide={() => setModalShow(false)}
-        setModalShow={props?.setModalShow}
-      />
       <Contract
         show={modalPreview}
         onHide={() => setModalPreview(false)}

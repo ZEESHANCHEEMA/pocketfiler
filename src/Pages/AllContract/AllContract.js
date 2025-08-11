@@ -118,7 +118,7 @@ export default function AllContract() {
                 <input
                   type="text"
                   placeholder="Search contracts..."
-                  className="search-input-contract"
+                  className="search-input-contract "
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>

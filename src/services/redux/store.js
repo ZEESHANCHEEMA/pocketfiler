@@ -32,6 +32,8 @@ import getTotalcount from "./reducer/getTotalcount";
 import getSubscription from "./reducer/getSubscription";
 import getNotification from "./reducer/getNotification";
 import getLatestProjCon from "./reducer/getLatestProjCon";
+import authReducer from './reducer/authSlice';
+import contractTemplates from './reducer/contractTemplates';
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -68,6 +70,8 @@ const appReducer = combineReducers({
   getSubscription,
   getNotification,
   getLatestProjCon,
+  auth: authReducer, // Add the new auth reducer
+  contractTemplates, // Add the contract templates reducer
 });
 
 // Reset state when RESET_STORE is dispatched
@@ -81,4 +85,10 @@ const rootReducer = (state, action) => {
 // Configure store with rootReducer
 export const store = configureStore({
   reducer: rootReducer,
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST'],
+      },
+    }),
 });

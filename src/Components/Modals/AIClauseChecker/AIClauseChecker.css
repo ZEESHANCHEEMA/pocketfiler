@@ -1,0 +1,275 @@
+.ai-clause-checker-modal .modal-content {
+  border-radius: 12px;
+  border: 2px solid #007bff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.ai-clause-checker-modal .modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 20px 30px;
+}
+
+.ai-clause-checker-modal .modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.ai-clause-checker-modal .modal-body {
+  padding: 30px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.contract-content-container {
+  position: relative;
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.contract-content {
+  font-size: 14px;
+  line-height: 1.8;
+  background-color: #fff;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.highlighted-text {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.highlighted-text:hover {
+  background-color: #ffcdd2;
+}
+
+/* Tooltip Styles */
+.ai-tooltip {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 15px;
+  min-width: 250px;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tooltip-icon {
+  color: #007bff;
+  font-size: 12px;
+}
+
+.tooltip-type {
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.tooltip-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.original-text {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.suggestion-arrow {
+  color: #666;
+  font-size: 14px;
+}
+
+.suggestion-text {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.tooltip-pointer {
+  position: absolute;
+  bottom: -8px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid white;
+}
+
+.tooltip-pointer::before {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #ddd;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Suggestions Panel */
+.suggestions-panel {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.suggestions-panel h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.suggestions-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #fff;
+}
+
+.suggestion-item:hover {
+  background-color: #f8f9fa;
+  border-color: #007bff;
+}
+
+.suggestion-item.active {
+  background-color: #e3f2fd;
+  border-color: #007bff;
+}
+
+.suggestion-type {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.suggestion-original {
+  color: #d32f2f;
+  font-weight: 500;
+  flex: 1;
+}
+
+.suggestion-arrow {
+  color: #666;
+  font-size: 12px;
+}
+
+.suggestion-corrected {
+  color: #1976d2;
+  font-weight: 500;
+  flex: 1;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ai-clause-checker-modal .modal-body {
+    padding: 20px;
+    max-height: 60vh;
+  }
+  
+  .ai-clause-checker-modal .modal-header {
+    padding: 15px 20px;
+  }
+  
+  .contract-content {
+    padding: 15px;
+    font-size: 13px;
+  }
+  
+  .suggestion-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .suggestion-original,
+  .suggestion-corrected {
+    width: 100%;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-clause-checker-modal .modal-content {
+    margin: 10px;
+  }
+  
+  .ai-clause-checker-modal .modal-body {
+    padding: 15px;
+  }
+  
+  .ai-clause-checker-modal .modal-header {
+    padding: 10px 15px;
+  }
+  
+  .contract-content {
+    padding: 10px;
+    font-size: 12px;
+  }
+  
+  .ai-tooltip {
+    min-width: 200px;
+    padding: 10px;
+  }
+} 

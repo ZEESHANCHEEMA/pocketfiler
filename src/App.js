@@ -32,6 +32,8 @@ import AllDisputes from "./Pages/Disputes/AllDisputes";
 import Subscriptionsuccess from "./Pages/Subscription/Subscriptionsuccess/Subscriptionsuccess";
 import DelProfile from "./Pages/Profile/DelProfile/DelProfile";
 import TestingEditor from "./Pages/TestingEditior";
+import ContractEditorPage from "./Pages/ContractEditor/ContractEditor";
+import Templates from "./Pages/Templates/Templates";
 import AgoraRTC, { AgoraRTCProvider } from "agora-rtc-react";
 import { useEffect } from "react";
 import {
@@ -177,6 +179,22 @@ function App() {
                 />
                 <Route path="/Subscription" element={<Subscription />} />
                 <Route path="/HelpCenter" element={<HelpCenter />} />
+                <Route
+                  path="/ContractEditor"
+                  element={
+                    <ProtectedRoute>
+                      <ContractEditorPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/Templates"
+                  element={
+                    <ProtectedRoute>
+                      <Templates />
+                    </ProtectedRoute>
+                  }
+                />
               </Route>
 
               <Route

@@ -4,8 +4,6 @@ import "./Contract.css";
 import * as React from "react";
 import { useState, useEffect } from "react";
 import UploadSign from "../UploadSign/UploadSign";
-import dayjs from "dayjs";
-import { styled, useTheme } from "@mui/material/styles";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { SuccessToast, ErrorToast } from "../../toast/Toast";
 import Parser from "html-react-parser";
 import AddContract from "../AddContract/AddContract";
+import AIClauseChecker from "../AIClauseChecker/AIClauseChecker";
 import { getAllContract } from "../../../services/redux/middleware/getAllContract";
 import { setContract } from "../../../services/redux/reducer/addcontract";
 import { setContractSign } from "../../../services/redux/reducer/addsign";
@@ -31,6 +30,7 @@ export default function Contract(props) {
   const [uploadsign, setUploadSign] = useState(false);
   const [formattedContent, setFormattedContent] = useState("");
   const [modalShow, setModalShow] = useState(false);
+  const [showAIChecker, setShowAIChecker] = useState(false);
 
   const ContractName = useSelector(
     (state) => state?.addcontract?.contract.name
@@ -48,13 +48,7 @@ export default function Contract(props) {
   const ContractSign = useSelector((state) => state?.addsign.contractsign);
   console.log("Contract Sign is", ContractSign);
 
-  const ContractSigngoogle = useSelector(
-    (state) => state?.addsign.contractsign?.docs
-  );
 
-  if (ContractSigngoogle && ContractSigngoogle.length > 0) {
-    const imageURL = ContractSigngoogle[0].url;
-  }
 
   useEffect(() => {
     const userid = localStorage.getItem("_id");
@@ -63,7 +57,7 @@ export default function Contract(props) {
   }, [UserID]);
 
   useEffect(() => {
-    if (ContractContent) {
+    if (ContractContent && ContractContent !== "undefined") {
       const parser = new DOMParser();
       const doc = parser.parseFromString(ContractContent, "text/html");
       const images = doc.querySelectorAll("img");
@@ -71,6 +65,8 @@ export default function Contract(props) {
         image.style.width = "100%";
       });
       setFormattedContent(doc.body.innerHTML);
+    } else {
+      setFormattedContent("");
     }
   }, [ContractContent]);
 
@@ -148,7 +144,7 @@ export default function Contract(props) {
     if (!file) return <p>No file available</p>;
 
     if (file.endsWith(".pdf")) {
-      return <iframe src={file} width="100%" height="500px" />;
+      return <iframe src={file} width="100%" height="500px" title="PDF Document Viewer" />;
     }
 
     if (file.endsWith(".doc") || file.endsWith(".docx")) {
@@ -159,6 +155,7 @@ export default function Contract(props) {
           height="100vh"
           frameBorder="0"
           scrolling="auto"
+          title="Word Document Viewer"
         />
       );
     }
@@ -187,11 +184,11 @@ export default function Contract(props) {
         // size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         centered
-        backdrop="static"
+        backdrop={true}
         className="contract-modal"
       >
         <Modal.Header
-          style={{ padding: "70px", paddingBottom: "0px", paddingTop: "60px" }}
+          style={{ padding: "70px", paddingBottom: "0px", paddingTop: "60px", position: "relative" }}
         >
           <Modal.Title
             id="contained-modal-title-vcenter"
@@ -211,6 +208,33 @@ export default function Contract(props) {
               showpreview={false}
             />
           </Modal.Title>
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Close"
+            onClick={props.onHide}
+            style={{
+              position: "absolute",
+              top: "20px",
+              right: "20px",
+              background: "none",
+              border: "none",
+              fontSize: "24px",
+              cursor: "pointer",
+              color: "#666",
+              width: "30px",
+              height: "30px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "50%",
+              transition: "background-color 0.2s"
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = "#f0f0f0"}
+            onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+          >
+            ×
+          </button>
         </Modal.Header>
         <Modal.Body
           style={{ padding: "0px", paddingTop: "50px", paddingBottom: "30px" }}
@@ -229,10 +253,12 @@ export default function Contract(props) {
                   width: "100%",
                 }}
               >
-                {formattedContent &&
+                {formattedContent && formattedContent !== "undefined" &&
                 /\.(pdf|doc|docx|png|jpe?g)$/i.test(formattedContent)
                   ? getFileContent(formattedContent)
-                  : Parser(formattedContent)}
+                  : formattedContent && formattedContent !== "undefined" 
+                    ? Parser(formattedContent)
+                    : <p>No contract content available</p>}
               </div>
             </div>
 
@@ -316,9 +342,14 @@ export default function Contract(props) {
                 </div>
               </div>
 
-              <div>
+              <div className="contract-actions">
                 <Button className="save-contract-btn" onClick={SaveContract}>
                   Save contract
+                </Button>
+                <Button className="check-clause-ai-btn" onClick={() => {
+                  setShowAIChecker(true);
+                }}>
+                  Check Clause with AI
                 </Button>
               </div>
             </div>
@@ -333,6 +364,22 @@ export default function Contract(props) {
           </div>
         </Modal.Body>
       </Modal>
+      
+      {/* AI Clause Checker Modal */}
+      <AIClauseChecker
+        show={showAIChecker}
+        onHide={() => setShowAIChecker(false)}
+        contractContent={formattedContent || ""}
+        onSaveContract={SaveContract}
+        contractData={{
+          ContractName: ContractName || "",
+          ContractType: ContractType || "",
+          ContractContent: ContractContent || "",
+          ContractSign: ContractSign || "",
+          startDate: startDate || null,
+          UserID: UserID || ""
+        }}
+      />
     </>
   );
 }

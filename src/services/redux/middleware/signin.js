@@ -1,14 +1,13 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import api from "../../apiInterceptor";
-import { API_URL } from "../../client";
+import { API_ENDPOINTS } from "../../../config/apiConfig";
 import { requestPermission } from "../../../utils/Firebase/firebase";
 
 export const signup = createAsyncThunk("signin", async (data) => {
   try {
     console.log("Signup");
-    const res = await api.post(`${API_URL}/auth/signup`, data);
-    // localStorage.setItem("token", res?.data?.token);
+    const res = await api.post(API_ENDPOINTS.AUTH.SIGNUP, data);
     return {
       status: res?.status,
       data: res?.data?.data,
@@ -27,8 +26,7 @@ export const GoogleOrgSignUp = createAsyncThunk(
   async (data) => {
     try {
       console.log(" Inside Google Organization Signup");
-      const res = await api.post(`${API_URL}/auth/googlesignname`, data);
-      // localStorage.setItem("token", res?.data?.token);
+      const res = await api.post(API_ENDPOINTS.AUTH.GOOGLE_SIGNUP, data);
       return {
         status: res?.status,
         data: res?.data?.data,
@@ -48,8 +46,7 @@ export const LinkedInSignIn = createAsyncThunk(
   async (data) => {
     try {
       console.log(" Inside Linkedin modal");
-      const res = await api.post(`${API_URL}/auth/googlesignname`, data);
-      // localStorage.setItem("token", res?.data?.token);
+      const res = await api.post(API_ENDPOINTS.AUTH.GOOGLE_SIGNUP, data);
       return {
         status: res?.status,
         data: res?.data?.data,
@@ -67,8 +64,7 @@ export const LinkedInSignIn = createAsyncThunk(
 export const LinkdinAuth = createAsyncThunk("LinkdinAuth", async (data) => {
   try {
     console.log(" Inside Linkedin modal");
-    const res = await api.post(`${API_URL}/linkedin/login`, data);
-    // localStorage.setItem("token", res?.data?.token);
+    const res = await api.post(API_ENDPOINTS.AUTH.LINKEDIN_LOGIN, data);
     return {
       status: res?.status,
       data: res?.data?.data,
@@ -90,11 +86,10 @@ export const signin = createAsyncThunk("signin", async (data) => {
   });
   try {
     console.log("inside the modal");
-    const res = await api.post(`${API_URL}/auth/login`, {
+    const res = await api.post(API_ENDPOINTS.AUTH.LOGIN, {
       ...data,
       deviceToken: token || null,
     });
-    // localStorage.setItem("token", res?.data?.token);
     return {
       status: res?.status,
       data: res?.data?.data,
@@ -111,9 +106,8 @@ export const signin = createAsyncThunk("signin", async (data) => {
 export const verifysignup = createAsyncThunk("verifysignup", async (data) => {
   try {
     console.log("Inside Sign-Up Verify");
-    const res = await axios.post(`${API_URL}/auth/verify/code`, data);
+    const res = await axios.post(API_ENDPOINTS.AUTH.VERIFY_CODE, data);
     console.log(res);
-    // localStorage.setItem("token", res?.data?.token);
     return {
       status: res?.status,
       data: res?.data?.data,
@@ -133,11 +127,10 @@ export const updateverifycode = createAsyncThunk(
     try {
       console.log("Again sending verify code");
       const res = await axios.post(
-        `${API_URL}/auth/updateVerificationCode`,
+        API_ENDPOINTS.AUTH.UPDATE_VERIFICATION_CODE,
         data
       );
       console.log(res);
-      // localStorage.setItem("token", res?.data?.token);
       return {
         status: res?.status,
         data: res?.data?.data,
@@ -151,13 +144,13 @@ export const updateverifycode = createAsyncThunk(
     }
   }
 );
+
 export const forgetPassword = createAsyncThunk(
   "forgetpassword",
   async (data) => {
     try {
       console.log("inside the modal");
-      const res = await api.post(`${API_URL}/auth/forgot`, data);
-      // localStorage.setItem("token", res?.data?.token);
+      const res = await api.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data);
       return {
         status: res?.status,
         data: res?.data?.data,
@@ -171,12 +164,12 @@ export const forgetPassword = createAsyncThunk(
     }
   }
 );
+
 export const newPassword = createAsyncThunk("newPassword", async (data) => {
   try {
     console.log("inside the Reset Password");
-    const res = await api.post(`${API_URL}/auth/resetpassword`, data);
+    const res = await api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data);
     console.log(res);
-    // localStorage.setItem("token", res?.data?.token);
     return {
       status: res?.status,
       data: res?.data?.data,
@@ -192,8 +185,7 @@ export const newPassword = createAsyncThunk("newPassword", async (data) => {
 
 export const getProfile = createAsyncThunk("getProfile", async (data) => {
   try {
-    const res = await api.get(`${API_URL}/auth/getuserByid/${data}`);
-    // localStorage.setItem("token", res?.data?.token);
+    const res = await api.get(`${API_ENDPOINTS.AUTH.GET_USER_BY_ID}/${data}`);
     console.log("GET PROFILE", res);
     return {
       status: res?.status,
@@ -209,8 +201,7 @@ export const getProfile = createAsyncThunk("getProfile", async (data) => {
 
 export const userDetails = createAsyncThunk("userDetails", async (data) => {
   try {
-    const res = await api.get(`${API_URL}/auth/userDetails/${data}`);
-
+    const res = await api.get(`${API_ENDPOINTS.AUTH.GET_USER_BY_ID}/${data}`);
     return {
       status: res?.status,
       data: res?.data?.data,
@@ -227,10 +218,9 @@ export const addWalletAddress = createAsyncThunk(
   "addWalletAddress",
   async (data) => {
     try {
-      const res = await api.post(`${API_URL}/api/addWallet/${data.id}`, {
+      const res = await api.post(`${API_ENDPOINTS.USER.ADD_WALLET_ADDRESS}/${data.id}`, {
         walletAddress: data.walletAddress,
       });
-      // localStorage.setItem("token", res?.data?.token);
       return {
         status: res?.status,
         data: res?.data?.data,
@@ -243,17 +233,17 @@ export const addWalletAddress = createAsyncThunk(
     }
   }
 );
+
 export const addEmailAddressGoogle = createAsyncThunk(
   "addEmailAddressGoogle",
   async (data) => {
     try {
       const res = await api.post(
-        `${API_URL}/api/addEmailAddressGoogle/${data.id}`,
+        `${API_ENDPOINTS.USER.ADD_EMAIL_ADDRESS_GOOGLE}/${data.id}`,
         {
           email: data.email,
         }
       );
-      // localStorage.setItem("token", res?.data?.token);
       return {
         status: res?.status,
         data: res?.data?.data,
@@ -266,15 +256,15 @@ export const addEmailAddressGoogle = createAsyncThunk(
     }
   }
 );
+
 export const addEmailAddress = createAsyncThunk(
   "addEmailAddressGoogle",
   async (data) => {
     try {
-      const res = await api.post(`${API_URL}/api/addEmailAddress/${data.id}`, {
+      const res = await api.post(`${API_ENDPOINTS.USER.ADD_EMAIL_ADDRESS}/${data.id}`, {
         email: data.email,
         password: data?.password,
       });
-      // localStorage.setItem("token", res?.data?.token);
       return {
         status: res?.status,
         data: res?.data?.data,
@@ -293,8 +283,7 @@ export const getProfileInfo = createAsyncThunk(
   async (data) => {
     try {
       console.log("inde the profile");
-      const res = await api.get(`${API_URL}/api/getUserInfo/${data}`);
-      // localStorage.setItem("token", res?.data?.token);
+      const res = await api.get(`${API_ENDPOINTS.USER.GET_PROFILE}/${data}`);
       return {
         status: res?.status,
         data: res?.data,
@@ -312,7 +301,7 @@ export const getProfileImage = createAsyncThunk(
   "getProfileImage",
   async (data) => {
     try {
-      const res = await api.get(`${API_URL}/api/getUserProfileImage/${data}`);
+      const res = await api.get(`${API_ENDPOINTS.USER.GET_PROFILE_IMAGE}/${data}`);
       return {
         status: res?.status,
         data: res?.data,
@@ -330,8 +319,7 @@ export const getProfileTemp = createAsyncThunk(
   "getProfileTemp",
   async (data) => {
     try {
-      const res = await api.get(`${API_URL}/auth/getuserByid/${data}`);
-      // localStorage.setItem("token", res?.data?.token);
+      const res = await api.get(`${API_ENDPOINTS.AUTH.GET_USER_BY_ID}/${data}`);
       console.log("GET PROFILE", res);
       return {
         status: res?.status,
@@ -350,8 +338,7 @@ export const getTermAndConditions = createAsyncThunk(
   "TermAndConditions",
   async () => {
     try {
-      const res = await api.get(`${API_URL}/auth/getTermAndConditions`);
-
+      const res = await api.get(API_ENDPOINTS.AUTH.GET_TERMS_AND_CONDITIONS);
       return {
         status: res?.status,
         data: res?.data?.data,

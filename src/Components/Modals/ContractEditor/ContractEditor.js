@@ -1,65 +1,65 @@
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Modal from "react-bootstrap/Modal";
-import "./ContractEditor.css";
-import * as React from "react";
-import { Editor } from "primereact/editor";
-import Form from "react-bootstrap/Form";
-import { useState, useEffect, useRef } from "react";
-import TextEditor from "../../TextEditor/TextEditor";
-import Contract from "../Contract/Contract";
-import { useDispatch, useSelector } from "react-redux";
 import { SuccessToast, ErrorToast } from "../../toast/Toast";
 import { API_URL } from "../../../services/client";
 import api from "../../../services/apiInterceptor";
-import ScreenLoader from "../../../Components/loader/ScreenLoader";
-import AddContract from "../AddContract/AddContract";
-import TestingEditior from "../../../Pages/TestingEditior";
-import axios from "axios";
+import ScreenLoader from "../../loader/ScreenLoader";
 import { setContractEditor } from "../../../services/redux/reducer/addcontracteditor";
+import AIService from "../../../services/aiService";
+import "./ContractEditor.css";
 
 export default function ContractEditor(props) {
   const dispatch = useDispatch();
-  const ContractName = useSelector(
-    (state) => state?.addcontract?.contract.name
-  );
-
-  const ContractContent = useSelector(
-    (state) => state?.addcontracteditor?.contracteditorcontent
-  );
-
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [loader, setLoader] = useState(false);
   const [modalShow, setModalShow] = useState(false);
-  const [modalShowpreview, setModalShowPreview] = useState(false);
   const [inputEditor, setInputEditor] = useState(false);
-
   const [imageSrc, setImageSrc] = useState(null);
   const [userId, setUserId] = useState();
   const [promptText, setPromptText] = useState("");
+  const [aiStatus, setAiStatus] = useState(null);
+
+  useEffect(() => {
+    const userid = localStorage.getItem("_id");
+    setUserId(userid);
+    
+    // Check AI service status on component mount
+    checkAIServiceStatus();
+  }, []);
+
+  const checkAIServiceStatus = async () => {
+    try {
+      const status = await AIService.checkAIService();
+      setAiStatus(status);
+      console.log('🤖 AI Service Status:', status);
+    } catch (error) {
+      console.error('❌ Failed to check AI service status:', error);
+      setAiStatus({ available: false, error: 'AI service unavailable' });
+    }
+  };
 
   const handleUploadClick = () => {
     fileInputRef.current.click();
   };
 
   const handlePreviewContract = () => {
-    if (!imageSrc && !ContractContent) {
-      ErrorToast("Please upload a contract or generate content using ChatGPT");
+    if (!imageSrc) {
+      ErrorToast("Please upload a contract or generate content using AI");
       return;
     } else {
       SuccessToast("Contract Details Added Successfully");
-      setModalShowPreview(true);
       props.onHide();
+      navigate("/ContractEditor");
     }
   };
+
   const handleEditName = () => {
     setModalShow(true);
-    props.onHide();
   };
-
-  useEffect(() => {
-    const userid = localStorage.getItem("_id");
-    setUserId(userid);
-  }, []);
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -101,200 +101,191 @@ export default function ContractEditor(props) {
       } catch (error) {
         setLoader(false);
         console.error("Error:", error);
+        ErrorToast("Failed to upload contract file");
       }
     }
   };
 
+  // Enhanced AI function using the new AIService
   async function ChatAi() {
+    if (!promptText.trim()) {
+      ErrorToast("Please enter a prompt for contract generation");
+      return;
+    }
+
+    setLoader(true);
+    
     try {
-      setLoader(true);
-      console.log(promptText);
-      const res = await axios.post(`${API_URL}/api/chat`, {
-        prompt: promptText,
-      });
-      setLoader(false);
-      setImageSrc(res?.data?.message?.content);
-      console.log(res, "this is the response");
+      console.log('🤖 Starting AI contract generation...');
+      console.log('📝 Prompt:', promptText);
+      
+      const result = await AIService.generateContractContent(promptText);
+      
+      if (result.success) {
+        setImageSrc(result.content);
+        dispatch(setContractEditor(result.content));
+        SuccessToast(result.message);
+        console.log('✅ AI contract generation successful');
+      } else {
+        ErrorToast(result.error);
+        console.error('❌ AI contract generation failed:', result.error);
+      }
     } catch (error) {
-      setLoader(false);
-      console.log("this is error");
-      ErrorToast(error);
+      console.error("❌ AI generation error:", error);
+      ErrorToast("Failed to generate contract content. Please try again.");
     } finally {
       setLoader(false);
     }
   }
+
   console.log("hello img", imageSrc);
-
-  const getFileContent = (file) => {
-    if (!file) return <p>No file available</p>;
-
-    if (file.endsWith(".pdf")) {
-      return <iframe src={file} width="100%" height="500px" />;
-    }
-
-    if (file.endsWith(".doc") || file.endsWith(".docx")) {
-      return (
-        <iframe
-          src={file}
-          width="100%"
-          height="100vh"
-          frameBorder="0"
-          scrolling="auto"
-        />
-      );
-    }
-
-    if (
-      file.endsWith(".png") ||
-      file.endsWith(".jpg") ||
-      file.endsWith(".jpeg")
-    ) {
-      return (
-        <img
-          src={file}
-          alt="Uploaded content"
-          style={{ maxWidth: "100%", height: "auto" }}
-        />
-      );
-    }
-
-    return <p>{file}</p>; // Default case
-  };
 
   return (
     <>
       {loader && <ScreenLoader />}
-
       <Modal
-        {...props}
+        show={props.show}
+        onHide={props.onHide}
+        size="xl"
         aria-labelledby="contained-modal-title-vcenter"
         centered
         className="contract-editor-modal"
       >
-        <Modal.Header>
-          <Modal.Title
-            id="contained-modal-title-vcenter"
-            className="add-project__header add-contract-header"
-          >
-            <div className="contract-editor-header">
-              <p className="editor-title">{ContractName}</p>
-              <img
-                src="/Images/Contract/edit-icon.svg"
-                alt="edit-icon"
-                onClick={handleEditName}
-              />
-            </div>
-            <AddContract
-              show={modalShow}
-              onHide={() => setModalShow(false)}
-              showpreview={true}
-            />
-            <div className="add-project__close add-contract-close">
-              <img
-                src="/Images/Projects/close.svg"
-                alt="close-icon"
-                onClick={() => {
-                  dispatch(setContractEditor(null));
-                  setImageSrc(null);
-                  props.onHide();
-                }}
-              />
-            </div>
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Contract Editor
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ padding: "30px", paddingTop: "0px" }}>
-          <div>
-            <div className="btn-upload-contract" onClick={handleUploadClick}>
-              Upload document
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-                accept=".doc,.docx,.pdf,.png,.jpg,.jpeg"
-              />
-            </div>
-            {imageSrc && /\.(pdf|doc|docx|png|jpe?g)$/i.test(imageSrc) && (
-              <div
-                className="btn-clear-upload"
-                onClick={() => {
-                  setImageSrc(null);
-                  dispatch(setContractEditor(null));
-                  fileInputRef.current.value = null;
-                }}
-              >
-                Clear Upload
-              </div>
-            )}
-            {imageSrc && /\.(pdf|doc|docx|png|jpe?g)$/i.test(imageSrc) ? (
-              getFileContent(imageSrc)
-            ) : (
-              <TestingEditior imgcontent={imageSrc && `<p>${imageSrc}</p>`} />
-            )}
-
-            <div
-              onClick={() => {
-                setInputEditor(!inputEditor);
-              }}
-              className="chatgpt-div"
-            >
-              <div className="chatglt-chld">
+        <Modal.Body>
+          <div className="contract-editor-container">
+            <div className="contract-editor-header">
+              <div className="contract-title-section">
+                <h3>Contract Name: {props.contractName || "Untitled Contract"}</h3>
                 <img
-                  alt=""
-                  style={{ paddingRight: "8px" }}
-                  src="/Images/Subscription/chatgpt.svg"
+                  src="/Images/Contract/edit-icon.svg"
+                  alt="edit-icon"
+                  onClick={handleEditName}
+                  className="edit-icon"
                 />
-                <p>Write contract with ChatGPT</p>
-                {inputEditor ? (
-                  <img
-                    alt=""
-                    style={{ paddingLeft: "8px" }}
-                    src="/Images/Subscription/uparrow.svg"
+              </div>
+            </div>
+
+            <div className="contract-editor-content">
+              <div className="upload-section">
+                <div className="btn-upload-contract" onClick={handleUploadClick}>
+                  Upload contract
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                    accept=".doc,.docx,.pdf,.png,.jpg,.jpeg"
                   />
+                </div>
+              </div>
+
+              <div className="contract-content-display">
+                {imageSrc ? (
+                  <div className="contract-content">
+                    {imageSrc.endsWith('.pdf') ? (
+                      <iframe src={imageSrc} width="100%" height="500px" title="PDF Document Viewer" />
+                    ) : imageSrc.endsWith('.doc') || imageSrc.endsWith('.docx') ? (
+                      <iframe
+                        src={imageSrc}
+                        width="100%"
+                        height="500px"
+                        frameBorder="0"
+                        scrolling="auto"
+                        title="Word Document Viewer"
+                      />
+                    ) : imageSrc.match(/\.(png|jpg|jpeg)$/i) ? (
+                      <img
+                        src={imageSrc}
+                        alt="Uploaded content"
+                        style={{ maxWidth: "100%", height: "auto" }}
+                      />
+                    ) : (
+                      <div dangerouslySetInnerHTML={{ __html: imageSrc }} />
+                    )}
+                  </div>
                 ) : (
-                  <img
-                    alt=""
-                    style={{ paddingLeft: "8px" }}
-                    src="/Images/Subscription/arrowDown.svg"
-                  />
+                  <div className="no-content-placeholder">
+                    <p>Upload a contract or use AI to generate content</p>
+                  </div>
                 )}
               </div>
-            </div>
-            {inputEditor && (
-              <div className="chat-input-box-area">
-                <textarea
-                  type="text"
-                  placeholder="Enter promt..."
-                  className="prompt-textarea"
-                  onChange={(e) => {
-                    setPromptText(e.target.value);
-                  }}
-                />
 
-                <Button
-                  className="btn-submit-txt"
-                  onClick={() => {
-                    ChatAi();
-                  }}
-                >
-                  Submit
+              <div
+                onClick={() => {
+                  setInputEditor(!inputEditor);
+                }}
+                className="chatgpt-div"
+              >
+                <div className="chatglt-chld">
+                  <img
+                    alt=""
+                    style={{ paddingRight: "8px" }}
+                    src="/Images/Subscription/chatgpt.svg"
+                  />
+                  <p>Write contract with AI</p>
+                  {aiStatus && !aiStatus.available && (
+                    <span className="ai-status-indicator" style={{ color: '#ff6b6b', fontSize: '12px' }}>
+                      (Service Unavailable)
+                    </span>
+                  )}
+                  {inputEditor ? (
+                    <img
+                      alt=""
+                      style={{ paddingLeft: "8px" }}
+                      src="/Images/Subscription/uparrow.svg"
+                    />
+                  ) : (
+                    <img
+                      alt=""
+                      style={{ paddingLeft: "8px" }}
+                      src="/Images/Subscription/arrowDown.svg"
+                    />
+                  )}
+                </div>
+              </div>
+              {inputEditor && (
+                <div className="chat-input-box-area">
+                  <textarea
+                    type="text"
+                    placeholder="Enter prompt for contract generation..."
+                    className="prompt-textarea"
+                    value={promptText}
+                    onChange={(e) => {
+                      setPromptText(e.target.value);
+                    }}
+                    disabled={aiStatus && !aiStatus.available}
+                  />
+
+                  <Button
+                    className="btn-submit-txt"
+                    onClick={ChatAi}
+                    disabled={loader || (aiStatus && !aiStatus.available)}
+                  >
+                    {loader ? 'Generating...' : 'Generate Contract'}
+                  </Button>
+                </div>
+              )}
+
+              {aiStatus && !aiStatus.available && inputEditor && (
+                <div className="ai-error-message" style={{ color: '#ff6b6b', fontSize: '12px', marginTop: '8px' }}>
+                  AI service is currently unavailable. Please try again later.
+                </div>
+              )}
+
+              <div className="btn-preview-div">
+                <Button className="btn-preview" onClick={handlePreviewContract}>
+                  Preview Contract
                 </Button>
               </div>
-            )}
-
-            <div className="btn-preview-div">
-              <Button className="btn-preview" onClick={handlePreviewContract}>
-                Preview Contract
-              </Button>
             </div>
           </div>
         </Modal.Body>
       </Modal>
-      <Contract
-        show={modalShowpreview}
-        setModalShow={props.setModalShow}
-        onHide={() => setModalShowPreview(false)}
-      />
     </>
   );
 }

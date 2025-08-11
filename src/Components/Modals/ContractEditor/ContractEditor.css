@@ -12,6 +12,47 @@
   border-radius: 20px !important;
   /* height: 462px; */
 }
+
+/* Fullscreen Modal Styles */
+.contract-editor-modal-fullscreen {
+  backdrop-filter: blur(5px) !important;
+}
+
+.contract-editor-modal-fullscreen .modal-dialog {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.contract-editor-modal-fullscreen .modal-content {
+  border-radius: 0 !important;
+  height: 100vh !important;
+  width: 100% !important;
+  border: none !important;
+}
+
+.fullscreen-header {
+  border-bottom: 1px solid #eaeaea !important;
+  padding: 30px 50px 20px 50px !important;
+  background: #ffffff !important;
+}
+
+.fullscreen-body {
+  padding: 40px 50px !important;
+  height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
+  background: #ffffff !important;
+}
+
+.edit-icon {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.edit-icon:hover {
+  opacity: 0.7;
+}
 .add-project__header {
   display: flex;
   justify-content: space-between !important;
@@ -238,7 +279,8 @@
 .chat-input-box-area {
   margin-top: 10px;
   border: 1px solid #eaeaea;
-  width: 940px;
+  width: 100%;
+  max-width: 940px;
   padding: 20px 10px 20px 20px;
   border-radius: 12px;
   position: relative;
@@ -261,7 +303,8 @@
   font-weight: 400;
   line-height: 24px;
   border: none !important;
-  width: 900px;
+  width: 100%;
+  max-width: 900px;
   height: 250px;
   resize: none !important;
 }
@@ -302,5 +345,23 @@
   }
   .btn-clear-upload {
     cursor: pointer;
+  }
+  
+  /* Fullscreen responsive styles */
+  .fullscreen-header {
+    padding: 20px 30px 15px 30px !important;
+  }
+  
+  .fullscreen-body {
+    padding: 20px 30px !important;
+  }
+  
+  .contract-editor-header {
+    gap: 15px;
+  }
+  
+  .editor-title {
+    font-size: 18px;
+    line-height: 22px;
   }
 }
