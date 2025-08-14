@@ -84,6 +84,64 @@
   border: 1px solid #eaeaea;
   border-radius: 12px;
   overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.text-editor-container .ql-toolbar.ql-snow {
+  background: #f8f9fb;
+  border: none !important;
+  padding: 17px 30px 17px 30px !important;
+  border-radius: 12px 12px 0px 0px;
+  width: 100%;
+}
+
+.text-editor-container .ql-container.ql-snow {
+  border: none !important;
+  border-top: 1px solid #e2e2e2 !important;
+  border-radius: 0px 0px 12px 12px;
+}
+
+.text-editor-container .ql-editor {
+  border: none !important;
+  caret-color: #0a1126;
+  min-height: 300px !important;
+  padding: 20px 30px !important;
+  font-family: "ClashGrotesk", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #0a1126;
+}
+
+.text-editor-container .ql-editor p {
+  color: #0a1126;
+  margin-bottom: 12px;
+}
+
+.text-editor-container .ql-editor h1,
+.text-editor-container .ql-editor h2,
+.text-editor-container .ql-editor h3,
+.text-editor-container .ql-editor h4,
+.text-editor-container .ql-editor h5,
+.text-editor-container .ql-editor h6 {
+  color: #0a1126;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.text-editor-container .ql-editor ul,
+.text-editor-container .ql-editor ol {
+  margin-bottom: 12px;
+  padding-left: 20px;
+}
+
+.text-editor-container .ql-editor li {
+  margin-bottom: 4px;
+}
+
+.text-editor-container .ql-editor::before {
+  color: #afafaf !important;
+  font-style: italic;
 }
 
 .btn-upload-contract {
@@ -212,7 +270,7 @@
 .ai-input-container {
   margin-top: 15px;
   width: 100%;
-  max-width: 800px;
+  max-width: 100%;
 }
 
 .ai-input-box {
@@ -222,6 +280,7 @@
   border: 1px solid #eaeaea;
   overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
 .ai-prompt-textarea {
@@ -487,5 +546,17 @@
   .btn-view-templates,
   .btn-check-clause-ai {
     width: 100% !important;
+  }
+} 
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .text-editor-container .ql-toolbar.ql-snow {
+    padding: 17px 16px 17px 16px !important;
+  }
+  
+  .text-editor-container .ql-editor {
+    padding: 15px 16px !important;
+    min-height: 250px !important;
   }
 } 

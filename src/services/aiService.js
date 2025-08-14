@@ -540,6 +540,144 @@ Please provide your analysis in a structured format with clear sections.`;
     }
   }
 
+  // Check contract clauses with AI using the backend API
+  static async checkClausesWithAI(contractText) {
+    try {
+      console.log("🔍 Starting grammar check with text length:", contractText?.length || 0);
+      console.log("📤 Base API URL:", API_CONFIG.API_URL);
+      console.log("📝 Contract text preview:", contractText?.substring(0, 100) + "...");
+
+      // Get auth token from localStorage
+      const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+      console.log("🔑 Auth token available:", !!token);
+
+      // Use the /contract/checkGrammar endpoint
+      console.log("🔄 Using /contract/checkGrammar endpoint...");
+      // Use direct fetch with hardcoded URL
+      console.log("🔄 Using direct fetch with hardcoded URL...");
+      const response = await fetch('http://13.57.230.64:4000/contract/checkGrammar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: JSON.stringify({
+          text: contractText
+        })
+      });
+
+      console.log("📥 Response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Server error response:", errorText);
+        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log("🤖 Response data received:", data);
+
+      // Extract analysis text from various possible response structures
+      let analysis = '';
+      if (data.response) {
+        analysis = data.response;
+      } else if (data.message) {
+        analysis = data.message;
+      } else if (data.content) {
+        analysis = data.content;
+      } else if (data.text) {
+        analysis = data.text;
+      } else if (data.analysis) {
+        analysis = data.analysis;
+      } else if (data.botResponse) {
+        analysis = data.botResponse;
+      } else if (data.result) {
+        analysis = data.result;
+      } else if (typeof data === 'string') {
+        analysis = data;
+      } else {
+        analysis = JSON.stringify(data);
+      }
+
+      // Extract highlighted sections if available
+      let highlightedSections = [];
+      if (data.highlightedSections && Array.isArray(data.highlightedSections)) {
+        highlightedSections = data.highlightedSections;
+      } else if (data.originalText && Array.isArray(data.originalText)) {
+        highlightedSections = data.originalText;
+      } else if (data.corrections && Array.isArray(data.corrections)) {
+        // Convert grammar corrections to highlighted sections format
+        highlightedSections = data.corrections.map((correction, index) => ({
+          text: correction.original || correction.incorrect,
+          originalText: correction.original || correction.incorrect,
+          correctedText: correction.corrected || correction.suggestion,
+          type: 'spelling',
+          lineNumber: index + 1,
+          title: `Grammar Error ${index + 1}`,
+          description: correction.explanation || `Should be: ${correction.corrected || correction.suggestion}`
+        }));
+      } else if (data.suggestions && Array.isArray(data.suggestions)) {
+        // Handle the actual API response format
+        highlightedSections = data.suggestions.map((suggestion, index) => {
+          const originalText = data.originalText.substring(suggestion.start, suggestion.end);
+          return {
+            text: originalText,
+            originalText: originalText,
+            correctedText: suggestion.suggestion || originalText,
+            type: 'spelling',
+            lineNumber: index + 1,
+            title: `Grammar Error ${index + 1}`,
+            description: suggestion.issue || suggestion.shortMessage || 'Spelling error detected'
+          };
+        });
+      }
+
+      console.log("📊 Extracted analysis length:", analysis.length);
+      console.log("🎯 Highlighted sections count:", highlightedSections.length);
+
+      return {
+        success: true,
+        analysis: analysis,
+        highlightedSections: highlightedSections,
+        message: 'Grammar check completed successfully'
+      };
+
+    } catch (error) {
+      console.error('❌ Grammar Check Error:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      
+      return {
+        success: false,
+        analysis: '',
+        highlightedSections: [],
+        message: error.message || 'Failed to check grammar'
+      };
+    }
+  }
+
+  // Helper method to format grammar corrections
+  static formatGrammarCorrections(corrections) {
+    if (!Array.isArray(corrections)) {
+      return 'Grammar check completed.';
+    }
+
+    let formattedResponse = '1. **SPELLING & GRAMMAR ERRORS**:\n';
+    
+    corrections.forEach((correction, index) => {
+      const original = correction.original || correction.incorrect || 'unknown';
+      const corrected = correction.corrected || correction.suggestion || 'corrected';
+      const explanation = correction.explanation || `Should be: ${corrected}`;
+      
+      formattedResponse += `${index + 1}. "${original}" should be "${corrected}" - ${explanation}\n`;
+    });
+
+    return formattedResponse;
+  }
+
   // Get AI configuration status
   static getAIConfigStatus() {
     return {

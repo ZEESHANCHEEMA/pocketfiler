@@ -35,59 +35,140 @@ const AIClauseChecker = ({ show, onHide, contractContent = "", onSaveContract, c
   const reviewContractWithAI = async () => {
     setLoader(true);
     try {
-      console.log('🔍 Starting AI contract review...');
+      console.log('🔍 Starting AI contract clause check...');
+      console.log('📄 Contract content length:', contractContent.length);
       
-      const result = await AIService.reviewContract(contractContent);
+      // Use the new checkClausesWithAI method that calls the backend API
+      const result = await AIService.checkClausesWithAI(contractContent);
       
       if (result.success) {
-        setAiReviewResult(result.suggestions);
+        // Handle different response structures from the API
+        let analysisText = '';
+        let highlightedSections = [];
+        
+        if (typeof result.analysis === 'string') {
+          analysisText = result.analysis;
+        } else if (result.analysis && typeof result.analysis === 'object') {
+          // Handle object response structure
+          if (result.analysis.message) {
+            analysisText = result.analysis.message;
+          } else if (result.analysis.botResponse) {
+            analysisText = result.analysis.botResponse;
+          } else if (result.analysis.analysis) {
+            analysisText = result.analysis.analysis;
+          } else {
+            // Convert object to string if needed
+            analysisText = JSON.stringify(result.analysis, null, 2);
+          }
+          
+          // Extract highlighted sections if available
+          if (result.analysis.originalText) {
+            highlightedSections.push({
+              text: result.analysis.originalText,
+              category: 'legal',
+              original: result.analysis.originalText
+            });
+          }
+        } else {
+          analysisText = 'AI analysis completed successfully.';
+        }
+        
+        // Use highlighted sections from result if available
+        if (result.highlightedSections && result.highlightedSections.length > 0) {
+          highlightedSections = result.highlightedSections;
+        }
+        
+        setAiReviewResult(analysisText);
         
         // Parse AI suggestions into structured format
-        const parsedSuggestions = parseAISuggestions(result.suggestions);
+        const parsedSuggestions = parseAISuggestions(analysisText, highlightedSections);
         setSuggestions(parsedSuggestions);
         
-        console.log('✅ AI contract review completed');
+        console.log('✅ AI contract clause check completed');
+        console.log('📋 Analysis result:', analysisText);
+        console.log('🎯 Highlighted sections:', highlightedSections);
       } else {
-        ErrorToast(result.error);
-        console.error('❌ AI contract review failed:', result.error);
+        ErrorToast(result.error || 'Failed to analyze contract');
+        console.error('❌ AI contract clause check failed:', result.error);
       }
     } catch (error) {
-      console.error('❌ AI review error:', error);
-      ErrorToast('Failed to review contract with AI. Please try again.');
+      console.error('❌ AI clause check error:', error);
+      ErrorToast('Failed to check contract clauses with AI. Please try again.');
     } finally {
       setLoader(false);
     }
   };
 
-  const parseAISuggestions = (aiResponse) => {
+  const parseAISuggestions = (aiResponse, highlightedSections = []) => {
     // Parse AI response into structured suggestions
-    // This is a simplified parser - you can enhance it based on your AI response format
     const suggestions = [];
     
     try {
-      // Split the AI response into sections
-      const sections = aiResponse.split(/(?=##|\*\*)/);
-      
-      sections.forEach((section, index) => {
-        if (section.trim()) {
+      // If we have highlighted sections from the API, use them
+      if (highlightedSections && highlightedSections.length > 0) {
+        highlightedSections.forEach((section, index) => {
           suggestions.push({
             id: index + 1,
-            type: 'improvement',
-            title: section.split('\n')[0].replace(/[#*]/g, '').trim(),
-            content: section.trim(),
-            category: 'general'
+            type: 'risk',
+            title: `Risk Area ${index + 1}`,
+            content: section.text || section.content || section,
+            category: section.category || 'legal',
+            original: section.original || section.text || section.content || section,
+            highlighted: true
+          });
+        });
+      } else {
+        // Parse the AI response text into meaningful suggestions
+        const cleanResponse = aiResponse.replace(/<[^>]*>/g, ''); // Remove HTML tags
+        
+        // Split by common section markers
+        const sections = cleanResponse.split(/(?=##|\*\*|Risk|Issue|Problem|Warning|Suggestion|Recommendation|Consider|Note)/);
+        
+        sections.forEach((section, index) => {
+          const trimmedSection = section.trim();
+          if (trimmedSection && trimmedSection.length > 10) {
+            // Determine if it's a risk or suggestion based on content
+            const isRisk = /risk|problem|warning|issue|concern|danger/i.test(trimmedSection);
+            const isSuggestion = /suggestion|recommendation|improve|enhance|consider/i.test(trimmedSection);
+            
+            // Extract title from first line
+            const lines = trimmedSection.split('\n');
+            const title = lines[0].replace(/[#*]/g, '').trim().substring(0, 50);
+            
+            suggestions.push({
+              id: index + 1,
+              type: isRisk ? 'risk' : (isSuggestion ? 'suggestion' : 'review'),
+              title: title || `Analysis Point ${index + 1}`,
+              content: trimmedSection,
+              category: isRisk ? 'legal' : 'general',
+              highlighted: false
+            });
+          }
+        });
+        
+        // If no sections found, create a single suggestion
+        if (suggestions.length === 0 && cleanResponse.length > 0) {
+          suggestions.push({
+            id: 1,
+            type: 'review',
+            title: 'AI Analysis',
+            content: cleanResponse,
+            category: 'general',
+            highlighted: false
           });
         }
-      });
+      }
     } catch (error) {
       console.error('Error parsing AI suggestions:', error);
       // Fallback to simple suggestion
+      const cleanResponse = aiResponse.replace(/<[^>]*>/g, '');
       suggestions.push({
         id: 1,
         type: 'review',
         title: 'AI Review',
-        content: aiResponse,
-        category: 'general'
+        content: cleanResponse || 'AI analysis completed successfully.',
+        category: 'general',
+        highlighted: false
       });
     }
     
@@ -186,11 +267,27 @@ const AIClauseChecker = ({ show, onHide, contractContent = "", onSaveContract, c
     if (!suggestions.length || !text || text === "undefined") return text || "";
 
     let highlightedText = text;
-    suggestions.forEach((suggestion, index) => {
-      const regex = new RegExp(suggestion.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-      highlightedText = highlightedText.replace(regex, (match) => {
-        return `<span class="highlighted-text" data-suggestion-id="${suggestion.id}">${match}</span>`;
-      });
+    
+    // Sort suggestions by length (longest first) to avoid partial matches
+    const sortedSuggestions = [...suggestions].sort((a, b) => {
+      const aText = a.original || a.content || "";
+      const bText = b.original || b.content || "";
+      return bText.length - aText.length;
+    });
+
+    sortedSuggestions.forEach((suggestion, index) => {
+      const textToHighlight = suggestion.original || suggestion.content || "";
+      
+      if (textToHighlight && textToHighlight.trim()) {
+        // Escape special regex characters
+        const escapedText = textToHighlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedText, 'gi');
+        
+        highlightedText = highlightedText.replace(regex, (match) => {
+          const highlightClass = suggestion.highlighted ? 'highlighted-risk' : 'highlighted-suggestion';
+          return `<span class="${highlightClass}" data-suggestion-id="${suggestion.id}" title="${suggestion.title}">${match}</span>`;
+        });
+      }
     });
 
     return highlightedText;
@@ -229,44 +326,68 @@ const AIClauseChecker = ({ show, onHide, contractContent = "", onSaveContract, c
               <div className="ai-summary">
                 <h5>📋 AI Review Summary</h5>
                 <div className="ai-summary-content">
-                  <div dangerouslySetInnerHTML={{ __html: aiReviewResult }} />
+                  <div className="ai-summary-text">
+                    {aiReviewResult}
+                  </div>
                 </div>
               </div>
 
-              {suggestions.length > 0 && (
-                <div className="ai-suggestions">
-                  <h5>💡 AI Suggestions</h5>
-                  <div className="suggestions-list">
-                    {suggestions.map((suggestion) => (
+              <div className="contract-analysis-layout">
+                <div className="contract-section">
+                  <h5>📄 Contract Content</h5>
+                  <div className="contract-content-display">
+                    <div 
+                      className="contract-text"
+                      dangerouslySetInnerHTML={{ 
+                        __html: highlightText(contractContent, suggestions) 
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="ai-suggestions-panel">
+                  <h5>🚨 AI Risk Analysis</h5>
+                  <div className="suggestions-container">
+                    {suggestions.map((suggestion, index) => (
                       <div
                         key={suggestion.id}
-                        className={`suggestion-item ${activeSuggestion?.id === suggestion.id ? 'active' : ''}`}
-                        onClick={() => handleSuggestionClick(suggestion)}
+                        className={`suggestion-card ${suggestion.type}`}
                       >
                         <div className="suggestion-header">
-                          <span className="suggestion-type">{suggestion.type}</span>
-                          <span className="suggestion-category">{suggestion.category}</span>
-                        </div>
-                        <h6 className="suggestion-title">{suggestion.title}</h6>
-                        <p className="suggestion-content">{suggestion.content}</p>
-                        
-                        {activeSuggestion?.id === suggestion.id && (
-                          <div className="suggestion-actions">
-                            <Button
-                              size="small"
-                              variant="contained"
-                              onClick={() => applySuggestion(suggestion)}
-                              className="apply-suggestion-btn"
-                            >
-                              Apply Suggestion
-                            </Button>
+                          <div className="suggestion-icon">
+                            {suggestion.type === 'risk' ? '🚨' : '💡'}
                           </div>
-                        )}
+                          <span className="suggestion-type">
+                            {suggestion.type === 'risk' ? 'RISK' : 'SUGGESTION'}
+                          </span>
+                        </div>
+                        <div className="suggestion-content">
+                          <div className="suggestion-text">
+                            {suggestion.content && typeof suggestion.content === 'string' ? (
+                              suggestion.content.replace(/<[^>]*>/g, '').substring(0, 200) + '...'
+                            ) : (
+                              'Suggestion content'
+                            )}
+                          </div>
+                        </div>
+                        <div className="suggestion-arrow">
+                          ←
+                        </div>
+                        <div className="suggestion-actions">
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => applySuggestion(suggestion)}
+                            className="apply-suggestion-btn"
+                          >
+                            Apply
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           )}
 
