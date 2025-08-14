@@ -44,14 +44,14 @@ export default function TestingEditor({ imgcontent }) {
       setvaluecontent(imgcontent);
       dispatch(setContractEditor(imgcontent));
     }
-  }, [imgcontent]);
+  }, [imgcontent, dispatch]);
 
   // Debounced function to update state
   const debouncedUpdate = useCallback(
     debounce((content) => {
       dispatch(setContractEditor(content));
     }, 300), // Adjust delay as needed
-    []
+    [dispatch]
   );
 
   const handleProcedureContentChange = (content) => {
@@ -72,15 +72,21 @@ export default function TestingEditor({ imgcontent }) {
   };
 
   return (
-    <ReactQuill
-      ref={quillRef}
-      theme="snow"
-      value={valuecontent}
-      onChange={handleProcedureContentChange}
-      modules={modules}
-      formats={formats}
-      placeholder="Type here...."
-      style={{ height: "100%", width: "940px" }}
-    />
+    <div style={{ width: "100%" }}>
+      <ReactQuill
+        ref={quillRef}
+        theme="snow"
+        value={valuecontent}
+        onChange={handleProcedureContentChange}
+        modules={modules}
+        formats={formats}
+        placeholder="Type here..."
+        style={{ 
+          height: "100%", 
+          width: "100%",
+          fontFamily: "ClashGrotesk, sans-serif"
+        }}
+      />
+    </div>
   );
 }

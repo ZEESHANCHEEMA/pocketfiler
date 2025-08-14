@@ -273,7 +273,7 @@ export default function ContractEditorPage() {
           <h1 className="page-title">Add Contract</h1>
           <div className="header-actions">
             <div className="contract-title-section">
-              <span className="contract-title">{ContractName}</span>
+              <span className="contract-title">{ContractName || "Untitled Contract"}</span>
               <img
                 src="/Images/Contract/edit-icon.svg"
                 alt="edit-icon"
@@ -297,6 +297,7 @@ export default function ContractEditorPage() {
         
         <div className="page-content">
           <div className="contract-editor-panel">
+            {/* Upload Contract Button */}
             <div className="btn-upload-contract" onClick={handleUploadClick}>
               Upload contract
               <input
@@ -308,20 +309,12 @@ export default function ContractEditorPage() {
               />
             </div>
 
-            <div className="contract-content-area">
-              {imageSrc ? (
-                isFileContent(imageSrc) ? (
-                  getFileContent(imageSrc)
-                ) : (
-                  <TestingEditior imgcontent={imageSrc} />
-                )
-              ) : (
-                <div className="no-content-placeholder">
-                  <p>Upload a contract or use AI to generate content</p>
-                </div>
-              )}
+            {/* Text Editor Section - Always Visible */}
+            <div className="text-editor-container">
+              <TestingEditior imgcontent={imageSrc || ContractContent || ""} />
             </div>
 
+            {/* AI Generation Section */}
             <div
               onClick={() => {
                 setInputEditor(!inputEditor);
@@ -355,6 +348,7 @@ export default function ContractEditorPage() {
                 )}
               </div>
             </div>
+            
             {inputEditor && (
               <div className="ai-input-container">
                 <div className="ai-input-box">
@@ -386,6 +380,7 @@ export default function ContractEditorPage() {
               </div>
             )}
 
+            {/* Action Buttons */}
             <div className="btn-preview-div">
               <div className="action-buttons-row">
                 <Button className="btn-preview" onClick={handlePreviewContract}>

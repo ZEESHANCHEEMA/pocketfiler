@@ -114,11 +114,59 @@ const Templates = () => {
       contentLength: template.content?.length || 0,
       fullTemplate: template
     });
-    setPreviewModal({ show: true, template });
+    
+    // Create the same content that's generated when adding a contract
+    const previewContent = `
+      <h1>${template.title}</h1>
+      <p><strong>Category:</strong> ${template.category || 'General'}</p>
+      <p><strong>Description:</strong> ${template.description || 'No description available'}</p>
+      <hr>
+      <h2>Contract Terms</h2>
+      <p>This contract template has been selected for your use. Please customize the content below according to your specific requirements.</p>
+      
+      <h3>Parties</h3>
+      <p>[Insert party names and details here]</p>
+      
+      <h3>Terms and Conditions</h3>
+      <p>[Insert specific terms and conditions here]</p>
+      
+      <h3>Payment Terms</h3>
+      <p>[Insert payment details here]</p>
+      
+      <h3>Termination</h3>
+      <p>[Insert termination conditions here]</p>
+      
+      <h3>Governing Law</h3>
+      <p>[Insert governing law here]</p>
+      
+      <h3>Signatures</h3>
+      <p>This contract shall be signed by all parties involved.</p>
+      
+      <hr>
+      <p><em>Template: ${template.title}</em></p>
+      <p><em>Please customize this template according to your specific requirements.</em></p>
+    `;
+    
+    // Pass the template with the generated content
+    const templateWithContent = {
+      ...template,
+      content: previewContent
+    };
+    
+    setPreviewModal({ show: true, template: templateWithContent });
   };
 
   const handleClosePreview = () => {
     setPreviewModal({ show: false, template: null });
+  };
+
+  const handleGoBack = () => {
+    // Check if there's previous history, if not go to Dashboard
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/Dashboard');
+    }
   };
 
   // Filter templates based on search term
@@ -145,12 +193,130 @@ const Templates = () => {
     return colors[category?.toLowerCase()] || '#007bff';
   };
 
+  const getSummaryIntro = (category) => {
+    switch (category?.toLowerCase()) {
+      case 'nda':
+        return 'This is a Non-Disclosure Agreement (NDA) template designed to protect confidential information.';
+      case 'employment':
+        return 'This is an Employment Agreement template for defining the terms of employment between an employer and employee.';
+      case 'service':
+        return 'This is a Service Agreement template for outlining the terms of a service provider and client relationship.';
+      case 'software':
+        return 'This is a Software License Agreement template for granting rights to use software.';
+      case 'rental':
+        return 'This is a Rental Agreement template for defining the terms of renting property or equipment.';
+      case 'partnership':
+        return 'This is a Partnership Agreement template for establishing a business partnership.';
+      case 'consulting':
+        return 'This is a Consulting Agreement template for defining the scope and terms of professional consulting services.';
+      case 'freelance':
+        return 'This is a Freelance Agreement template for defining the terms of working as a freelance professional.';
+      case 'equipment':
+        return 'This is an Equipment Rental Agreement template for defining the terms of renting out equipment.';
+      case 'website':
+        return 'This is a Website Development Agreement template for defining the terms of website development and maintenance.';
+      case 'marketing':
+        return 'This is a Marketing Services Agreement template for defining the terms of marketing and advertising services.';
+      default:
+        return 'This is a standard contract template for business agreements.';
+    }
+  };
+
+  const getSummaryPoints = (category) => {
+    switch (category?.toLowerCase()) {
+      case 'nda':
+        return [
+          'Confidentiality obligations',
+          'Non-solicitation of employees',
+          'Termination provisions',
+          'Breach of agreement'
+        ];
+      case 'employment':
+        return [
+          'Job title and responsibilities',
+          'Compensation and benefits',
+          'Termination conditions',
+          'Confidentiality'
+        ];
+      case 'service':
+        return [
+          'Description of services',
+          'Payment terms',
+          'Warranty and liability',
+          'Termination'
+        ];
+      case 'software':
+        return [
+          'License granted',
+          'Restrictions on use',
+          'Maintenance and support',
+          'Termination'
+        ];
+      case 'rental':
+        return [
+          'Property or equipment description',
+          'Rental period',
+          'Payment terms',
+          'Maintenance responsibilities'
+        ];
+      case 'partnership':
+        return [
+          'Partnership details',
+          'Profit sharing',
+          'Management responsibilities',
+          'Termination'
+        ];
+      case 'consulting':
+        return [
+          'Scope of services',
+          'Compensation',
+          'Confidentiality',
+          'Termination'
+        ];
+      case 'freelance':
+        return [
+          'Work description',
+          'Compensation',
+          'Warranty and liability',
+          'Termination'
+        ];
+      case 'equipment':
+        return [
+          'Equipment description',
+          'Rental period',
+          'Payment terms',
+          'Maintenance'
+        ];
+      case 'website':
+        return [
+          'Website description',
+          'Development timeline',
+          'Maintenance responsibilities',
+          'Termination'
+        ];
+      case 'marketing':
+        return [
+          'Services provided',
+          'Compensation',
+          'Confidentiality',
+          'Termination'
+        ];
+      default:
+        return [
+          'General agreement terms',
+          'Payment details',
+          'Termination conditions',
+          'Governing law'
+        ];
+    }
+  };
+
   return (
     <div className="templates-container">
       {/* Header */}
       <div className="templates-header">
         <div className="header-left">
-          <button className="back-button" onClick={() => navigate(-1)}>
+          <button className="back-button" onClick={handleGoBack}>
             ←
           </button>
           <h1>Contract Templates</h1>
@@ -183,30 +349,33 @@ const Templates = () => {
           {filteredTemplates.length > 0 ? (
             filteredTemplates.map((template) => (
               <div key={template._id || Math.random()} className="template-card">
-                <div className="template-preview">
-                  <div className="document-preview">
-                    <div 
-                      className="document-header" 
-                      style={{ backgroundColor: getTemplateTypeColor(template.category) }}
-                    >
-                      <h3>{template.category || 'Contract'}</h3>
-                    </div>
-                    <div className="document-content">
-                      <p><strong>{template.title || 'Untitled Template'}</strong></p>
-                      <p>{template.description?.substring(0, 100) || 'No description available'}...</p>
-                    </div>
+                {/* Colored Header */}
+                <div 
+                  className="template-header"
+                  style={{ backgroundColor: getTemplateTypeColor(template.category) }}
+                >
+                  <h3>{template.category || 'CONTRACT AGREEMENT'}</h3>
+                </div>
+                
+                {/* Summary Box */}
+                <div className="summary-box">
+                  <p className="summary-intro">
+                    {getSummaryIntro(template.category)}
+                  </p>
+                  <div className="summary-points">
+                    {getSummaryPoints(template.category).map((point, index) => (
+                      <p key={index}>• {point}</p>
+                    ))}
                   </div>
                 </div>
+                
+                {/* Template Info */}
                 <div className="template-info">
-                  <h3 className="template-title">{template.title || 'Untitled Template'}</h3>
-                  <p className="template-description">{template.description || 'No description available'}</p>
-                  {template.category && (
-                    <span className="template-category">{template.category}</span>
-                  )}
-                  {template.createdBy && template.createdBy.fullname && (
-                    <p className="template-creator">Created by: {template.createdBy.fullname}</p>
-                  )}
+                  <h3 className="template-title">{template.title || 'Contract Agreement'}</h3>
+                  <p className="template-description">{template.description || 'Standard agreement template for business contracts.'}</p>
                 </div>
+                
+                {/* Action Buttons */}
                 <div className="template-actions">
                   <button 
                     className="btn-add-contract"
