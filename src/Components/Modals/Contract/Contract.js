@@ -131,18 +131,39 @@ export default function Contract(props) {
         setSuggestionModalVisible(false);
         setCurrentSuggestion(null);
         
-        // Clear highlighted content to show the updated content immediately
-        setHighlightedContent(null);
+        // Update highlighted content to reflect the applied change while keeping other highlights
+        if (highlightedContent) {
+          console.log('🔄 Updating highlighted content to reflect applied change');
+          
+          // Remove the specific highlighted span for this suggestion
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = highlightedContent;
+          
+          // Find and remove the specific highlighted span for this instance
+          const highlightedSpans = tempDiv.querySelectorAll('.highlighted-clause');
+          highlightedSpans.forEach(span => {
+            const spanInstanceId = span.getAttribute('data-instance-id');
+            if (spanInstanceId === instanceId) {
+              // Replace this span with the corrected text
+              const correctedTextNode = document.createTextNode(suggestedText);
+              span.parentNode.replaceChild(correctedTextNode, span);
+            }
+          });
+          
+          // Update the highlighted content with the corrected version
+          const updatedHighlightedContent = tempDiv.innerHTML;
+          setHighlightedContent(updatedHighlightedContent);
+          
+          console.log('✅ Highlighted content updated, keeping other highlights');
+        } else {
+          // If no highlighted content, just clear it to show the updated content
+          setHighlightedContent(null);
+        }
         
-        // Show success message (EXACTLY like mobile)
+        // Show success message
         SuccessToast('Suggestion applied successfully');
         
         console.log('✅ Suggestion applied successfully');
-        
-        // Force a re-render to ensure updated content is displayed
-        setTimeout(() => {
-          console.log('🔄 Forcing re-render to show updated content');
-        }, 100);
         
       } else {
         console.log('❌ No ContractContent available');
@@ -168,6 +189,9 @@ export default function Contract(props) {
         instanceId: instanceId
       });
     };
+    
+    // Reset content updated flag when component mounts
+    setContentUpdated(false);
   }, [UserID]);
 
   useEffect(() => {
@@ -182,6 +206,12 @@ export default function Contract(props) {
     } else {
       setFormattedContent("");
     }
+    
+    // Reset content updated flag when contract content changes (but not when it's updated by suggestions)
+    // Only reset if we're not in the middle of applying a suggestion
+    if (!contentUpdated) {
+      setContentUpdated(false);
+    }
   }, [ContractContent]);
 
   // Force re-render when ContractContent changes to show updated content
@@ -190,7 +220,22 @@ export default function Contract(props) {
     if (ContractContent && highlightedContent === null) {
       console.log('✅ Showing updated content');
     }
-  }, [ContractContent, highlightedContent]);
+    
+    // If content was updated and highlighted content is cleared, ensure we show the updated content
+    if (contentUpdated && !highlightedContent && ContractContent) {
+      console.log('✅ Content updated, showing new content');
+      // Force a re-render by updating the formatted content
+      if (ContractContent && ContractContent !== "undefined") {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(ContractContent, "text/html");
+        const images = doc.querySelectorAll("img");
+        images.forEach((image) => {
+          image.style.width = "100%";
+        });
+        setFormattedContent(doc.body.innerHTML);
+      }
+    }
+  }, [ContractContent, highlightedContent, contentUpdated]);
 
   async function SaveContract() {
     if (!ContractType) {
@@ -838,7 +883,13 @@ export default function Contract(props) {
                 {highlightedContent && (
                   <Button 
                     className="clear-highlighting-btn" 
-                    onClick={() => setHighlightedContent(null)}
+                    onClick={() => {
+                      setHighlightedContent(null);
+                      // Ensure we show the updated content when clearing highlighting
+                      if (contentUpdated) {
+                        console.log('✅ Clearing highlighting, showing updated content');
+                      }
+                    }}
                     style={{ marginLeft: '10px', backgroundColor: '#6c757d', color: 'white' }}
                   >
                     Clear Highlighting
