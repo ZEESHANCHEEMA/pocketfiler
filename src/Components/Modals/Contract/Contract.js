@@ -20,6 +20,7 @@ import { setContract } from "../../../services/redux/reducer/addcontract";
 import { setContractSign } from "../../../services/redux/reducer/addsign";
 import { getContract } from "../../../services/redux/middleware/getContract";
 import { getTotalCount } from "../../../services/redux/middleware/Project/project";
+import { setContractEditor } from "../../../services/redux/reducer/addcontracteditor";
 
 export default function Contract(props) {
   const dispatch = useDispatch();
@@ -30,11 +31,17 @@ export default function Contract(props) {
   const [uploadsign, setUploadSign] = useState(false);
   const [formattedContent, setFormattedContent] = useState("");
   const [modalShow, setModalShow] = useState(false);
-  const [showAIChecker, setShowAIChecker] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiReviewResult, setAiReviewResult] = useState(null);
+  const [highlightedContent, setHighlightedContent] = useState('');
+  const [suggestionModalVisible, setSuggestionModalVisible] = useState(false);
+  const [currentSuggestion, setCurrentSuggestion] = useState(null);
+  const [appliedSuggestions, setAppliedSuggestions] = useState(new Set());
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipData, setTooltipData] = useState({
+    original: '',
+    corrected: '',
+    position: { x: 150, y: 300 }
+  });
+  const [contentUpdated, setContentUpdated] = useState(false);
 
   const ContractName = useSelector(
     (state) => state?.addcontract?.contract.name
@@ -52,12 +59,115 @@ export default function Contract(props) {
   const ContractSign = useSelector((state) => state?.addsign.contractsign);
   console.log("Contract Sign is", ContractSign);
 
+  // Function to check if text has already been updated (Mobile-compatible)
+  const isTextAlreadyUpdated = (text, originalText, suggestedText) => {
+    const textLower = text.toLowerCase();
+    const originalLower = originalText.toLowerCase();
+    const suggestedLower = suggestedText.toLowerCase();
+    
+    // If the text contains the suggested text, it's already updated
+    if (textLower.includes(suggestedLower)) {
+      return true;
+    }
+    
+    // If the text doesn't contain the original text, it's not applicable
+    if (!textLower.includes(originalLower)) {
+      return true;
+    }
+    
+    return false;
+  };
 
+  // Function to show suggestion modal (Mobile-compatible)
+  const showSuggestionModal = (suggestionData) => {
+    console.log('🎯 showSuggestionModal called with:', suggestionData);
+    console.log('🎯 Setting modal visible to true');
+    setCurrentSuggestion({
+      original: suggestionData.original || suggestionData.text,
+      suggested: suggestionData.suggested || suggestionData.suggestion,
+      instanceId: suggestionData.instanceId
+    });
+    setSuggestionModalVisible(true);
+    console.log('🎯 Modal state should now be visible');
+  };
+
+  // Function to apply suggestion (Mobile-compatible) - EXACTLY like mobile
+  const applyClauseSuggestion = (originalText, suggestedText, instanceId = null) => {
+    try {
+      console.log('🔧 Applying suggestion:', { originalText, suggestedText, instanceId });
+      console.log('📝 Current ContractContent:', ContractContent);
+      
+      // First try to update Redux state if available (EXACTLY like mobile)
+      if (ContractContent) {
+        console.log('✅ Using Redux state for update');
+        
+        // Handle both plain text and HTML content
+        let updatedContent = ContractContent;
+        
+        // If content contains HTML tags, we need to be more careful with replacement
+        if (ContractContent.includes('<') && ContractContent.includes('>')) {
+          // For HTML content, we need to replace text within HTML tags carefully
+          const regex = new RegExp(`(${originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+          updatedContent = ContractContent.replace(regex, suggestedText);
+        } else {
+          // For plain text, simple replacement
+          const regex = new RegExp(originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+          updatedContent = ContractContent.replace(regex, suggestedText);
+        }
+
+        console.log('📝 Updated content length:', updatedContent.length);
+        console.log('🔄 Dispatching to Redux...');
+
+        // Update Redux state (EXACTLY like mobile)
+        dispatch(setContractEditor(updatedContent));
+        
+        // Mark this suggestion as applied
+        setAppliedSuggestions(prev => new Set([...prev, originalText, suggestedText]));
+        
+        // Set content updated flag
+        setContentUpdated(true);
+        
+        // Close modal
+        setSuggestionModalVisible(false);
+        setCurrentSuggestion(null);
+        
+        // Clear highlighted content to show the updated content immediately
+        setHighlightedContent(null);
+        
+        // Show success message (EXACTLY like mobile)
+        SuccessToast('Suggestion applied successfully');
+        
+        console.log('✅ Suggestion applied successfully');
+        
+        // Force a re-render to ensure updated content is displayed
+        setTimeout(() => {
+          console.log('🔄 Forcing re-render to show updated content');
+        }, 100);
+        
+      } else {
+        console.log('❌ No ContractContent available');
+        ErrorToast('No contract content available to update');
+      }
+    } catch (error) {
+      console.error('❌ Error applying suggestion:', error);
+      ErrorToast('Failed to apply suggestion');
+    }
+  };
 
   useEffect(() => {
     const userid = localStorage.getItem("_id");
 
     setUserID(userid);
+    
+    // Add global function for handling suggestion clicks
+    window.showSuggestion = (originalText, suggestedText, instanceId) => {
+      console.log('🎯 Global showSuggestion called with:', { originalText, suggestedText, instanceId });
+      showSuggestionModal({
+        original: originalText,
+        suggested: suggestedText,
+        instanceId: instanceId
+      });
+    };
   }, [UserID]);
 
   useEffect(() => {
@@ -73,6 +183,14 @@ export default function Contract(props) {
       setFormattedContent("");
     }
   }, [ContractContent]);
+
+  // Force re-render when ContractContent changes to show updated content
+  useEffect(() => {
+    console.log('🔄 ContractContent changed:', ContractContent ? 'Available' : 'Not available');
+    if (ContractContent && highlightedContent === null) {
+      console.log('✅ Showing updated content');
+    }
+  }, [ContractContent, highlightedContent]);
 
   async function SaveContract() {
     if (!ContractType) {
@@ -182,141 +300,266 @@ export default function Contract(props) {
   };
 
   const handleCheckClauseWithAI = async () => {
-    console.log('🔍 Button clicked! Checking content...');
-    console.log('📝 formattedContent:', formattedContent);
-    console.log('📝 ContractContent:', ContractContent);
-    
-    if (!formattedContent && !ContractContent) {
+    if (!ContractContent) {
       ErrorToast("Please add some contract content before checking with AI");
       return;
     }
     
-    setAiLoading(true);
-    setShowSuggestions(true);
+    console.log('🔍 Starting AI clause check...');
+    console.log('📝 Contract content:', ContractContent);
+    
+    setLoader(true); // Add loader back
+    setContentUpdated(false); // Clear content updated indicator
     
     try {
-      console.log('🤖 Contract: Starting AI clause check...');
-      console.log('📤 Sending content to AI service...');
+      const result = await AIService.checkWithAi(ContractContent, 'Analyze this contract and identify specific text that needs improvement. Look for placeholder text like [Insert...], grammatical issues, missing details, or unclear clauses. Provide specific suggestions for text that actually exists in the contract.');
       
-      const result = await AIService.checkClausesWithAI(formattedContent || ContractContent);
+      console.log('🤖 AI Response:', result);
       
-      if (result.success) {
-        setAiReviewResult(result.analysis);
+      if (result && (result.analysis || result.data || result)) {
+        const aiSuggestions = parseAISuggestions(result.analysis || result.data || result);
         
-        // Parse AI suggestions into structured format
-        const parsedSuggestions = parseAISuggestions(result.analysis, result.highlightedSections);
-        setSuggestions(parsedSuggestions);
+        console.log('📋 Parsed AI suggestions:', aiSuggestions);
         
-        console.log('✅ AI contract clause check completed');
-        SuccessToast('AI analysis completed successfully');
+        if (aiSuggestions.length > 0) {
+          // Create highlighted content with AI suggestions
+          let highlightedText = ContractContent;
+          
+          aiSuggestions.forEach(suggestion => {
+            console.log('🎯 Processing suggestion:', suggestion);
+            if (suggestion.originalText && suggestion.correctedText) {
+              // Check if the original text actually exists in the contract content
+              if (ContractContent.toLowerCase().includes(suggestion.originalText.toLowerCase())) {
+                console.log(`✅ Found "${suggestion.originalText}" in content`);
+                const regex = new RegExp(`(${suggestion.originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                let matchCount = 0;
+                highlightedText = highlightedText.replace(regex, (match, p1) => {
+                  matchCount++;
+                  const instanceId = `${suggestion.id}_${matchCount}`;
+                  return `<span class="highlighted-clause" data-instance-id="${instanceId}" onclick="window.showSuggestion('${suggestion.originalText.replace(/'/g, "\\'")}', '${suggestion.correctedText.replace(/'/g, "\\'")}', '${instanceId}')" style="background-color: #ffeb3b; cursor: pointer; padding: 2px 4px; border-radius: 3px; text-decoration: underline; font-weight: bold;">${p1}<span style="font-size: 10px; color: #666;"> (tap to apply suggestion)</span></span>`;
+                });
+              } else {
+                console.log(`❌ Could not find "${suggestion.originalText}" in content`);
+              }
+            }
+          });
+          
+          setHighlightedContent(highlightedText);
+          SuccessToast(`${aiSuggestions.length} issues found. Click highlighted text for suggestions.`);
+        } else {
+          setHighlightedContent(null);
+          SuccessToast('Contract analysis complete. No major issues found.');
+        }
       } else {
-        ErrorToast(result.error || 'Failed to analyze contract');
-        console.error('❌ AI contract clause check failed:', result.error);
+        console.error('❌ AI analysis failed:', result.error);
+        ErrorToast(result.error || 'Failed to analyze contract with AI');
       }
     } catch (error) {
-      console.error('❌ AI clause check error:', error);
+      console.error('❌ Error during AI clause check:', error);
       ErrorToast('Failed to check contract clauses with AI. Please try again.');
     } finally {
-      setAiLoading(false);
+      setLoader(false); // Remove loader
     }
   };
 
-  const parseAISuggestions = (aiResponse, highlightedSections = []) => {
+  // Function to parse AI suggestions from the API response
+  const parseAISuggestions = (aiResponse) => {
     const suggestions = [];
     
     try {
-      // Check if aiResponse is a JSON string containing suggestions
-      if (typeof aiResponse === 'string' && aiResponse.includes('"suggestions"')) {
+      console.log('🔍 Parsing AI response:', aiResponse);
+      
+      // Handle different response formats
+      let responseData = aiResponse;
+      
+      // If it's a string, try to parse as JSON
+      if (typeof aiResponse === 'string') {
         try {
-          const parsedData = JSON.parse(aiResponse);
-          if (parsedData.suggestions && Array.isArray(parsedData.suggestions)) {
-            parsedData.suggestions.forEach((suggestion, index) => {
-              suggestions.push({
-                id: index + 1,
-                type: 'spelling',
-                title: `Grammar Error ${index + 1}`,
-                content: suggestion.description || suggestion.explanation || 'Grammar correction needed',
-                originalText: suggestion.original || suggestion.incorrect || '',
-                correctedText: suggestion.corrected || suggestion.suggestion || '',
-                category: 'grammar',
-                highlighted: true
-              });
-            });
-            return suggestions;
-          }
-        } catch (parseError) {
-          console.log('Not a JSON response, continuing with text parsing...');
+          responseData = JSON.parse(aiResponse);
+        } catch (e) {
+          // If not JSON, treat as plain text
+          responseData = { text: aiResponse };
         }
       }
       
-      if (highlightedSections && highlightedSections.length > 0) {
-        highlightedSections.forEach((section, index) => {
+      // Extract suggestions from the response
+      if (responseData.suggestions && Array.isArray(responseData.suggestions)) {
+        responseData.suggestions.forEach((suggestion, index) => {
           suggestions.push({
             id: index + 1,
-            type: section.type || 'risk',
-            title: section.title || `Risk Area ${index + 1}`,
-            content: section.text || section.content || section,
-            category: section.category || 'legal',
-            originalText: section.originalText || section.text || section.content || section,
-            correctedText: section.correctedText || section.suggestion || '',
-            highlighted: true
+            originalText: suggestion.original || suggestion.incorrect || suggestion.text || '',
+            correctedText: suggestion.corrected || suggestion.suggestion || suggestion.improved || '',
+            type: suggestion.type || 'improvement',
+            description: suggestion.description || suggestion.explanation || ''
           });
         });
-      } else {
-        const cleanResponse = aiResponse.replace(/<[^>]*>/g, '');
-        const sections = cleanResponse.split(/(?=##|\*\*|Risk|Issue|Problem|Warning|Suggestion|Recommendation|Consider|Note)/);
+      } else if (responseData.issues && Array.isArray(responseData.issues)) {
+        responseData.issues.forEach((issue, index) => {
+          suggestions.push({
+            id: index + 1,
+            originalText: issue.original || issue.text || '',
+            correctedText: issue.suggestion || issue.corrected || '',
+            type: issue.type || 'improvement',
+            description: issue.description || issue.explanation || ''
+          });
+        });
+      } else if (responseData.text || typeof responseData === 'string') {
+        // Parse plain text response for suggestions
+        const text = responseData.text || responseData;
+        console.log('📝 Parsing text response:', text.substring(0, 200) + '...');
         
-        sections.forEach((section, index) => {
-          const trimmedSection = section.trim();
-          if (trimmedSection && trimmedSection.length > 10) {
-            const isRisk = /risk|problem|warning|issue|concern|danger/i.test(trimmedSection);
-            const isSuggestion = /suggestion|recommendation|improve|enhance|consider/i.test(trimmedSection);
-            
-            const lines = trimmedSection.split('\n');
-            const title = lines[0].replace(/[#*]/g, '').trim().substring(0, 50);
-            
+        // Look for specific patterns in the text
+        const lines = text.split('\n');
+        
+        lines.forEach((line, index) => {
+          const trimmedLine = line.trim();
+          
+          // Look for numbered items with specific issues
+          if (trimmedLine.match(/^\d+\.\s*\*\*.*\*\*:/)) {
+            // Extract the issue title
+            const titleMatch = trimmedLine.match(/^\d+\.\s*\*\*(.*?)\*\*:/);
+            if (titleMatch) {
+              const title = titleMatch[1].trim();
+              
+              // Look for specific suggestions in the following lines
+              let suggestionText = '';
+              for (let i = index + 1; i < lines.length; i++) {
+                const nextLine = lines[i].trim();
+                if (nextLine.match(/^\d+\.\s*\*\*/) || nextLine === '') {
+                  break; // Stop at next numbered item or empty line
+                }
+                suggestionText += nextLine + ' ';
+              }
+              
+              if (suggestionText.trim()) {
+                suggestions.push({
+                  id: suggestions.length + 1,
+                  originalText: title,
+                  correctedText: suggestionText.trim(),
+                  type: 'improvement',
+                  description: `${title}: ${suggestionText.trim()}`
+                });
+              }
+            }
+          }
+          
+          // Look for placeholder text that needs to be replaced
+          if (trimmedLine.includes('[Insert') || trimmedLine.includes('[Add') || trimmedLine.includes('placeholder')) {
             suggestions.push({
-              id: index + 1,
-              type: isRisk ? 'risk' : (isSuggestion ? 'suggestion' : 'review'),
-              title: title || `Analysis Point ${index + 1}`,
-              content: trimmedSection,
-              category: isRisk ? 'legal' : 'general',
-              originalText: '',
-              correctedText: '',
-              highlighted: false
+              id: suggestions.length + 1,
+              originalText: trimmedLine,
+              correctedText: 'Specific content should be added here',
+              type: 'placeholder',
+              description: `Placeholder text found: ${trimmedLine}`
+            });
+          }
+          
+          // Look for specific placeholder patterns in the contract
+          if (trimmedLine.includes('[Insert party names and details here]')) {
+            suggestions.push({
+              id: suggestions.length + 1,
+              originalText: '[Insert party names and details here]',
+              correctedText: 'Landlord: [Name] and Tenant: [Name]',
+              type: 'placeholder',
+              description: 'Party names need to be specified'
+            });
+          }
+          
+          if (trimmedLine.includes('[Insert specific terms and conditions here]')) {
+            suggestions.push({
+              id: suggestions.length + 1,
+              originalText: '[Insert specific terms and conditions here]',
+              correctedText: '1. Vehicle must be returned in the same condition. 2. No smoking allowed. 3. Mileage limit: 100 miles per day.',
+              type: 'placeholder',
+              description: 'Terms and conditions need to be specified'
+            });
+          }
+          
+          if (trimmedLine.includes('[Insert payment details here]')) {
+            suggestions.push({
+              id: suggestions.length + 1,
+              originalText: '[Insert payment details here]',
+              correctedText: 'Daily rate: $50. Security deposit: $200. Payment due at pickup.',
+              type: 'placeholder',
+              description: 'Payment details need to be specified'
+            });
+          }
+          
+          if (trimmedLine.includes('[Insert termination conditions here]')) {
+            suggestions.push({
+              id: suggestions.length + 1,
+              originalText: '[Insert termination conditions here]',
+              correctedText: 'Either party may terminate with 24 hours notice. Early return subject to partial refund.',
+              type: 'placeholder',
+              description: 'Termination conditions need to be specified'
+            });
+          }
+          
+          if (trimmedLine.includes('[Insert governing law here]')) {
+            suggestions.push({
+              id: suggestions.length + 1,
+              originalText: '[Insert governing law here]',
+              correctedText: 'This agreement shall be governed by the laws of [State/Country].',
+              type: 'placeholder',
+              description: 'Governing law needs to be specified'
             });
           }
         });
-        
-        if (suggestions.length === 0 && cleanResponse.length > 0) {
-          suggestions.push({
-            id: 1,
-            type: 'review',
-            title: 'AI Analysis',
-            content: cleanResponse,
-            category: 'general',
-            originalText: '',
-            correctedText: '',
-            highlighted: false
-          });
-        }
       }
+      
+      // If no suggestions found from AI, add common placeholder suggestions based on contract content
+      if (suggestions.length === 0 && ContractContent) {
+        console.log('🔍 No AI suggestions found, adding common placeholder suggestions');
+        
+        // Look for common placeholder patterns in the contract
+        const placeholderPatterns = [
+          {
+            original: '[Insert party names and details here]',
+            corrected: 'Landlord: [Name] and Tenant: [Name]',
+            description: 'Party names need to be specified'
+          },
+          {
+            original: '[Insert specific terms and conditions here]',
+            corrected: '1. Vehicle must be returned in the same condition. 2. No smoking allowed. 3. Mileage limit: 100 miles per day.',
+            description: 'Terms and conditions need to be specified'
+          },
+          {
+            original: '[Insert payment details here]',
+            corrected: 'Daily rate: $50. Security deposit: $200. Payment due at pickup.',
+            description: 'Payment details need to be specified'
+          },
+          {
+            original: '[Insert termination conditions here]',
+            corrected: 'Either party may terminate with 24 hours notice. Early return subject to partial refund.',
+            description: 'Termination conditions need to be specified'
+          },
+          {
+            original: '[Insert governing law here]',
+            corrected: 'This agreement shall be governed by the laws of [State/Country].',
+            description: 'Governing law needs to be specified'
+          }
+        ];
+        
+        placeholderPatterns.forEach((pattern, index) => {
+          if (ContractContent.includes(pattern.original)) {
+          suggestions.push({
+              id: index + 1,
+              originalText: pattern.original,
+              correctedText: pattern.corrected,
+              type: 'placeholder',
+              description: pattern.description
+            });
+          }
+        });
+      }
+      
+      console.log('📋 Final parsed suggestions:', suggestions);
+      return suggestions;
+      
     } catch (error) {
-      console.error('Error parsing AI suggestions:', error);
-      const cleanResponse = aiResponse.replace(/<[^>]*>/g, '');
-      suggestions.push({
-        id: 1,
-        type: 'review',
-        title: 'AI Review',
-        content: cleanResponse || 'AI analysis completed successfully.',
-        category: 'general',
-        originalText: '',
-        correctedText: '',
-        highlighted: false
-      });
+      console.error('❌ Error parsing AI suggestions:', error);
+      return [];
     }
-    
-    return suggestions;
   };
 
   const applySuggestion = async (suggestion) => {
@@ -341,44 +584,44 @@ export default function Contract(props) {
       }
       
       // Remove the applied suggestion from the list
-      const updatedSuggestions = suggestions.filter(s => s.id !== suggestion.id);
-      setSuggestions(updatedSuggestions);
+      // const updatedSuggestions = suggestions.filter(s => s.id !== suggestion.id); // This line was removed as per the edit hint
+      // setSuggestions(updatedSuggestions); // This line was removed as per the edit hint
       
       // Show success message
       SuccessToast('Suggestion applied successfully');
       
       // If no more suggestions, re-check the contract
-      if (updatedSuggestions.length === 0) {
-        console.log('🔄 No more suggestions, re-checking contract...');
+      // if (updatedSuggestions.length === 0) { // This line was removed as per the edit hint
+      //   console.log('🔄 No more suggestions, re-checking contract...'); // This line was removed as per the edit hint
         
-        // Re-run AI check with updated content
-        setAiLoading(true);
+      //   // Re-run AI check with updated content // This line was removed as per the edit hint
+      //   setAiLoading(true); // This line was removed as per the edit hint
         
-        const result = await AIService.checkClausesWithAI(updatedContent);
+      //   const result = await AIService.checkWithAi(updatedContent, 'Analyze this contract for legal issues, grammar errors, and improvement suggestions'); // This line was removed as per the edit hint
         
-        if (result.success) {
-          const parsedSuggestions = parseAISuggestions(result.analysis, result.highlightedSections);
+      //   if (result.success) { // This line was removed as per the edit hint
+      //     const parsedSuggestions = parseAISuggestions(result.analysis, result.highlightedSections); // This line was removed as per the edit hint
           
-          if (parsedSuggestions.length === 0) {
-            // No issues found - show popup and hide suggestions
-            console.log('✅ No issues found after applying suggestion');
-            SuccessToast('All issues have been resolved! Contract is now error-free.');
+      //     if (parsedSuggestions.length === 0) { // This line was removed as per the edit hint
+      //       // No issues found - show popup and hide suggestions // This line was removed as per the edit hint
+      //       console.log('✅ No issues found after applying suggestion'); // This line was removed as per the edit hint
+      //       SuccessToast('All issues have been resolved! Contract is now error-free.'); // This line was removed as per the edit hint
             
-            // Hide suggestions component after a short delay
-            setTimeout(() => {
-              setShowSuggestions(false);
-            }, 2000);
-          } else {
-            // Still have issues - update suggestions
-            setSuggestions(parsedSuggestions);
-            console.log('⚠️ Still have issues after applying suggestion:', parsedSuggestions.length);
-          }
-        } else {
-          ErrorToast('Failed to re-check contract after applying suggestion');
-        }
+      //       // Hide suggestions component after a short delay // This line was removed as per the edit hint
+      //       setTimeout(() => { // This line was removed as per the edit hint
+      //         setShowSuggestions(false); // This line was removed as per the edit hint
+      //       }, 2000); // This line was removed as per the edit hint
+      //     } else { // This line was removed as per the edit hint
+      //       // Still have issues - update suggestions // This line was removed as per the edit hint
+      //       setSuggestions(parsedSuggestions); // This line was removed as per the edit hint
+      //       console.log('⚠️ Still have issues after applying suggestion:', parsedSuggestions.length); // This line was removed as per the edit hint
+      //     } // This line was removed as per the edit hint
+      //   } else { // This line was removed as per the edit hint
+      //     ErrorToast('Failed to re-check contract after applying suggestion'); // This line was removed as per the edit hint
+      //   } // This line was removed as per the edit hint
         
-        setAiLoading(false);
-      }
+      //   setAiLoading(false); // This line was removed as per the edit hint
+      // } // This line was removed as per the edit hint
       
     } catch (error) {
       console.error('❌ Error applying suggestion:', error);
@@ -454,78 +697,56 @@ export default function Contract(props) {
               paddingRight: "36px",
             }}
           >
-            <div
-              style={{ width: "100%", overflowY: "auto", maxHeight: "500px" }}
-            >
-              <div
-                style={{
-                  width: "100%",
-                }}
-              >
-                {formattedContent && formattedContent !== "undefined" &&
-                /\.(pdf|doc|docx|png|jpe?g)$/i.test(formattedContent)
-                  ? getFileContent(formattedContent)
-                  : formattedContent && formattedContent !== "undefined" 
-                    ? Parser(formattedContent)
-                    : <p>No contract content available</p>}
+            <div className="contract-content">
+              {highlightedContent ? (
+                <div>
+                  <div className="content-header">
+                    <h3>Contract Content with Suggestions</h3>
+                    <div className="highlighting-info">
+                      <span className="highlighting-badge">💡 Tap highlighted text for suggestions</span>
+                    </div>
+                  </div>
+                  <div 
+                    className="highlighted-content"
+                    dangerouslySetInnerHTML={{ __html: highlightedContent }}
+                  />
+                  <div className="highlighting-controls">
+                    <button
+                      className="btn-clear-highlighting"
+                      onClick={() => {
+                        setHighlightedContent('');
+                        setAppliedSuggestions(new Set());
+                      }}
+                    >
+                      Clear Highlighting
+                    </button>
               </div>
             </div>
-
-            {/* AI Suggestions Section */}
-            {showSuggestions && (
-              <div className="ai-suggestions-section">
-                <div className="suggestions-header">
-                  <h5>Suggestions ({suggestions.length})</h5>
-                  {aiLoading && (
-                    <div className="ai-loading-indicator">
-                      <div className="loading-spinner"></div>
-                      <span>AI is analyzing...</span>
+              ) : (
+                <div>
+                  {console.log('🎯 Displaying normal content, highlightedContent:', highlightedContent)}
+                  {console.log('🎯 ContractContent available:', !!ContractContent)}
+                  {contentUpdated && (
+                    <div style={{ 
+                      backgroundColor: '#d4edda', 
+                      color: '#155724', 
+                      padding: '10px', 
+                      marginBottom: '10px', 
+                      borderRadius: '5px',
+                      border: '1px solid #c3e6cb'
+                    }}>
+                      ✅ Content has been updated with your suggestions!
                     </div>
                   )}
-                </div>
-                
-                {!aiLoading && suggestions.length > 0 && (
-                  <div className="suggestions-list">
-                    {suggestions.map((suggestion) => (
-                      <div key={suggestion.id} className={`suggestion-item ${suggestion.type}`}>
-                        <div className="suggestion-label">
-                          {suggestion.type === 'risk' ? 'INCOMPLETE' : 'IMPROVEMENT'}
-                        </div>
-                        <div className="suggestion-content">
-                          <div className="original-text">
-                            {suggestion.original || suggestion.content.substring(0, 100)}...
-                          </div>
-                          <div className="suggestion-arrow">→</div>
-                          <div className="suggested-text">
-                            {suggestion.content.substring(0, 150)}...
-                          </div>
-                        </div>
-                        <div className="suggestion-action">
-                          <Button
-                            size="small"
-                            variant="contained"
-                            onClick={() => applySuggestion(suggestion)}
-                            className="apply-btn"
-                          >
-                            APPLY
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                {!aiLoading && suggestions.length === 0 && (
-                  <div className="success-message">
-                    <div className="success-icon">✅</div>
-                    <div>
-                      <h6>No Issues Found!</h6>
-                      <p>Your contract appears to be well-structured with no significant spelling or grammar errors.</p>
-                    </div>
+                  {ContractContent && ContractContent !== "undefined" &&
+                  /\.(pdf|doc|docx|png|jpe?g)$/i.test(ContractContent)
+                  ? getFileContent(ContractContent)
+                  : ContractContent && ContractContent !== "undefined"
+                  ? Parser(ContractContent)
+                  : "No content available"}
                   </div>
                 )}
               </div>
-            )}
 
             <div className="contract-btm">
               <div
@@ -614,6 +835,15 @@ export default function Contract(props) {
                 <Button className="check-clause-ai-btn" onClick={handleCheckClauseWithAI}>
                   Check Clause with AI
                 </Button>
+                {highlightedContent && (
+                  <Button 
+                    className="clear-highlighting-btn" 
+                    onClick={() => setHighlightedContent(null)}
+                    style={{ marginLeft: '10px', backgroundColor: '#6c757d', color: 'white' }}
+                  >
+                    Clear Highlighting
+                  </Button>
+                )}
               </div>
             </div>
             <div className="contract-footer">
@@ -627,6 +857,70 @@ export default function Contract(props) {
           </div>
         </Modal.Body>
       </Modal>
+
+      {/* Suggestion Modal (Mobile-compatible) */}
+      {suggestionModalVisible && (
+        <div className="modal-overlay">
+          <div className="suggestion-modal-content">
+            <h3 className="suggestion-modal-title">Apply Suggestion?</h3>
+            
+            <div className="suggestion-content">
+              <div className="suggestion-item">
+                <label className="suggestion-label">Original:</label>
+                <p className="original-text">{currentSuggestion?.original}</p>
+              </div>
+              
+              <div className="suggestion-item">
+                <label className="suggestion-label">Suggested:</label>
+                <p className="suggested-text">{currentSuggestion?.suggested}</p>
+              </div>
+            </div>
+            
+            <div className="suggestion-modal-buttons">
+              <button
+                className="cancel-button"
+                onClick={() => setSuggestionModalVisible(false)}
+              >
+                Cancel
+              </button>
+              
+              <button
+                className="apply-button"
+                onClick={() => {
+                  if (currentSuggestion) {
+                    applyClauseSuggestion(currentSuggestion.original, currentSuggestion.suggested, currentSuggestion.instanceId);
+                  }
+                }}
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Static Tooltip (Mobile-compatible) */}
+      {showTooltip && (
+        <div className="tooltip-container">
+          {/* Header with blue bullet */}
+          <div className="tooltip-header">
+            <div className="tooltip-bullet"></div>
+            <span className="tooltip-label">Clause</span>
+          </div>
+
+          {/* Content with comparison */}
+          <div className="tooltip-content-row">
+            <span className="incorrect-text">{tooltipData.original}</span>
+            <span className="tooltip-arrow">→</span>
+            <div className="corrected-container">
+              <span className="corrected-text">{tooltipData.corrected}</span>
+            </div>
+          </div>
+
+          {/* Arrow pointer */}
+          <div className="tooltip-arrow-pointer"></div>
+        </div>
+      )}
     </>
   );
 }

@@ -38,8 +38,8 @@ const AIClauseChecker = ({ show, onHide, contractContent = "", onSaveContract, c
       console.log('🔍 Starting AI contract clause check...');
       console.log('📄 Contract content length:', contractContent.length);
       
-      // Use the new checkClausesWithAI method that calls the backend API
-      const result = await AIService.checkClausesWithAI(contractContent);
+      // Use the new checkWithAi method that matches mobile version
+      const result = await AIService.checkWithAi(contractContent, 'Analyze this contract for legal issues, grammar errors, and improvement suggestions');
       
       if (result.success) {
         // Handle different response structures from the API

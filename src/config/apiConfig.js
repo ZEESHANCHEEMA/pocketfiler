@@ -90,6 +90,8 @@ export const API_ENDPOINTS = {
     GET_CONTRACT_BY_ID: '/contract/getContractById',
     CREATE_CONTRACT_API: '/contract/createContract',
     UPLOAD_CONTRACT_FILE: '/contract/uploadContractFile',
+    CHECK_WITH_AI: '/contract/checkWithAi', // Mobile-compatible AI endpoint
+    CHECK_GRAMMAR: '/contract/checkGrammar', // Legacy grammar endpoint
   },
   PROJECT: {
     GET_PROJECTS: '/project/getProjects',

@@ -8,7 +8,6 @@ import api from "../../services/apiInterceptor";
 import ScreenLoader from "../../Components/loader/ScreenLoader";
 import AddContract from "../../Components/Modals/AddContract/AddContract";
 import Contract from "../../Components/Modals/Contract/Contract";
-import AIClauseChecker from "../../Components/Modals/AIClauseChecker/AIClauseChecker";
 import TestingEditior from "../TestingEditior";
 import axios from "axios";
 import { setContractEditor } from "../../services/redux/reducer/addcontracteditor";
@@ -36,7 +35,6 @@ export default function ContractEditorPage() {
   const [promptText, setPromptText] = useState("");
   const [templateData, setTemplateData] = useState(null);
   const [showContractModal, setShowContractModal] = useState(false);
-  const [showAIChecker, setShowAIChecker] = useState(false);
   const [aiStatus, setAiStatus] = useState(null);
 
   useEffect(() => {
@@ -117,22 +115,6 @@ export default function ContractEditorPage() {
     navigate("/Templates");
   };
 
-  const handleCheckClauseWithAI = () => {
-    if (!ContractContent && !imageSrc) {
-      ErrorToast("Please add some contract content before checking with AI");
-      return;
-    }
-    
-    console.log('🤖 ContractEditor: Opening AI Clause Checker with data:', {
-      ContractName: ContractName || templateData?.title || "Contract from Template",
-      ContractType: templateData?.category || "General Contract",
-      ContractContent: ContractContent || imageSrc || "",
-      templateData: templateData
-    });
-    
-    setShowAIChecker(true);
-  };
-
   const handleEditName = () => {
     setModalShow(true);
   };
@@ -186,7 +168,7 @@ export default function ContractEditorPage() {
     }
   };
 
-  // Enhanced AI function using the new AIService
+  // Enhanced AI function using the new AIService with smart templates (Mobile-compatible)
   async function ChatAi() {
     if (!promptText.trim()) {
       ErrorToast("Please enter a prompt for contract generation");
@@ -196,26 +178,54 @@ export default function ContractEditorPage() {
     setLoader(true);
     
     try {
-      console.log('🤖 Starting AI contract generation...');
+      console.log('🤖 Starting AI contract generation with smart templates...');
       console.log('📝 Prompt:', promptText);
+      console.log('📄 Existing content length:', ContractContent?.length || 0);
       
-      // Get existing content if any
-      const existingContent = ContractContent || '';
+      let result;
       
-      const result = await AIService.generateContractContent(promptText, existingContent);
+      // Check if AI service is available
+      if (aiStatus && aiStatus.available) {
+        // Use the new smart template system with real API
+        result = await AIService.generateContractWithTemplates(promptText, ContractContent);
+      } else {
+        // Use mock AI service for testing
+        console.log('⚠️ Real AI service unavailable, using mock service...');
+        result = await AIService.mockAIService(promptText, ContractContent);
+      }
       
       if (result.success) {
-        setImageSrc(result.content);
-        dispatch(setContractEditor(result.content));
-        SuccessToast(result.message);
-        console.log('✅ AI contract generation successful');
+        console.log('✅ AI contract generation completed');
+        console.log('📋 Selected template:', result.template?.title);
+        console.log('📄 Generated content length:', result.content?.length || result.analysis?.length || 0);
+        
+        // Update the editor with generated content
+        const contentToUse = result.content || result.analysis;
+        setImageSrc(contentToUse);
+        dispatch(setContractEditor(contentToUse));
+        
+        // Clear the prompt
+        setPromptText("");
+        
+        // Show success message
+        SuccessToast(result.message || 'Contract generated successfully');
+        
+        // Log template details
+        if (result.template) {
+          console.log('📋 Template details:', {
+            id: result.template.id,
+            title: result.template.title,
+            category: result.template.category,
+            sections: result.template.sections
+          });
+        }
       } else {
-        ErrorToast(result.error);
         console.error('❌ AI contract generation failed:', result.error);
+        ErrorToast(result.error || 'Failed to generate contract');
       }
     } catch (error) {
-      console.error("❌ AI generation error:", error);
-      ErrorToast("Failed to generate contract content. Please try again.");
+      console.error('❌ AI contract generation error:', error);
+      ErrorToast('Failed to generate contract. Please try again.');
     } finally {
       setLoader(false);
     }
@@ -403,25 +413,6 @@ export default function ContractEditorPage() {
         show={showContractModal}
         setModalShow={setShowContractModal}
         onHide={() => setShowContractModal(false)}
-      />
-
-      {/* AI Clause Checker Modal */}
-      <AIClauseChecker
-        show={showAIChecker}
-        onHide={() => setShowAIChecker(false)}
-        contractContent={ContractContent || imageSrc || ""}
-        onSaveContract={() => {
-          // Handle save contract if needed
-          console.log("Save contract from AI checker");
-        }}
-        contractData={{
-          ContractName: ContractName || templateData?.title || "Contract from Template",
-          ContractType: templateData?.category || "General Contract",
-          ContractContent: ContractContent || imageSrc || "",
-          ContractSign: "", // Add signature handling if needed
-          startDate: new Date(),
-          UserID: userId || ""
-        }}
       />
     </>
   );
