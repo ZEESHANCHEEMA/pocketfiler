@@ -23,6 +23,16 @@ import { getTotalCount } from "../../../services/redux/middleware/Project/projec
 import { setContractEditor } from "../../../services/redux/reducer/addcontracteditor";
 
 export default function Contract(props) {
+  const { show, onHide, onHideAdd, ...modalProps } = props;
+  
+  // Debug modal state changes
+  useEffect(() => {
+    console.log("🔍 Contract: show prop changed to:", show);
+    if (show) {
+      console.log("🔍 Contract: Modal is being opened!");
+    }
+  }, [show]);
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
@@ -177,8 +187,16 @@ export default function Contract(props) {
 
   useEffect(() => {
     const userid = localStorage.getItem("_id");
+    console.log('🔍 Retrieved userid from localStorage:', userid);
 
-    setUserID(userid);
+    if (userid && userid !== "undefined" && userid !== "null") {
+      setUserID(userid);
+      console.log('✅ UserID set successfully:', userid);
+    } else {
+      console.error('❌ Invalid userid from localStorage:', userid);
+      ErrorToast('User authentication error. Please login again.');
+      return;
+    }
     
     // Add global function for handling suggestion clicks
     window.showSuggestion = (originalText, suggestedText, instanceId) => {
@@ -192,7 +210,7 @@ export default function Contract(props) {
     
     // Reset content updated flag when component mounts
     setContentUpdated(false);
-  }, [UserID]);
+  }, []); // Remove UserID from dependency array to prevent infinite loop
 
   useEffect(() => {
     if (ContractContent && ContractContent !== "undefined") {
@@ -238,6 +256,20 @@ export default function Contract(props) {
   }, [ContractContent, highlightedContent, contentUpdated]);
 
   async function SaveContract() {
+    // Check authentication first
+    const token = localStorage.getItem('token');
+    const userid = localStorage.getItem('_id');
+    
+    if (!token) {
+      ErrorToast("Authentication required. Please login again.");
+      return;
+    }
+    
+    if (!userid || userid === "undefined" || userid === "null") {
+      ErrorToast("User authentication error. Please login again.");
+      return;
+    }
+    
     if (!ContractType) {
       ErrorToast("Contract Type is required.");
       return;
@@ -250,8 +282,9 @@ export default function Contract(props) {
       ErrorToast("Contract date is required.");
       return;
     }
-    if (!UserID) {
-      ErrorToast("User ID is required.");
+    if (!UserID || UserID === "undefined" || UserID === "null") {
+      console.error('❌ Invalid UserID:', UserID);
+      ErrorToast("User authentication error. Please login again.");
       return;
     }
     if (!ContractSign) {
@@ -264,16 +297,25 @@ export default function Contract(props) {
     }
     setLoader(true);
     try {
+      console.log('🔍 SaveContract - UserID:', UserID);
+      console.log('🔍 SaveContract - ContractType:', ContractType);
+      console.log('🔍 SaveContract - ContractName:', ContractName);
+      console.log('🔍 SaveContract - startDate:', startDate);
+      console.log('🔍 SaveContract - ContractSign:', ContractSign);
+      console.log('🔍 SaveContract - ContractContent length:', ContractContent ? ContractContent.length : 0);
+      
       const data = {
         category: ContractType,
         contractName: ContractName,
         Date: startDate,
-        userId: UserID,
+        userId: userid, // Use fresh userid from localStorage
         signatureImage: ContractSign,
         contractText: ContractContent,
       };
+      
+      console.log('📤 Sending contract data:', data);
       const dataall = {
-        id: UserID,
+        id: userid, // Use fresh userid from localStorage
         page: 1,
       };
       dispatch(savecontract(data)).then((res) => {
@@ -284,8 +326,8 @@ export default function Contract(props) {
           dispatch(setContractSign(""));
           SuccessToast("Contract Added Successfully");
           dispatch(getAllContract(dataall));
-          dispatch(getContract(UserID));
-          dispatch(getTotalCount(UserID));
+          dispatch(getContract(userid));
+          dispatch(getTotalCount(userid));
           navigate("/Dashboard");
           setFormattedContent("");
           props.onHide();

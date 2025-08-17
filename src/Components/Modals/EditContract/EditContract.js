@@ -21,6 +21,20 @@ import api from "../../../services/apiInterceptor";
 import TestingEditior from "../../../Pages/TestingEditior";
 
 export default function EditContract(props) {
+  const { ContractID, show, onHide, mode = "view", ...modalProps } = props;
+
+  // Add CSS for spinner animation
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
   const fileInputRef = React.useRef(null);
 
   const dispatch = useDispatch();
@@ -47,17 +61,51 @@ export default function EditContract(props) {
   );
 
   const ContractPreviouContext = useSelector(
-    (state) => state?.getviewcontract?.viewContract?.data?.contractText
+    (state) => state?.getviewcontract?.viewContract?.data?.contractText || 
+                 state?.getviewcontract?.viewContract?.data?.content ||
+                 state?.getviewcontract?.viewContract?.data?.text
   );
+
+  // Add debugging to check if data is loading
+  const isLoading = useSelector(
+    (state) => state?.getviewcontract?.loading
+  );
+  console.log("🔍 EditContract: Contract loading state:", isLoading);
+  console.log("🔍 EditContract: Contract data structure:", ContractPreviousData);
+  console.log("🔍 EditContract: Contract text content:", ContractPreviouContext);
+  console.log("🔍 EditContract: Contract data keys:", ContractPreviousData ? Object.keys(ContractPreviousData) : 'No data');
 
   const ContractSign = useSelector((state) => state?.addsign.contractsign);
   console.log("Contract Signature is", ContractPreviouContext);
+  
+  // Debug user ID comparison
+  console.log("🔍 EditContract: User ID Debug:", {
+    currentUserID: UserID,
+    contractUserId: ContractPreviousData?.userId,
+    isOwner: ContractPreviousData?.userId === UserID,
+    showEditIcon: ContractPreviousData?.userId === UserID
+  });
 
   useEffect(() => {
-    console.log("id is", props.ContractID);
-    dispatch(viewcontract(props.ContractID));
-    console.log("viewing");
-  }, [props.ContractID]);
+    if (ContractID && show) {
+      console.log("🔍 EditContract: Contract ID is", ContractID);
+      console.log("🔍 EditContract: Modal show state is", show);
+      console.log("🔍 EditContract: Mode is", mode);
+      console.log("🔍 EditContract: About to dispatch viewcontract action for ContractID:", ContractID);
+      dispatch(viewcontract(ContractID));
+      console.log("🔍 EditContract: Dispatched viewcontract action");
+      
+      // If mode is edit, automatically enable edit mode
+      if (mode === "edit") {
+        console.log("🔍 EditContract: Auto-enabling edit mode");
+        setTimeout(() => {
+          seteditable(true);
+          setImageSrc(ContractPreviouContext);
+          dispatch(setContractEditor(ContractPreviouContext));
+        }, 1000); // Small delay to ensure contract data is loaded
+      }
+    }
+  }, [ContractID, show, mode]);
 
   useEffect(() => {
     const userid = localStorage.getItem("_id");
@@ -65,10 +113,46 @@ export default function EditContract(props) {
     setUserID(userid);
   }, [UserID]);
 
+  // Load signature and date from contract data when it becomes available
+  useEffect(() => {
+    if (ContractPreviousData) {
+      console.log("🔍 EditContract: Loading signature and date from contract data");
+      
+      // Load signature if available
+      if (ContractPreviousData.signatureImage || ContractPreviousData.signature) {
+        console.log("🔍 EditContract: Setting signature from contract data");
+        // Note: We don't have a setter for ContractSign, it's managed by Redux
+        // The signature should be displayed automatically from ContractPreviousData
+      }
+      
+      // Load date if available
+      if (ContractPreviousData.Date || ContractPreviousData.date) {
+        console.log("🔍 EditContract: Setting date from contract data:", ContractPreviousData.Date || ContractPreviousData.date);
+        const contractDate = new Date(ContractPreviousData.Date || ContractPreviousData.date);
+        setStartDate(contractDate);
+      }
+      
+      console.log("🔍 EditContract: Signature and date loading complete");
+    }
+  }, [ContractPreviousData]);
+
   console.log("format", formattedContent);
+  console.log("🔍 EditContract: Current state:", {
+    editable: editable,
+    modalShow: modalShow,
+    ContractID: ContractID,
+    show: show,
+    mode: mode,
+    hasContractData: !!ContractPreviousData
+  });
 
   const handleEditName = () => {
+    console.log("🔍 handleEditName called - enabling edit mode");
     setModalShow(true);
+    // Also enable content editing mode
+    seteditable(true);
+    setImageSrc(ContractPreviouContext);
+    dispatch(setContractEditor(ContractPreviouContext));
   };
 
   const ContractName = useSelector(
@@ -88,12 +172,12 @@ export default function EditContract(props) {
     setLoader(true);
     try {
       const data = {
-        id: props.ContractID,
+        id: ContractID,
         userId: UserID,
-        date: startDate ? startDate : ContractPreviousData?.Date,
+        date: startDate ? startDate : ContractPreviousData?.Date || ContractPreviousData?.date,
         signature: ContractSign
           ? ContractSign
-          : ContractPreviousData.signatureImage,
+          : ContractPreviousData?.signatureImage || ContractPreviousData?.signature,
 
         contractText:
           editable && ContractContent
@@ -107,7 +191,7 @@ export default function EditContract(props) {
           console.log("Contract Edited res", res?.payload?.data);
           // dispatch(setContract({ name:"",type:"" }));
           // dispatch(setContractSign(""));
-          dispatch(viewcontract(props.ContractID));
+          dispatch(viewcontract(ContractID));
           const dataall = {
             id: UserID,
             page: 1,
@@ -208,7 +292,9 @@ export default function EditContract(props) {
     <>
       {loader && <ScreenLoader />}
       <Modal
-        {...props}
+        {...modalProps}
+        show={show}
+        onHide={onHide}
         aria-labelledby="contained-modal-title-vcenter"
         centered
         className="contract-modal"
@@ -221,9 +307,9 @@ export default function EditContract(props) {
             className="contract-title-top"
           >
             <p className="contract-title">
-              {ContractPreviousData?.contractName}
+              {ContractPreviousData?.contractName || ContractPreviousData?.name || "Untitled Contract"}
             </p>
-            {ContractPreviousData?.userId === parseInt(UserID) && (
+            {ContractPreviousData?.userId === UserID && (
               <img
                 src="/Images/Contract/edit-icon.svg"
                 alt="edit-icon"
@@ -232,6 +318,8 @@ export default function EditContract(props) {
                 // onClick={() => setModalShow(true)}
               />
             )}
+            
+
 
             <EditContractName
               show={modalShow}
@@ -242,7 +330,7 @@ export default function EditContract(props) {
                 setImageSrc(ContractPreviouContext);
                 dispatch(setContractEditor(ContractPreviouContext));
               }}
-              ContractID={props.ContractID}
+              ContractID={ContractID}
             />
           </Modal.Title>
         </Modal.Header>
@@ -267,19 +355,51 @@ export default function EditContract(props) {
                 maxHeight: "500px",
               }}
             >
-              {!editable ? (
+              {isLoading ? (
+                <div style={{ textAlign: 'center', padding: '40px' }}>
+                  <ScreenLoader />
+                  <p style={{ marginTop: '20px', color: '#666' }}>Loading contract data...</p>
+                </div>
+              ) : !ContractPreviousData ? (
+                <div style={{ textAlign: 'center', padding: '40px' }}>
+                  <ScreenLoader />
+                  <p style={{ marginTop: '20px', color: '#666' }}>Loading contract data...</p>
+                  <details style={{ marginTop: '20px', textAlign: 'left' }}>
+                    <summary>Debug Info</summary>
+                    <pre style={{ fontSize: '12px', color: '#666' }}>
+                      {JSON.stringify({ ContractID, show, isLoading }, null, 2)}
+                    </pre>
+                  </details>
+                </div>
+              ) : !editable ? (
                 <div>
                   {ContractPreviouContext &&
                   /\.(pdf|doc|docx|png|jpe?g)$/i.test(
                     ContractPreviouContext
                   ) ? (
                     getFileContent(ContractPreviouContext)
-                  ) : (
+                  ) : ContractPreviouContext ? (
                     <div
                       dangerouslySetInnerHTML={{
                         __html: ContractPreviouContext,
                       }}
                     />
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                      <p>No contract content available.</p>
+                      <details style={{ marginTop: '10px', textAlign: 'left' }}>
+                        <summary>Debug Info</summary>
+                        <pre style={{ fontSize: '12px', color: '#666' }}>
+                          {JSON.stringify({ 
+                            ContractPreviousData, 
+                            ContractPreviouContext,
+                            hasContractText: !!ContractPreviousData?.contractText,
+                            hasContent: !!ContractPreviousData?.content,
+                            hasText: !!ContractPreviousData?.text
+                          }, null, 2)}
+                        </pre>
+                      </details>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -332,9 +452,13 @@ export default function EditContract(props) {
               <div className="sign-date-contain align-items-end">
                 <div className="sign-inner-contain">
                   <div className="sign-edit">
-                    {ContractPreviousData?.signatureImage && !editable ? (
+                    {isLoading ? (
+                      <div style={{ width: "94px", height: "63px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ width: "20px", height: "20px", border: "2px solid #f3f3f3", borderTop: "2px solid #3498db", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
+                      </div>
+                    ) : (ContractPreviousData?.signatureImage || ContractPreviousData?.signature) ? (
                       <img
-                        src={ContractPreviousData?.signatureImage}
+                        src={ContractPreviousData?.signatureImage || ContractPreviousData?.signature}
                         alt="signature"
                         width={"94px"}
                         height={"63px"}
@@ -389,9 +513,13 @@ export default function EditContract(props) {
                 </div>
 
                 <div className="sign-inner-contain">
-                  {ContractPreviousData?.Date && !editable ? (
+                  {isLoading ? (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "20px" }}>
+                      <div style={{ width: "16px", height: "16px", border: "2px solid #f3f3f3", borderTop: "2px solid #3498db", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
+                    </div>
+                  ) : (ContractPreviousData?.Date || ContractPreviousData?.date) ? (
                     <>
-                      {new Date(ContractPreviousData.Date).toLocaleDateString(
+                      {new Date(ContractPreviousData?.Date || ContractPreviousData?.date).toLocaleDateString(
                         "en-US",
                         {
                           month: "short",

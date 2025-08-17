@@ -10,6 +10,7 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import React from "react";
 import "./AllContractTable.css";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -26,11 +27,28 @@ export default function AllContractTable({ year }) {
     (state) => state?.getAllContract?.allcontract
   );
   console.log("contract all data in table", ContractAllData);
+  console.log("🔍 AllContractsTable: Contract data structure:", ContractAllData?.data?.contracts);
+  if (ContractAllData?.data?.contracts?.length > 0) {
+    console.log("🔍 AllContractsTable: First contract:", ContractAllData.data.contracts[0]);
+    console.log("🔍 AllContractsTable: First contract keys:", Object.keys(ContractAllData.data.contracts[0]));
+  }
 
   const [currentPage, setCurrentPage] = useState(1);
   const [modalShow, setModalShow] = useState(false);
   const [modalShowView, setModalShowView] = useState(false);
+  const [modalShowEdit, setModalShowEdit] = useState(false);
+  const [selectedViewRowId, setSelectedViewRowId] = useState(null);
+  const [selectedEditRowId, setSelectedEditRowId] = useState(null);
   const [userId, setUserId] = useState();
+
+  // Debug state changes
+  useEffect(() => {
+    console.log("🔍 AllContractsTable: selectedViewRowId changed to:", selectedViewRowId);
+  }, [selectedViewRowId]);
+
+  useEffect(() => {
+    console.log("🔍 AllContractsTable: modalShowView changed to:", modalShowView);
+  }, [modalShowView]);
 
   const isMobile = useMediaQuery({
     query: "(max-width: 768px)",
@@ -38,12 +56,20 @@ export default function AllContractTable({ year }) {
 
   function Row(props) {
     const { row } = props;
+    
+    // Debug user ID comparison
+    console.log("🔍 AllContractsTable: Row userId check:", {
+      currentUserId: userId,
+      contractUserId: row.userId?._id || row.userId,
+      isOwner: userId == (row.userId?._id || row.userId),
+      rowData: row
+    });
 
     return (
       <React.Fragment>
         <TableRow
           sx={{ "& > *": { borderBottom: "unset" } }}
-          onClick={() => handleViewContractClick(row.id)}
+          onClick={() => handleViewContractClick(row._id)}
         >
           <TableCell
             component="th"
@@ -119,7 +145,8 @@ export default function AllContractTable({ year }) {
                     alt="edit"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleViewContractClick(row.id);
+                      console.log("🔍 AllContractsTable: Edit icon clicked, row._id:", row._id);
+                      handleViewContractClick(row._id);
                     }}
                   />
                 </>
@@ -130,7 +157,7 @@ export default function AllContractTable({ year }) {
               size="small"
               style={{ background: "transparent", marginLeft: "20px" }}
             >
-              {userId == row.userId ? (
+              {userId == row.userId?._id || userId == row.userId ? (
                 <>
                   <div>
                     <Dropdown
@@ -145,7 +172,12 @@ export default function AllContractTable({ year }) {
 
                       <Dropdown.Menu>
                         <Dropdown.Item
-                          onClick={() => handleViewContractClick(row.id)}
+                          onClick={() => {
+                            console.log("🔍 AllContractsTable: Row data:", row);
+                            console.log("🔍 AllContractsTable: row._id:", row._id);
+                            console.log("🔍 AllContractsTable: All row keys:", Object.keys(row));
+                            handleViewContractClick(row._id);
+                          }}
                           style={{
                             borderBottom: "1px solid #ECECEC",
                           }}
@@ -158,7 +190,22 @@ export default function AllContractTable({ year }) {
                           View contract
                         </Dropdown.Item>
                         <Dropdown.Item
-                          onClick={() => handleShareContractClick(row.id)}
+                          onClick={() => handleEditContractClick(row._id)}
+                          style={{
+                            borderBottom: "1px solid #ECECEC",
+                          }}
+                        >
+                          <EditOutlinedIcon
+                            sx={{
+                              color: "#0a1126",
+                              fontSize: "20px",
+                              marginRight: "8px",
+                            }}
+                          />
+                          Edit contract
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                          onClick={() => handleShareContractClick(row._id)}
                         >
                           <img
                             src="/Images/Contract/share-06.svg"
@@ -173,7 +220,10 @@ export default function AllContractTable({ year }) {
                 </>
               ) : (
                 <>
-                  <div onClick={() => handleViewContractClick(row.id)}>
+                  <div onClick={() => {
+                    console.log("🔍 AllContractsTable: Eye icon clicked, row._id:", row._id);
+                    handleViewContractClick(row._id);
+                  }}>
                     <VisibilityOutlinedIcon
                       sx={{
                         color: "#0a1126",
@@ -206,7 +256,8 @@ export default function AllContractTable({ year }) {
     const data = {
       id: userid,
       page: value ? value : 1,
-      year: year,
+      // Only include year if it's selected (not null)
+      ...(year && { year: year }),
     };
     dispatch(getAllContract(data));
     setCurrentPage(value);
@@ -215,7 +266,6 @@ export default function AllContractTable({ year }) {
   };
 
   const [selectedRowId, setSelectedRowId] = useState(null);
-  const [selectedViewRowId, setSelectedViewRowId] = useState(null);
 
   const handleShareContractClick = (contractId) => {
     setSelectedRowId(contractId);
@@ -224,9 +274,22 @@ export default function AllContractTable({ year }) {
   };
 
   const handleViewContractClick = (contractId) => {
+    console.log("🔍 AllContractsTable: handleViewContractClick called with contractId:", contractId);
+    console.log("🔍 AllContractsTable: contractId type:", typeof contractId);
+    console.log("🔍 AllContractsTable: contractId value:", contractId);
+    console.log("🔍 AllContractsTable: Current selectedViewRowId before update:", selectedViewRowId);
     setSelectedViewRowId(contractId);
     setModalShowView(true);
-    console.log("Selected View COntract Row is", selectedViewRowId);
+    console.log("🔍 AllContractsTable: Set selectedViewRowId to:", contractId);
+    console.log("🔍 AllContractsTable: Set modalShowView to true");
+  };
+
+  const handleEditContractClick = (contractId) => {
+    console.log("🔍 AllContractsTable: handleEditContractClick called with contractId:", contractId);
+    setSelectedEditRowId(contractId);
+    setModalShowEdit(true);
+    console.log("🔍 AllContractsTable: Set selectedEditRowId to:", contractId);
+    console.log("🔍 AllContractsTable: Set modalShowEdit to true for editing");
   };
 
   useEffect(() => {
@@ -327,11 +390,27 @@ export default function AllContractTable({ year }) {
       )}
 
       {modalShowView && (
-        <EditContract
-          ContractID={selectedViewRowId}
-          show={modalShowView}
-          onHide={() => setModalShowView(false)}
-        />
+        <>
+          {console.log("🔍 AllContractsTable: Rendering EditContract modal for VIEW with ContractID:", selectedViewRowId)}
+          <EditContract
+            ContractID={selectedViewRowId}
+            show={modalShowView}
+            onHide={() => setModalShowView(false)}
+            mode="view"
+          />
+        </>
+      )}
+
+      {modalShowEdit && (
+        <>
+          {console.log("🔍 AllContractsTable: Rendering EditContract modal for EDIT with ContractID:", selectedEditRowId)}
+          <EditContract
+            ContractID={selectedEditRowId}
+            show={modalShowEdit}
+            onHide={() => setModalShowEdit(false)}
+            mode="edit"
+          />
+        </>
       )}
     </>
   );

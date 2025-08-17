@@ -33,10 +33,36 @@ export default function ContractTable() {
   const [modalShow, setModalShow] = useState(false);
   const [modalShowEdit, setModalShowEdit] = useState(false);
   const [modalShowView, setModalShowView] = useState(false);
+  const [currentContractId, setCurrentContractId] = useState(null);
+
+  // Debug modal state changes
+  useEffect(() => {
+    console.log("🔍 ContractTable: modalShow changed to:", modalShow);
+  }, [modalShow]);
+
+  useEffect(() => {
+    console.log("🔍 ContractTable: modalShowEdit changed to:", modalShowEdit);
+  }, [modalShowEdit]);
+
+  useEffect(() => {
+    console.log("🔍 ContractTable: modalShowView changed to:", modalShowView);
+  }, [modalShowView]);
 
   const ContractData = useSelector(
     (state) => state?.getContract?.contract?.data
   );
+
+  const contractLoading = useSelector(
+    (state) => state?.getContract?.loading
+  );
+
+  const contractError = useSelector(
+    (state) => state?.getContract?.error
+  );
+
+  console.log("🔍 ContractTable: ContractData:", ContractData);
+  console.log("🔍 ContractTable: contractLoading:", contractLoading);
+  console.log("🔍 ContractTable: contractError:", contractError);
 
   const handleShareContractClick = (contractId) => {
     setSelectedRowId(contractId);
@@ -45,9 +71,22 @@ export default function ContractTable() {
   };
 
   const handleViewContractClick = (contractId) => {
+    console.log("🔍 ContractTable: handleViewContractClick called with contractId:", contractId);
+    console.log("🔍 ContractTable: Current selectedViewRowId before update:", selectedViewRowId);
+    
+    // Set the contract ID first
+    setCurrentContractId(contractId);
     setSelectedViewRowId(contractId);
-    setModalShowView(true);
-    console.log("Selected View COntract Row is", selectedViewRowId);
+    
+    // Use setTimeout to ensure state is updated before showing modal
+    setTimeout(() => {
+      setModalShowView(true);
+      console.log("🔍 ContractTable: Set modalShowView to true after timeout");
+      console.log("🔍 ContractTable: About to render EditContract modal with ContractID:", contractId);
+    }, 0);
+    
+    console.log("🔍 ContractTable: Set currentContractId to:", contractId);
+    console.log("🔍 ContractTable: Set selectedViewRowId to:", contractId);
   };
 
   useEffect(() => {
@@ -57,6 +96,19 @@ export default function ContractTable() {
     // setUserID(userid);
     dispatch(getContract(userid));
   }, []);
+
+  // Debug useEffect to track state changes
+  useEffect(() => {
+    console.log("🔍 ContractTable: selectedViewRowId changed to:", selectedViewRowId);
+  }, [selectedViewRowId]);
+
+  useEffect(() => {
+    console.log("🔍 ContractTable: modalShowView changed to:", modalShowView);
+  }, [modalShowView]);
+
+  useEffect(() => {
+    console.log("🔍 ContractTable: currentContractId changed to:", currentContractId);
+  }, [currentContractId]);
 
   const [contractowner, setContractOwner] = useState(false);
   function createData(date, contractname, category, view) {
@@ -172,7 +224,7 @@ export default function ContractTable() {
                   <img
                     src="/Images/Dashboard/edit-icon.svg"
                     alt="edit"
-                    onClick={() => handleViewContractClick(row.id)}
+                    onClick={() => handleViewContractClick(row._id)}
                   />
 
                   
@@ -207,7 +259,11 @@ export default function ContractTable() {
                       <Dropdown.Menu>
                         <Dropdown.Item
                           
-                          onClick={() => handleViewContractClick(row.id)}
+                          onClick={() => {
+                            console.log("🔍 ContractTable: Row data for contract:", row);
+                            console.log("🔍 ContractTable: Contract ID from row._id:", row._id);
+                            handleViewContractClick(row._id);
+                          }}
                           style={{
                             borderBottom: "1px solid #ECECEC",
                           }}
@@ -221,7 +277,7 @@ export default function ContractTable() {
                         </Dropdown.Item>
                         <Dropdown.Item
                          
-                          onClick={() => handleShareContractClick(row.id)}
+                          onClick={() => handleShareContractClick(row._id)}
                           // onClick={() => setModalShow(true)}
                         >
                           <img
@@ -237,7 +293,7 @@ export default function ContractTable() {
                 </>
               ) : (
                 <>
-                  <div onClick={() => handleViewContractClick(row.id)}>
+                  <div onClick={() => handleViewContractClick(row._id)}>
                     <VisibilityOutlinedIcon
                       sx={{
                         color: "#0a1126",
@@ -493,10 +549,41 @@ export default function ContractTable() {
               borderBottomRightRadius: "15px",
             }}
           >
-            {ContractData?.contracts &&
+            {contractLoading ? (
+              <TableRow>
+                <TableCell colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>
+                  <p>Loading contracts...</p>
+                </TableCell>
+              </TableRow>
+            ) : contractError ? (
+              <TableRow>
+                <TableCell colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>
+                  <p style={{ color: '#ff4444' }}>Error loading contracts: {contractError}</p>
+                  <details style={{ marginTop: '10px', textAlign: 'left' }}>
+                    <summary>Debug Info</summary>
+                    <pre style={{ fontSize: '12px', color: '#666' }}>
+                      {JSON.stringify({ contractError, ContractData }, null, 2)}
+                    </pre>
+                  </details>
+                </TableCell>
+              </TableRow>
+            ) : !ContractData?.contracts || ContractData?.contracts?.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>
+                  <p>No contracts found.</p>
+                  <details style={{ marginTop: '10px', textAlign: 'left' }}>
+                    <summary>Debug Info</summary>
+                    <pre style={{ fontSize: '12px', color: '#666' }}>
+                      {JSON.stringify({ ContractData, hasContracts: !!ContractData?.contracts, contractCount: ContractData?.contracts?.length }, null, 2)}
+                    </pre>
+                  </details>
+                </TableCell>
+              </TableRow>
+            ) : (
               ContractData?.contracts?.map((row) => (
-                <Row key={row.date} row={row} />
-              ))}
+                <Row key={row._id || row.id || row.date} row={row} />
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
@@ -508,12 +595,19 @@ export default function ContractTable() {
         />
       )}
 
-      {modalShowView && (
-        <EditContract
-          ContractID={selectedViewRowId}
-          show={modalShowView}
-          onHide={() => setModalShowView(false)}
-        />
+      {modalShowView && currentContractId && (
+        <>
+          {console.log("🔍 ContractTable: Rendering EditContract modal with ContractID:", currentContractId)}
+          <EditContract
+            ContractID={currentContractId}
+            show={modalShowView}
+            onHide={() => {
+              setModalShowView(false);
+              setSelectedViewRowId(null);
+              setCurrentContractId(null);
+            }}
+          />
+        </>
       )}
     </>
   );

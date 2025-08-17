@@ -24,7 +24,7 @@ export default function AllContract() {
   const [noproject, setShowNoProject] = useState(true);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [value, setValue] = useState(new Date().getFullYear());
+  const [value, setValue] = useState(null); // Changed from new Date().getFullYear() to null
   const [searchQuery, setSearchQuery] = useState("");
 
   const [showDropdown, setShowDropdown] = useState(false); // State to manage the dropdown visibility
@@ -53,12 +53,14 @@ export default function AllContract() {
             id: userid,
             search: searchQuery,
             page: 1,
-            year: value,
+            // Only include year if it's selected (not null)
+            ...(value && { year: value }),
           }
         : {
             id: userid,
             page: 1,
-            year: value,
+            // Only include year if it's selected (not null)
+            ...(value && { year: value }),
           };
 
     dispatch(getAllContract(data));
@@ -81,6 +83,11 @@ export default function AllContract() {
   const handleYearSelect = (selectedDate) => {
     setValue(selectedDate.getFullYear());
     setShowDropdown(false); // Close the dropdown when a date is selected
+  };
+
+  const handleClearYearFilter = () => {
+    setValue(null);
+    setShowDropdown(false);
   };
 
   return (
@@ -137,10 +144,30 @@ export default function AllContract() {
                       alt="/"
                       className="calendar-dropimg"
                     />
-                    <span>{value ?? "This Year"}</span>
+                    <span>{value ?? "All Years"}</span>
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
+                    <div style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+                      <button 
+                        onClick={handleClearYearFilter}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#007bff',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          padding: '5px 10px',
+                          borderRadius: '4px',
+                          width: '100%',
+                          textAlign: 'left'
+                        }}
+                        onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                        onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+                      >
+                        Clear Filter (Show All Years)
+                      </button>
+                    </div>
                     <Calendar
                       view="decade"
                       value={value}

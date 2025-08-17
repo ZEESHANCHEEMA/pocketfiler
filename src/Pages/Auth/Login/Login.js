@@ -178,7 +178,7 @@ export default function Login() {
         if (res?.payload?.status === 200) {
           setLoader(false);
           console.log("login res", res?.payload?.data);
-          localStorage.setItem("_id", res?.payload?.data?.id);
+          localStorage.setItem("_id", res?.payload?.data?._id);
           localStorage.setItem("token", res?.payload?.token);
           localStorage.setItem("role", res?.payload?.data?.role);
           localStorage.setItem("name", res?.payload?.data?.fullname);
