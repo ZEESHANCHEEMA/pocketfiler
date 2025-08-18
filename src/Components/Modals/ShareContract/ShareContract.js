@@ -25,13 +25,29 @@ export default function ShareContract(props) {
   const UserAssociates = useSelector(
     (state) => state?.getUserAssociates?.user_associates?.data
   );
-  console.log("My Associates", UserAssociates);
+  console.log("🔍 ShareContract: My Associates", UserAssociates);
+  console.log("🔍 ShareContract: First associate structure:", UserAssociates?.[0]);
 
   const userLoading = useSelector((state) => state?.getUserAssociates);
 
   const handleSelectClient = (item) => {
+    console.log("🔍 ShareContract: handleSelectClient called with item:", item);
+    console.log("🔍 ShareContract: item structure:", {
+      hasId: !!item?._id,
+      hasEmail: !!item?.email,
+      itemKeys: Object.keys(item || {})
+    });
+    
     setUserClickID(item);
-    setSelectedClientID(item.id);
+    
+    // Since we're passing item.user from the dropdown, access _id directly
+    if (item?._id) {
+      setSelectedClientID(item._id);
+      console.log("🔍 ShareContract: Set selectedClientID to:", item._id);
+    } else {
+      console.error("🔍 ShareContract: Could not find _id in item:", item);
+      setSelectedClientID("");
+    }
   };
 
   useEffect(() => {

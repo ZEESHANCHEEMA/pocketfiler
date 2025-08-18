@@ -16,11 +16,14 @@ const viewcontractSlice = createSlice({
     });
     builder.addCase(viewcontract.fulfilled, (state, action) => {
       state.loading = false;
-      state.  viewContract = action.payload;
+      state.viewContract = action.payload;
+      console.log("🔍 getviewcontract reducer: Action payload:", action.payload);
+      console.log("🔍 getviewcontract reducer: Updated state:", state.viewContract);
     });
     builder.addCase(viewcontract.rejected, (state, action) => {
       state.loading = false;
       state.error = action.error || "something wrong";
+      console.error("❌ getviewcontract reducer: Error:", action.error);
     });
   },
 });

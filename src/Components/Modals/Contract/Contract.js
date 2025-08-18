@@ -23,6 +23,16 @@ import { getTotalCount } from "../../../services/redux/middleware/Project/projec
 import { setContractEditor } from "../../../services/redux/reducer/addcontracteditor";
 
 export default function Contract(props) {
+  const { show, onHide, onHideAdd, ...modalProps } = props;
+  
+  // Debug modal state changes
+  useEffect(() => {
+    console.log("🔍 Contract: show prop changed to:", show);
+    if (show) {
+      console.log("🔍 Contract: Modal is being opened!");
+    }
+  }, [show]);
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
@@ -131,25 +141,39 @@ export default function Contract(props) {
         setSuggestionModalVisible(false);
         setCurrentSuggestion(null);
         
-        // Clear highlighting immediately to show updated content
-        setHighlightedContent(null);
-        
-        // Store the updated content locally to ensure immediate display
-        // This bypasses the Redux state update delay
-        window.lastUpdatedContent = updatedContent;
+        // Update highlighted content to reflect the applied change while keeping other highlights
+        if (highlightedContent) {
+          console.log('🔄 Updating highlighted content to reflect applied change');
+          
+          // Remove the specific highlighted span for this suggestion
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = highlightedContent;
+          
+          // Find and remove the specific highlighted span for this instance
+          const highlightedSpans = tempDiv.querySelectorAll('.highlighted-clause');
+          highlightedSpans.forEach(span => {
+            const spanInstanceId = span.getAttribute('data-instance-id');
+            if (spanInstanceId === instanceId) {
+              // Replace this span with the corrected text
+              const correctedTextNode = document.createTextNode(suggestedText);
+              span.parentNode.replaceChild(correctedTextNode, span);
+            }
+          });
+          
+          // Update the highlighted content with the corrected version
+          const updatedHighlightedContent = tempDiv.innerHTML;
+          setHighlightedContent(updatedHighlightedContent);
+          
+          console.log('✅ Highlighted content updated, keeping other highlights');
+        } else {
+          // If no highlighted content, just clear it to show the updated content
+          setHighlightedContent(null);
+        }
         
         // Show success message
         SuccessToast('Suggestion applied successfully');
         
         console.log('✅ Suggestion applied successfully');
-        
-        // Optionally regenerate highlighting after a short delay
-        setTimeout(() => {
-          console.log('🔄 Attempting to regenerate highlighting...');
-          if (window.currentAISuggestions && window.currentAISuggestions.length > 0) {
-            regenerateHighlighting(updatedContent);
-          }
-        }, 500);
         
       } else {
         console.log('❌ No ContractContent available');
@@ -228,8 +252,16 @@ export default function Contract(props) {
 
   useEffect(() => {
     const userid = localStorage.getItem("_id");
+    console.log('🔍 Retrieved userid from localStorage:', userid);
 
-    setUserID(userid);
+    if (userid && userid !== "undefined" && userid !== "null") {
+      setUserID(userid);
+      console.log('✅ UserID set successfully:', userid);
+    } else {
+      console.error('❌ Invalid userid from localStorage:', userid);
+      ErrorToast('User authentication error. Please login again.');
+      return;
+    }
     
     // Add global function for handling suggestion clicks
     window.showSuggestion = (originalText, suggestedText, instanceId) => {
@@ -240,7 +272,10 @@ export default function Contract(props) {
         instanceId: instanceId
       });
     };
-  }, [UserID]);
+    
+    // Reset content updated flag when component mounts
+    setContentUpdated(false);
+  }, []); // Remove UserID from dependency array to prevent infinite loop
 
   useEffect(() => {
     if (ContractContent && ContractContent !== "undefined") {
@@ -254,6 +289,12 @@ export default function Contract(props) {
     } else {
       setFormattedContent("");
     }
+    
+    // Reset content updated flag when contract content changes (but not when it's updated by suggestions)
+    // Only reset if we're not in the middle of applying a suggestion
+    if (!contentUpdated) {
+      setContentUpdated(false);
+    }
   }, [ContractContent]);
 
   // Force re-render when ContractContent changes to show updated content
@@ -262,7 +303,22 @@ export default function Contract(props) {
     if (ContractContent && highlightedContent === null) {
       console.log('✅ Showing updated content');
     }
-  }, [ContractContent, highlightedContent]);
+    
+    // If content was updated and highlighted content is cleared, ensure we show the updated content
+    if (contentUpdated && !highlightedContent && ContractContent) {
+      console.log('✅ Content updated, showing new content');
+      // Force a re-render by updating the formatted content
+      if (ContractContent && ContractContent !== "undefined") {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(ContractContent, "text/html");
+        const images = doc.querySelectorAll("img");
+        images.forEach((image) => {
+          image.style.width = "100%";
+        });
+        setFormattedContent(doc.body.innerHTML);
+      }
+    }
+  }, [ContractContent, highlightedContent, contentUpdated]);
 
   // Monitor ContractContent changes and force re-render
   useEffect(() => {
@@ -276,6 +332,20 @@ export default function Contract(props) {
   }, [ContractContent]);
 
   async function SaveContract() {
+    // Check authentication first
+    const token = localStorage.getItem('token');
+    const userid = localStorage.getItem('_id');
+    
+    if (!token) {
+      ErrorToast("Authentication required. Please login again.");
+      return;
+    }
+    
+    if (!userid || userid === "undefined" || userid === "null") {
+      ErrorToast("User authentication error. Please login again.");
+      return;
+    }
+    
     if (!ContractType) {
       ErrorToast("Contract Type is required.");
       return;
@@ -288,8 +358,9 @@ export default function Contract(props) {
       ErrorToast("Contract date is required.");
       return;
     }
-    if (!UserID) {
-      ErrorToast("User ID is required.");
+    if (!UserID || UserID === "undefined" || UserID === "null") {
+      console.error('❌ Invalid UserID:', UserID);
+      ErrorToast("User authentication error. Please login again.");
       return;
     }
     if (!ContractSign) {
@@ -302,16 +373,25 @@ export default function Contract(props) {
     }
     setLoader(true);
     try {
+      console.log('🔍 SaveContract - UserID:', UserID);
+      console.log('🔍 SaveContract - ContractType:', ContractType);
+      console.log('🔍 SaveContract - ContractName:', ContractName);
+      console.log('🔍 SaveContract - startDate:', startDate);
+      console.log('🔍 SaveContract - ContractSign:', ContractSign);
+      console.log('🔍 SaveContract - ContractContent length:', ContractContent ? ContractContent.length : 0);
+      
       const data = {
         category: ContractType,
         contractName: ContractName,
         Date: startDate,
-        userId: UserID,
+        userId: userid, // Use fresh userid from localStorage
         signatureImage: ContractSign,
         contractText: ContractContent,
       };
+      
+      console.log('📤 Sending contract data:', data);
       const dataall = {
-        id: UserID,
+        id: userid, // Use fresh userid from localStorage
         page: 1,
       };
       dispatch(savecontract(data)).then((res) => {
@@ -322,8 +402,8 @@ export default function Contract(props) {
           dispatch(setContractSign(""));
           SuccessToast("Contract Added Successfully");
           dispatch(getAllContract(dataall));
-          dispatch(getContract(UserID));
-          dispatch(getTotalCount(UserID));
+          dispatch(getContract(userid));
+          dispatch(getTotalCount(userid));
           navigate("/Dashboard");
           setFormattedContent("");
           props.onHide();
@@ -943,7 +1023,13 @@ export default function Contract(props) {
                 {highlightedContent && (
                   <Button 
                     className="clear-highlighting-btn" 
-                    onClick={() => setHighlightedContent(null)}
+                    onClick={() => {
+                      setHighlightedContent(null);
+                      // Ensure we show the updated content when clearing highlighting
+                      if (contentUpdated) {
+                        console.log('✅ Clearing highlighting, showing updated content');
+                      }
+                    }}
                     style={{ marginLeft: '10px', backgroundColor: '#6c757d', color: 'white' }}
                   >
                     Clear Highlighting

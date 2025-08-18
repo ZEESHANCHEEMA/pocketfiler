@@ -42,14 +42,24 @@ export const savecontract = createAsyncThunk("savecontract", async (data) => {
 
 export const viewcontract = createAsyncThunk("viewcontract", async (data) => {
   try {
+    console.log("🔍 viewcontract middleware: Fetching contract with ID:", data);
     const res = await api.get(`${API_URL}/contract/viewContract/${data}`);
-    // localStorage.setItem("token", res?.data?.token);
-    console.log("inside view contract api", res)
+    console.log("🔍 viewcontract middleware: API response:", res);
+    console.log("🔍 viewcontract middleware: Response data:", res?.data);
+    console.log("🔍 viewcontract middleware: Contract data:", res?.data?.data);
+    console.log("🔍 viewcontract middleware: Full response structure:", {
+      status: res?.status,
+      data: res?.data?.data,
+      hasData: !!res?.data?.data,
+      dataKeys: res?.data?.data ? Object.keys(res?.data?.data) : 'No data'
+    });
     return {
       status: res?.status,
       data: res?.data?.data,
     };
   } catch (error) {
+    console.error("❌ viewcontract middleware: Error:", error);
+    console.error("❌ viewcontract middleware: Error response:", error?.response);
     return {
       message: error?.response?.data?.error,
       status: error?.response?.status,

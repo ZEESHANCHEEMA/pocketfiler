@@ -5,17 +5,25 @@ import { API_URL } from "../../client";
 
 export const getContract = createAsyncThunk("getContract", async (data) => {
   try {
+    console.log("🔍 getContract: Fetching contracts for user:", data);
     const res = await api.get(`${API_URL}/contract/getfourContract/${data}`);
-    // localStorage.setItem("token", res?.data?.token);
-    console.log("inside get contract", res);
+    console.log("🔍 getContract: API response:", res);
     return {
       status: res?.status,
       data: res?.data?.data,
     };
   } catch (error) {
+    console.error("❌ getContract: API Error:", error);
+    console.error("❌ getContract: Error response:", error?.response);
+    
+    // Return empty data structure to prevent app crashes
     return {
-      message: error?.response?.data?.error,
-      status: error?.response?.status,
+      status: error?.response?.status || 500,
+      data: {
+        contracts: [],
+        message: error?.response?.data?.error || "Failed to fetch contracts"
+      },
+      error: true
     };
   }
 });
