@@ -97,32 +97,32 @@ export default function Contract(props) {
       console.log('🔧 Applying suggestion:', { originalText, suggestedText, instanceId });
       console.log('📝 Current ContractContent:', ContractContent);
       
-      // First try to update Redux state if available (EXACTLY like mobile)
       if (ContractContent) {
         console.log('✅ Using Redux state for update');
         
-        // Handle both plain text and HTML content
         let updatedContent = ContractContent;
         
-        // If content contains HTML tags, we need to be more careful with replacement
-        if (ContractContent.includes('<') && ContractContent.includes('>')) {
-          // For HTML content, we need to replace text within HTML tags carefully
-          const regex = new RegExp(`(${originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-          updatedContent = ContractContent.replace(regex, suggestedText);
-        } else {
-          // For plain text, simple replacement
-          const regex = new RegExp(originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-          updatedContent = ContractContent.replace(regex, suggestedText);
-        }
+        // For now, let's use a simpler approach - replace the first occurrence of the original text
+        // This is more reliable than trying to match complex HTML spans
+        const regex = new RegExp(originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        console.log(`🔍 Looking for: "${originalText}"`);
+        console.log(`🔍 In content: "${ContractContent.substring(0, 200)}..."`);
+        console.log(`🔍 Regex: ${regex}`);
+        
+        const beforeReplacement = updatedContent;
+        updatedContent = ContractContent.replace(regex, suggestedText);
+        console.log(`🎯 Replaced "${originalText}" with "${suggestedText}"`);
+        console.log(`🔍 Content changed: ${beforeReplacement !== updatedContent}`);
+        console.log(`🔍 Updated content preview: "${updatedContent.substring(0, 200)}..."`);
 
         console.log('📝 Updated content length:', updatedContent.length);
         console.log('🔄 Dispatching to Redux...');
 
-        // Update Redux state (EXACTLY like mobile)
+        // Update Redux state
         dispatch(setContractEditor(updatedContent));
         
-        // Mark this suggestion as applied
-        setAppliedSuggestions(prev => new Set([...prev, originalText, suggestedText]));
+        // Mark this specific suggestion as applied
+        setAppliedSuggestions(prev => new Set([...prev, originalText]));
         
         // Set content updated flag
         setContentUpdated(true);
@@ -131,18 +131,25 @@ export default function Contract(props) {
         setSuggestionModalVisible(false);
         setCurrentSuggestion(null);
         
-        // Clear highlighted content to show the updated content immediately
+        // Clear highlighting immediately to show updated content
         setHighlightedContent(null);
         
-        // Show success message (EXACTLY like mobile)
+        // Store the updated content locally to ensure immediate display
+        // This bypasses the Redux state update delay
+        window.lastUpdatedContent = updatedContent;
+        
+        // Show success message
         SuccessToast('Suggestion applied successfully');
         
         console.log('✅ Suggestion applied successfully');
         
-        // Force a re-render to ensure updated content is displayed
+        // Optionally regenerate highlighting after a short delay
         setTimeout(() => {
-          console.log('🔄 Forcing re-render to show updated content');
-        }, 100);
+          console.log('🔄 Attempting to regenerate highlighting...');
+          if (window.currentAISuggestions && window.currentAISuggestions.length > 0) {
+            regenerateHighlighting(updatedContent);
+          }
+        }, 500);
         
       } else {
         console.log('❌ No ContractContent available');
@@ -151,6 +158,71 @@ export default function Contract(props) {
     } catch (error) {
       console.error('❌ Error applying suggestion:', error);
       ErrorToast('Failed to apply suggestion');
+    }
+  };
+
+  // Function to regenerate highlighting after applying suggestions
+  const regenerateHighlighting = (content) => {
+    console.log('🔄 Regenerating highlighting for content:', content ? 'Available' : 'Not available');
+    console.log('📋 Applied suggestions:', Array.from(appliedSuggestions));
+    console.log('📋 Current AI suggestions:', window.currentAISuggestions);
+    
+    if (!content) {
+      console.log('❌ No content provided for highlighting');
+      return;
+    }
+
+    // Get the current AI suggestions (we need to store them globally)
+    if (window.currentAISuggestions && window.currentAISuggestions.length > 0) {
+      console.log('📋 Regenerating highlighting with', window.currentAISuggestions.length, 'suggestions');
+      
+      let highlightedText = content;
+      let hasChanges = false;
+      
+      window.currentAISuggestions.forEach(suggestion => {
+        console.log('🎯 Processing suggestion for regeneration:', suggestion);
+        if (suggestion.originalText && suggestion.correctedText) {
+          // Check if this suggestion has been applied
+          const originalText = suggestion.originalText;
+          const isApplied = appliedSuggestions.has(originalText);
+          
+          console.log(`🔍 Suggestion "${originalText}" applied: ${isApplied}`);
+          
+          if (!isApplied) {
+            console.log(`✅ Highlighting suggestion: ${suggestion.originalText}`);
+            
+            // Check if the original text still exists in the updated content
+            if (content.toLowerCase().includes(suggestion.originalText.toLowerCase())) {
+              const regex = new RegExp(`(${suggestion.originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+              let matchCount = 0;
+              const beforeHighlight = highlightedText;
+              highlightedText = highlightedText.replace(regex, (match, p1) => {
+                matchCount++;
+                const instanceId = `${suggestion.id}_${matchCount}`;
+                return `<span class="highlighted-clause" data-instance-id="${instanceId}" onclick="window.showSuggestion('${suggestion.originalText.replace(/'/g, "\\'")}', '${suggestion.correctedText.replace(/'/g, "\\'")}', '${instanceId}')" style="background-color: #ffeb3b; cursor: pointer; padding: 2px 4px; border-radius: 3px; text-decoration: underline; font-weight: bold;">${p1}<span style="font-size: 10px; color: #666;"> (tap to apply suggestion)</span></span>`;
+              });
+              
+              if (beforeHighlight !== highlightedText) {
+                hasChanges = true;
+                console.log(`✅ Added highlighting for: ${suggestion.originalText}`);
+              }
+            } else {
+              console.log(`❌ Suggestion text not found in updated content: ${suggestion.originalText}`);
+            }
+          } else {
+            console.log(`⏭️ Skipping applied suggestion: ${suggestion.originalText}`);
+          }
+        }
+      });
+      
+      if (hasChanges) {
+        setHighlightedContent(highlightedText);
+        console.log('✅ Highlighting regenerated successfully');
+      } else {
+        console.log('ℹ️ No highlighting changes needed');
+      }
+    } else {
+      console.log('❌ No AI suggestions available for regeneration');
     }
   };
 
@@ -191,6 +263,17 @@ export default function Contract(props) {
       console.log('✅ Showing updated content');
     }
   }, [ContractContent, highlightedContent]);
+
+  // Monitor ContractContent changes and force re-render
+  useEffect(() => {
+    console.log('📝 ContractContent updated in Redux:', ContractContent ? 'Available' : 'Not available');
+    console.log('📝 ContractContent length:', ContractContent ? ContractContent.length : 0);
+    
+    // Force component to re-render when ContractContent changes
+    if (ContractContent) {
+      console.log('🔄 Forcing component re-render due to ContractContent change');
+    }
+  }, [ContractContent]);
 
   async function SaveContract() {
     if (!ContractType) {
@@ -311,6 +394,11 @@ export default function Contract(props) {
     setLoader(true); // Add loader back
     setContentUpdated(false); // Clear content updated indicator
     
+    // Clear previous AI suggestions
+    window.currentAISuggestions = [];
+    window.lastUpdatedContent = null; // Clear locally stored content
+    setAppliedSuggestions(new Set());
+    
     try {
       const result = await AIService.checkWithAi(ContractContent, 'Analyze this contract and identify specific text that needs improvement. Look for placeholder text like [Insert...], grammatical issues, missing details, or unclear clauses. Provide specific suggestions for text that actually exists in the contract.');
       
@@ -322,6 +410,9 @@ export default function Contract(props) {
         console.log('📋 Parsed AI suggestions:', aiSuggestions);
         
         if (aiSuggestions.length > 0) {
+          // Store AI suggestions globally for regeneration
+          window.currentAISuggestions = aiSuggestions;
+          
           // Create highlighted content with AI suggestions
           let highlightedText = ContractContent;
           
@@ -347,6 +438,7 @@ export default function Contract(props) {
           setHighlightedContent(highlightedText);
           SuccessToast(`${aiSuggestions.length} issues found. Click highlighted text for suggestions.`);
         } else {
+          window.currentAISuggestions = [];
           setHighlightedContent(null);
           SuccessToast('Contract analysis complete. No major issues found.');
         }
@@ -720,12 +812,25 @@ export default function Contract(props) {
                     >
                       Clear Highlighting
                     </button>
-              </div>
+                    {window.currentAISuggestions && window.currentAISuggestions.length > 0 && (
+                      <button
+                        className="btn-regenerate-highlighting"
+                        onClick={() => {
+                          console.log('🔄 Manual highlighting regeneration requested');
+                          regenerateHighlighting(ContractContent);
+                        }}
+                        style={{ marginLeft: '10px', backgroundColor: '#007bff', color: 'white' }}
+                      >
+                        Regenerate Highlighting
+                      </button>
+                    )}
+                  </div>
             </div>
               ) : (
                 <div>
                   {console.log('🎯 Displaying normal content, highlightedContent:', highlightedContent)}
                   {console.log('🎯 ContractContent available:', !!ContractContent)}
+                  {console.log('🎯 Last updated content available:', !!window.lastUpdatedContent)}
                   {contentUpdated && (
                     <div style={{ 
                       backgroundColor: '#d4edda', 
@@ -738,14 +843,14 @@ export default function Contract(props) {
                       ✅ Content has been updated with your suggestions!
                     </div>
                   )}
-                  {ContractContent && ContractContent !== "undefined" &&
-                  /\.(pdf|doc|docx|png|jpe?g)$/i.test(ContractContent)
-                  ? getFileContent(ContractContent)
-                  : ContractContent && ContractContent !== "undefined"
-                  ? Parser(ContractContent)
+                  {(window.lastUpdatedContent || ContractContent) && (window.lastUpdatedContent || ContractContent) !== "undefined" &&
+                  /\.(pdf|doc|docx|png|jpe?g)$/i.test(window.lastUpdatedContent || ContractContent)
+                  ? getFileContent(window.lastUpdatedContent || ContractContent)
+                  : (window.lastUpdatedContent || ContractContent) && (window.lastUpdatedContent || ContractContent) !== "undefined"
+                  ? Parser(window.lastUpdatedContent || ContractContent)
                   : "No content available"}
-                  </div>
-                )}
+                </div>
+              )}
               </div>
 
             <div className="contract-btm">

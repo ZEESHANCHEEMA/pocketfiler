@@ -42,6 +42,8 @@ import {
 } from "./utils/Firebase/firebase";
 import Layout from "./Components/Layout/Layout";
 import PrivacyPolicy from "./Pages/PrivacyPolicy/PrivacyPolicy";
+import AiAssistance from "./Pages/AiAssistance/AiAssistance";
+import AiChat from "./Pages/AiChat/AiChat";
 
 const client = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
 const DashboardLayout = () => (
@@ -192,6 +194,22 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Templates />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/AiAssistance"
+                  element={
+                    <ProtectedRoute>
+                      <AiAssistance />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/AiChat"
+                  element={
+                    <ProtectedRoute>
+                      <AiChat />
                     </ProtectedRoute>
                   }
                 />
