@@ -1,15 +1,20 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  AiBackgroundSVG, 
-  CopyIcon, 
-  GrayChat, 
-  SendComposer, 
-  ThumbsDown, 
-  ThumbsUp 
+import { useLocation, useNavigate, useRoutes } from 'react-router-dom';
+import {
+  AiBackgroundSVG,
+  CopyIcon,
+  GrayChat,
+  SendComposer,
+  ThumbsDown,
+  ThumbsUp
 } from '../../assets/svgs';
+import { aiMessage } from '../../services/redux/middleware/Project/aiChat';
+import { useDispatch } from 'react-redux';
 
 const AiChat = () => {
+  const location = useLocation();
+  const chatData = location.state;
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
@@ -31,7 +36,11 @@ const AiChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
+  const handleSuggestionClick = (prompt) => {
+    setInputValue('');                 // clear input
+    handleSendMessage(prompt);         // send directly
+  };
+  
   const handleCopyMessage = (text) => {
     navigator.clipboard.writeText(text);
     // You can add a toast notification here
@@ -65,7 +74,7 @@ const AiChat = () => {
     // Simulate AI response
     setTimeout(() => {
       let aiResponse;
-      
+
       if (text.toLowerCase().includes('what you can do')) {
         aiResponse = {
           _id: Math.round(Math.random() * 1000000),
@@ -100,15 +109,69 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
       setIsTyping(false);
     }, 1000);
   }, []);
-
-  const handleSendMessage = () => {
-    onSend(inputValue);
+   {suggestedPrompts.map((prompt, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSendMessage(prompt)}
+                    className="w-full bg-white rounded-xl p-4 text-left hover:bg-gray-50 transition-colors border border-gray-200"
+                  >
+                    <p className="text-sm text-gray-600 leading-relaxed">{prompt}</p>
+                  </button>
+                ))}
+  // const handleSendMessage = () => {
+  //   onSend(inputValue);
+  // };
+  const handleSendMessage = async (text) => {
+    try {
+      if (!text?.trim()) return;
+  
+      const userMessageObj = {
+        _id: Math.round(Math.random() * 1000000),
+        text: text, // use text directly
+        createdAt: new Date(),
+        user: {
+          _id: 1,
+          name: 'You',
+        },
+      };
+      setMessages(prev => [...prev, userMessageObj]);
+  
+      setIsTyping(true);
+  
+      const result = await dispatch(
+        aiMessage({ data:{message: text}, chatId: chatData?._id }),
+      );
+  
+      setIsTyping(false);
+  
+      if (result?.payload?.status === 200) {
+        const assistantText = result?.payload?.data?.assistantMessage?.content;
+  
+        if (assistantText) {
+          const aiResponse = {
+            _id: Math.round(Math.random() * 1000000),
+            text: assistantText,
+            createdAt: new Date(),
+            user: {
+              _id: 2,
+              name: 'AI Assistant',
+              avatar: null,
+            },
+          };
+          setMessages(prev => [...prev, aiResponse]);
+        }
+      } else {
+        console.log('AI response error', result?.payload?.message);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
   };
-
+  
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      handleSendMessage(inputValue);
     }
   };
 
@@ -118,13 +181,12 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
 
     return (
       <div key={message._id} className={`flex ${isAI ? 'justify-start' : 'justify-end'} mb-4`}>
-        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-          isAI 
-            ? 'bg-gray-100 text-gray-900' 
-            : 'bg-blue-600 text-white'
-        }`}>
+        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${isAI
+          ? 'bg-gray-100 text-gray-900'
+          : 'bg-blue-600 text-white'
+          }`}>
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
-          
+
           {isAI && (
             <div className="flex items-center gap-3 mt-2 ml-0">
               <button
@@ -134,22 +196,20 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
               >
                 <CopyIcon />
               </button>
-              
+
               <button
                 onClick={() => handleReaction(message._id, 'like')}
-                className={`p-1 rounded transition-colors ${
-                  reaction === 'like' ? 'bg-blue-100' : 'hover:bg-gray-200'
-                }`}
+                className={`p-1 rounded transition-colors ${reaction === 'like' ? 'bg-blue-100' : 'hover:bg-gray-200'
+                  }`}
                 title="Like"
               >
                 <ThumbsUp />
               </button>
-              
+
               <button
                 onClick={() => handleReaction(message._id, 'dislike')}
-                className={`p-1 rounded transition-colors ${
-                  reaction === 'dislike' ? 'bg-red-100' : 'hover:bg-gray-200'
-                }`}
+                className={`p-1 rounded transition-colors ${reaction === 'dislike' ? 'bg-red-100' : 'hover:bg-gray-200'
+                  }`}
                 title="Dislike"
               >
                 <ThumbsDown />
@@ -173,7 +233,7 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
             <h1 className="text-xl font-semibold text-gray-900">PocketFiler AI Assistance</h1>
             <div className="flex items-center space-x-3">
               {/* Mobile History Button */}
-              <button 
+              <button
                 className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors"
                 onClick={() => setShowHistoryModal(true)}
               >
@@ -203,12 +263,12 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
               <div className="mb-10">
                 <GrayChat />
               </div>
-              
+
               <div className="space-y-3 w-full max-w-md">
                 {suggestedPrompts.map((prompt, index) => (
                   <button
                     key={index}
-                    onClick={() => onSend(prompt)}
+                    onClick={() => handleSuggestionClick(prompt)}
                     className="w-full bg-white rounded-xl p-4 text-left hover:bg-gray-50 transition-colors border border-gray-200"
                   >
                     <p className="text-sm text-gray-600 leading-relaxed">{prompt}</p>
@@ -239,32 +299,32 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
         <div className="border-t border-gray-200 p-6">
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <div className={`relative rounded-2xl border transition-colors ${
-                isComposerFocused 
-                  ? 'border-blue-400 bg-blue-50' 
-                  : 'border-gray-200 bg-gray-100'
-              }`}>
-                <textarea
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  onFocus={() => setIsComposerFocused(true)}
-                  onBlur={() => setIsComposerFocused(false)}
-                  placeholder="Ask me anything..."
-                  className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-sm text-gray-900 placeholder-gray-500 min-h-[40px] max-h-32"
-                  rows="1"
-                />
+              <div className={`relative rounded-2xl border transition-colors ${isComposerFocused
+                ? 'border-blue-400 bg-blue-50'
+                : 'border-gray-200 bg-gray-100'
+                }`}>
+            <textarea
+  value={inputValue}
+  onChange={(e) => setInputValue(e.target.value)}
+  onKeyDown={handleKeyPress}   // ✅ works for Enter
+  onFocus={() => setIsComposerFocused(true)}
+  onBlur={() => setIsComposerFocused(false)}
+  placeholder="Ask me anything..."
+  className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-sm text-gray-900 placeholder-gray-500 min-h-[40px] max-h-32"
+  rows="1"
+/>
+
+
               </div>
             </div>
-            
+
             <button
-              onClick={handleSendMessage}
+             onClick={() => handleSendMessage(inputValue)}
               disabled={!inputValue.trim()}
-              className={`p-3 rounded-full transition-colors ${
-                inputValue.trim()
-                  ? 'bg-blue-600 hover:bg-blue-700'
-                  : 'bg-gray-300 cursor-not-allowed'
-              }`}
+              className={`p-3 rounded-full transition-colors ${inputValue.trim()
+                ? 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-gray-300 cursor-not-allowed'
+                }`}
             >
               <SendComposer />
             </button>
@@ -337,7 +397,7 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
             <div className="border-b border-gray-200 px-4 py-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">Chat History</h2>
-                <button 
+                <button
                   className="p-1 hover:bg-gray-100 rounded transition-colors"
                   onClick={() => setShowHistoryModal(false)}
                 >
