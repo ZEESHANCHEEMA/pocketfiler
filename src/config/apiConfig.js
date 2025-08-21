@@ -93,6 +93,14 @@ export const API_ENDPOINTS = {
     CHECK_WITH_AI: '/contract/checkWithAi', // Mobile-compatible AI endpoint
     CHECK_GRAMMAR: '/contract/checkGrammar', // Legacy grammar endpoint
   },
+  AI_CHAT: {
+    CREATE_CHAT: '/ai/chat',
+    GET_CHAT_HISTORY: '/ai/chat',
+    GET_SINGLE_CHAT: '/ai/chat/:chatId/history',
+    SEND_MESSAGE: '/ai/chat/:chatId/message',
+    UPDATE_CHAT_TITLE: '/ai/chat/:chatId/title',
+    DELETE_CHAT: '/ai/chat/:chatId',
+  },
   PROJECT: {
     GET_PROJECTS: '/project/getProjects',
     CREATE_PROJECT: '/project/create',

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { useLocation, useNavigate, useRoutes } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   AiBackgroundSVG,
   CopyIcon,
@@ -8,20 +8,58 @@ import {
   ThumbsDown,
   ThumbsUp
 } from '../../assets/svgs';
-import { aiMessage } from '../../services/redux/middleware/Project/aiChat';
-import { useDispatch } from 'react-redux';
+import { 
+  newChat, 
+  aiMessage, 
+  getChatHistory, 
+  getSingleChatHistory, 
+  deleteChat, 
+  updateChatTitle 
+} from '../../services/redux/middleware/Project/aiChat';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const AiChat = () => {
   const location = useLocation();
   const chatData = location.state;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [messageReactions, setMessageReactions] = useState({});
   const [isComposerFocused, setIsComposerFocused] = useState(false);
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const [messageReactions, setMessageReactions] = useState({});
+  const [failedMessages, setFailedMessages] = useState({}); // Track failed messages
   const messagesEndRef = useRef(null);
+
+  // Get Redux state with fallbacks
+  const aiChatState = useSelector((state) => state.aiChat);
+  const { 
+    loading = false, 
+    error = null, 
+    chatHistory = [], 
+    currentChat = null, 
+    messages = [], 
+    isTyping = false 
+  } = aiChatState || {};
+
+  // Debug logging
+  console.log('Current aiChat state:', aiChatState);
+  console.log('Current messages state:', messages);
+  
+  // Debug individual messages
+  if (messages && messages.length > 0) {
+    messages.forEach((msg, index) => {
+      console.log(`Message ${index}:`, {
+        id: msg._id,
+        text: msg.text,
+        user: msg.user,
+        createdAt: msg.createdAt,
+        hasUser: !!msg.user,
+        hasText: !!msg.text
+      });
+    });
+  }
 
   const suggestedPrompts = [
     'Write a professional NDA contract from scratch.',
@@ -36,15 +74,56 @@ const AiChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Load chat history on component mount
+  useEffect(() => {
+    loadChatHistory();
+  }, []);
+
+  // Load single chat history if chatData exists
+  useEffect(() => {
+    if (chatData?._id) {
+      console.log('Chat data received:', chatData);
+      loadSingleChatHistory();
+    } else {
+      console.log('No chat data, starting fresh chat');
+    }
+  }, [chatData?._id]);
+
+  const loadChatHistory = async () => {
+    try {
+      console.log('Loading chat history...');
+      const result = await dispatch(getChatHistory());
+      console.log('Chat history result:', result);
+    } catch (error) {
+      console.log('Error loading chat history:', error);
+      toast.error('Failed to load chat history');
+    }
+  };
+
+  const loadSingleChatHistory = async () => {
+    try {
+      console.log('Loading single chat history for:', chatData._id);
+      const result = await dispatch(getSingleChatHistory(chatData._id));
+      console.log('Single chat history result:', result);
+      
+      if (result?.payload?.status === 404) {
+        console.log('⚠️ Chat history not found (404) - this might be a new chat');
+      }
+    } catch (error) {
+      console.log('Error loading single chat history:', error);
+      toast.error('Failed to load chat history');
+    }
+  };
+
   const handleSuggestionClick = (prompt) => {
-    setInputValue('');                 // clear input
-    handleSendMessage(prompt);         // send directly
+    setInputValue('');
+    handleSendMessage(prompt);
   };
   
   const handleCopyMessage = (text) => {
     navigator.clipboard.writeText(text);
-    // You can add a toast notification here
-    alert('Message copied to clipboard');
+    toast.success('Message copied to clipboard');
   };
 
   const handleReaction = (messageId, reaction) => {
@@ -54,120 +133,198 @@ const AiChat = () => {
     }));
   };
 
-  const onSend = useCallback((text) => {
-    if (!text.trim()) return;
-
-    const newMessage = {
-      _id: Math.round(Math.random() * 1000000),
-      text: text,
-      createdAt: new Date(),
-      user: {
-        _id: 1,
-        name: 'User',
-      },
-    };
-
-    setMessages(prev => [...prev, newMessage]);
-    setInputValue('');
-    setIsTyping(true);
-
-    // Simulate AI response
-    setTimeout(() => {
-      let aiResponse;
-
-      if (text.toLowerCase().includes('what you can do')) {
-        aiResponse = {
-          _id: Math.round(Math.random() * 1000000),
-          text: `Of course! As an AI language model, I am designed to assist with a variety of tasks. Here are some examples of what I can do:
-
-• Answer questions: Just ask me anything you like!
-• Generate text: I can write essays, articles, reports, stories, poems, and more.
-• Conversational AI: I can engage in conversations with you in a natural and human-like way.
-
-These are just a few examples of what I can do. Feel free to ask, and I'll do my best to assist you.`,
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: 'AI Assistant',
-            avatar: null,
-          },
-        };
-      } else {
-        aiResponse = {
-          _id: Math.round(Math.random() * 1000000),
-          text: 'I understand your request. How can I help you with that?',
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: 'AI Assistant',
-            avatar: null,
-          },
-        };
-      }
-
-      setMessages(prev => [...prev, aiResponse]);
-      setIsTyping(false);
-    }, 1000);
-  }, []);
-   {suggestedPrompts.map((prompt, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSendMessage(prompt)}
-                    className="w-full bg-white rounded-xl p-4 text-left hover:bg-gray-50 transition-colors border border-gray-200"
-                  >
-                    <p className="text-sm text-gray-600 leading-relaxed">{prompt}</p>
-                  </button>
-                ))}
-  // const handleSendMessage = () => {
-  //   onSend(inputValue);
-  // };
   const handleSendMessage = async (text) => {
     try {
       if (!text?.trim()) return;
-  
+
+      let currentChatId = chatData?._id;
+
+      // If no current chat, create a new one
+      if (!currentChatId) {
+        console.log('Creating new chat...');
+        const newChatResult = await dispatch(newChat({
+          title: "New Chat",
+          model: "gpt-4o-mini"
+        }));
+
+        if (newChatResult?.payload?.status === 200) {
+          currentChatId = newChatResult.payload.data._id;
+          // Navigate to the new chat
+          navigate('/AiChat', { 
+            state: newChatResult.payload.data,
+            replace: true 
+          });
+        } else {
+          console.log('Failed to create new chat:', newChatResult?.payload?.message);
+          toast.error('Failed to create new chat');
+          return;
+        }
+      }
+
       const userMessageObj = {
         _id: Math.round(Math.random() * 1000000),
-        text: text, // use text directly
-        createdAt: new Date(),
+        text: text,
+        createdAt: new Date().toISOString(),
         user: {
           _id: 1,
           name: 'You',
         },
       };
-      setMessages(prev => [...prev, userMessageObj]);
-  
-      setIsTyping(true);
-  
+
+      // Add user message to local state immediately (optimistic update)
+      dispatch({ type: 'aiChat/addMessage', payload: userMessageObj });
+
+      console.log('Sending message:', text, 'to chat:', currentChatId);
+
       const result = await dispatch(
-        aiMessage({ data:{message: text}, chatId: chatData?._id }),
+        aiMessage({ data: { message: text }, chatId: currentChatId }),
       );
-  
-      setIsTyping(false);
-  
+
       if (result?.payload?.status === 200) {
-        const assistantText = result?.payload?.data?.assistantMessage?.content;
-  
-        if (assistantText) {
-          const aiResponse = {
-            _id: Math.round(Math.random() * 1000000),
-            text: assistantText,
-            createdAt: new Date(),
-            user: {
-              _id: 2,
-              name: 'AI Assistant',
-              avatar: null,
-            },
-          };
-          setMessages(prev => [...prev, aiResponse]);
-        }
+        // AI response is already handled in the reducer
+        console.log('AI message sent successfully');
+        // Remove from failed messages if it was there
+        setFailedMessages(prev => {
+          const newState = { ...prev };
+          delete newState[userMessageObj._id];
+          return newState;
+        });
       } else {
         console.log('AI response error', result?.payload?.message);
+        
+        // Mark message as failed
+        setFailedMessages(prev => ({
+          ...prev,
+          [userMessageObj._id]: {
+            error: result?.payload?.message,
+            status: result?.payload?.status
+          }
+        }));
+        
+        // Show specific error messages based on error type
+        if (result?.payload?.status === 'TIMEOUT') {
+          toast.error('AI response timeout. Please try again.');
+        } else if (result?.payload?.status === 'NETWORK_ERROR') {
+          toast.error('Network error. Please check your connection.');
+        } else {
+          toast.error(result?.payload?.message || 'Failed to get AI response');
+        }
       }
     } catch (error) {
       console.log('error', error);
+      toast.error('Failed to send message');
     }
   };
-  
+
+  const handleNewChat = async () => {
+    try {
+      console.log('Creating new chat...');
+      const result = await dispatch(newChat({
+        title: "New Chat",
+        model: "gpt-4o-mini"
+      }));
+
+      if (result?.payload?.status === 200) {
+        // Navigate to the new chat
+        navigate('/AiChat', { 
+          state: result.payload.data,
+          replace: true 
+        });
+        // Clear messages for new chat
+        dispatch({ type: 'aiChat/clearMessages' });
+      } else {
+        console.log('Failed to create new chat:', result?.payload?.message);
+        toast.error('Failed to create new chat');
+      }
+    } catch (error) {
+      console.log('Error creating new chat:', error);
+      toast.error('Failed to create new chat');
+    }
+  };
+
+  const handleChatSelect = (chat) => {
+    navigate('/AiChat', { 
+      state: chat,
+      replace: true 
+    });
+  };
+
+  const handleDeleteChat = async (chatId, e) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this chat?')) {
+      try {
+        console.log('Deleting chat:', chatId);
+        const result = await dispatch(deleteChat(chatId));
+
+        if (result?.payload?.status === 200) {
+          toast.success('Chat deleted successfully');
+          // If we're currently viewing the deleted chat, navigate to new chat
+          if (chatData?._id === chatId) {
+            handleNewChat();
+          }
+        } else {
+          console.log('Failed to delete chat:', result?.payload?.message);
+          toast.error('Failed to delete chat');
+        }
+      } catch (error) {
+        console.log('Error deleting chat:', error);
+        toast.error('Failed to delete chat');
+      }
+    }
+  };
+
+  const handleEditTitle = (chat, e) => {
+    e.stopPropagation();
+    setEditingChatId(chat._id);
+    setEditingTitle(chat.title);
+  };
+
+  const handleSaveTitle = async (chatId) => {
+    try {
+      console.log('Updating chat title:', chatId, editingTitle);
+      const result = await dispatch(updateChatTitle({ 
+        chatId, 
+        title: editingTitle 
+      }));
+
+      if (result?.payload?.status === 200) {
+        toast.success('Chat title updated');
+        setEditingChatId(null);
+        setEditingTitle('');
+      } else {
+        console.log('Failed to update title:', result?.payload?.message);
+        toast.error('Failed to update title');
+      }
+    } catch (error) {
+      console.log('Error updating title:', error);
+      toast.error('Failed to update title');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingChatId(null);
+    setEditingTitle('');
+  };
+
+  const handleRetryMessage = async (messageId, messageText) => {
+    try {
+      console.log('Retrying message:', messageId, messageText);
+      
+      // Remove from failed messages
+      setFailedMessages(prev => {
+        const newState = { ...prev };
+        delete newState[messageId];
+        return newState;
+      });
+
+      // Retry sending the message
+      await handleSendMessage(messageText);
+    } catch (error) {
+      console.error('Error retrying message:', error);
+      toast.error('Failed to retry message');
+    }
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -176,57 +333,196 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
   };
 
   const renderMessage = (message) => {
-    const isAI = message.user._id === 2;
-    const reaction = messageReactions[message._id];
+    // Add null checks to prevent errors
+    if (!message || !message.user || !message.text) {
+      console.warn('Invalid message object:', message);
+      return null;
+    }
+
+    try {
+      const isAI = message.user._id === 2;
+      const reaction = messageReactions[message._id];
+      const isFailed = failedMessages[message._id];
+
+      return (
+        <div key={message._id || Math.random()} className={`flex ${isAI ? 'justify-start' : 'justify-end'} mb-4`}>
+          <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${isAI
+            ? 'bg-gray-100 text-gray-900'
+            : 'bg-blue-600 text-white'
+            }`}>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text || 'No message content'}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+              {message.createdAt ? new Date(message.createdAt).toLocaleTimeString() : ''}
+            </p>
+
+            {/* Show retry button for failed user messages */}
+            {!isAI && isFailed && (
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  onClick={() => handleRetryMessage(message._id, message.text)}
+                  className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-xs hover:bg-red-200 transition-colors"
+                >
+                  Retry
+                </button>
+                <span className="text-xs text-red-600">
+                  {isFailed.status === 'TIMEOUT' ? 'Timeout' : 'Failed'}
+                </span>
+              </div>
+            )}
+
+            {isAI && (
+              <div className="flex items-center gap-3 mt-2 ml-0">
+                <button
+                  onClick={() => handleCopyMessage(message.text)}
+                  className="p-1 hover:bg-gray-200 rounded transition-colors"
+                  title="Copy message"
+                >
+                  <CopyIcon />
+                </button>
+
+                <button
+                  onClick={() => handleReaction(message._id, 'like')}
+                  className={`p-1 rounded transition-colors ${reaction === 'like' ? 'bg-blue-100' : 'hover:bg-gray-200'
+                    }`}
+                  title="Like"
+                >
+                  <ThumbsUp />
+                </button>
+
+                <button
+                  onClick={() => handleReaction(message._id, 'dislike')}
+                  className={`p-1 rounded transition-colors ${reaction === 'dislike' ? 'bg-red-100' : 'hover:bg-gray-200'
+                    }`}
+                  title="Dislike"
+                >
+                  <ThumbsDown />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    } catch (error) {
+      console.error('Error rendering message:', error, 'Message:', message);
+      return (
+        <div key={message._id || Math.random()} className="flex justify-start mb-4">
+          <div className="bg-red-100 text-red-900 px-4 py-2 rounded-2xl">
+            <p className="text-sm">Error rendering message</p>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  const renderChatHistoryItem = (chat) => {
+    const isEditing = editingChatId === chat._id;
+    const isActive = chatData?._id === chat._id;
 
     return (
-      <div key={message._id} className={`flex ${isAI ? 'justify-start' : 'justify-end'} mb-4`}>
-        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${isAI
-          ? 'bg-gray-100 text-gray-900'
-          : 'bg-blue-600 text-white'
-          }`}>
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
-
-          {isAI && (
-            <div className="flex items-center gap-3 mt-2 ml-0">
+      <div 
+        key={chat._id} 
+        className={`p-3 rounded-lg cursor-pointer transition-colors ${
+          isActive ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'
+        }`}
+        onClick={() => handleChatSelect(chat)}
+      >
+        {isEditing ? (
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={editingTitle}
+              onChange={(e) => setEditingTitle(e.target.value)}
+              className="flex-1 text-sm border border-gray-300 rounded px-2 py-1"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSaveTitle(chat._id);
+                } else if (e.key === 'Escape') {
+                  handleCancelEdit();
+                }
+              }}
+            />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSaveTitle(chat._id);
+              }}
+              className="text-green-600 hover:text-green-700"
+            >
+              ✓
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCancelEdit();
+              }}
+              className="text-red-600 hover:text-red-700"
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium text-gray-900 truncate flex-1">
+              {chat.title}
+            </h3>
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
-                onClick={() => handleCopyMessage(message.text)}
-                className="p-1 hover:bg-gray-200 rounded transition-colors"
-                title="Copy message"
+                onClick={(e) => handleEditTitle(chat, e)}
+                className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
+                title="Edit title"
               >
-                <CopyIcon />
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
               </button>
-
               <button
-                onClick={() => handleReaction(message._id, 'like')}
-                className={`p-1 rounded transition-colors ${reaction === 'like' ? 'bg-blue-100' : 'hover:bg-gray-200'
-                  }`}
-                title="Like"
+                onClick={(e) => handleDeleteChat(chat._id, e)}
+                className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-red-600"
+                title="Delete chat"
               >
-                <ThumbsUp />
-              </button>
-
-              <button
-                onClick={() => handleReaction(message._id, 'dislike')}
-                className={`p-1 rounded transition-colors ${reaction === 'dislike' ? 'bg-red-100' : 'hover:bg-gray-200'
-                  }`}
-                title="Dislike"
-              >
-                <ThumbsDown />
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   };
 
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
+  // Safety check for Redux state
+  if (!aiChatState) {
+    console.error('AI Chat Redux state is not available');
+    return (
+      <div className="flex-1 flex bg-gray-50 h-screen justify-center items-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">⚠️</div>
+          <p className="text-gray-600">Unable to load chat state. Please refresh the page.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loading && !chatData?._id) {
+    return (
+      <div className="flex-1 flex bg-gray-50 h-screen justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading chat...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 flex bg-gray-50 min-h-screen">
+    <div className="flex-1 flex bg-gray-50 h-screen">
       {/* Central Chat Area */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-white h-full">
         {/* Header */}
         <div className="border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
@@ -257,8 +553,8 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {messages.length === 0 ? (
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
+          {!messages || messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <div className="mb-10">
                 <GrayChat />
@@ -278,7 +574,17 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
             </div>
           ) : (
             <div className="space-y-4">
-              {messages.map(renderMessage)}
+              {messages && messages.length > 0 && (() => {
+                try {
+                  return messages
+                    .filter(message => message && message.user && message.text)
+                    .map(renderMessage)
+                    .filter(Boolean);
+                } catch (error) {
+                  console.error('Error rendering messages:', error);
+                  return null;
+                }
+              })()}
               {isTyping && (
                 <div className="flex justify-start mb-4">
                   <div className="bg-gray-100 text-gray-900 px-4 py-2 rounded-2xl">
@@ -303,25 +609,23 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
                 ? 'border-blue-400 bg-blue-50'
                 : 'border-gray-200 bg-gray-100'
                 }`}>
-            <textarea
-  value={inputValue}
-  onChange={(e) => setInputValue(e.target.value)}
-  onKeyDown={handleKeyPress}   // ✅ works for Enter
-  onFocus={() => setIsComposerFocused(true)}
-  onBlur={() => setIsComposerFocused(false)}
-  placeholder="Ask me anything..."
-  className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-sm text-gray-900 placeholder-gray-500 min-h-[40px] max-h-32"
-  rows="1"
-/>
-
-
+                <textarea
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  onFocus={() => setIsComposerFocused(true)}
+                  onBlur={() => setIsComposerFocused(false)}
+                  placeholder="Ask me anything..."
+                  className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-sm text-gray-900 placeholder-gray-500 min-h-[40px] max-h-32"
+                  rows="1"
+                />
               </div>
             </div>
 
             <button
-             onClick={() => handleSendMessage(inputValue)}
-              disabled={!inputValue.trim()}
-              className={`p-3 rounded-full transition-colors ${inputValue.trim()
+              onClick={() => handleSendMessage(inputValue)}
+              disabled={!inputValue.trim() || isTyping}
+              className={`p-3 rounded-full transition-colors ${inputValue.trim() && !isTyping
                 ? 'bg-blue-600 hover:bg-blue-700'
                 : 'bg-gray-300 cursor-not-allowed'
                 }`}
@@ -333,7 +637,7 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
       </div>
 
       {/* Right Sidebar - Chat History (Desktop) */}
-      <div className="hidden lg:flex w-80 bg-white border-l border-gray-200 flex-col">
+      <div className="hidden lg:flex w-80 bg-white border-l border-gray-200 flex-col h-screen">
         {/* Header */}
         <div className="border-b border-gray-200 px-4 py-4">
           <div className="flex items-center justify-between">
@@ -348,51 +652,45 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
 
         {/* New Chat Button */}
         <div className="p-4 border-b border-gray-200">
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>New Chat</span>
+          <button 
+            onClick={handleNewChat}
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+          >
+            {loading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            <span>{loading ? 'Creating...' : 'New Chat'}</span>
           </button>
         </div>
 
-        {/* Project Selection */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="bg-gray-100 rounded-lg p-3 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">Project |</span>
-              <span className="text-sm font-medium text-gray-900">Current Project</span>
+        {/* Chat History */}
+        <div className="flex-1 overflow-y-auto p-4 min-h-0">
+          {loading ? (
+            <div className="flex justify-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             </div>
-            <div className="flex items-center space-x-1">
-              <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-              </svg>
-              <button className="p-1 hover:bg-gray-200 rounded">
-                <svg className="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" />
-                </svg>
-              </button>
+          ) : chatHistory.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p className="text-sm">No chat history yet</p>
+              <p className="text-xs mt-1">Start a new conversation to see it here</p>
             </div>
-          </div>
-        </div>
-
-        {/* Previous Chats */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-2">
-            <div className="p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-              <h3 className="text-sm font-medium text-gray-900">Project Kickoff: UX/UI Design In...</h3>
+          ) : (
+            <div className="space-y-2 group">
+              {chatHistory.map(renderChatHistoryItem)}
             </div>
-            <div className="p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-              <h3 className="text-sm font-medium text-gray-900">Project Brainstorming</h3>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Mobile History Modal */}
       {showHistoryModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden">
-          <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-lg">
+          <div className="fixed right-0 top-0 h-screen w-80 bg-white shadow-lg flex flex-col">
             {/* Header */}
             <div className="border-b border-gray-200 px-4 py-4">
               <div className="flex items-center justify-between">
@@ -410,44 +708,38 @@ These are just a few examples of what I can do. Feel free to ask, and I'll do my
 
             {/* New Chat Button */}
             <div className="p-4 border-b border-gray-200">
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>New Chat</span>
+              <button 
+                onClick={handleNewChat}
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+              >
+                {loading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                <span>{loading ? 'Creating...' : 'New Chat'}</span>
               </button>
             </div>
 
-            {/* Project Selection */}
-            <div className="p-4 border-b border-gray-200">
-              <div className="bg-gray-100 rounded-lg p-3 flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">Project |</span>
-                  <span className="text-sm font-medium text-gray-900">Current Project</span>
+            {/* Chat History */}
+            <div className="flex-1 overflow-y-auto p-4 min-h-0">
+              {loading ? (
+                <div className="flex justify-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                  </svg>
-                  <button className="p-1 hover:bg-gray-200 rounded">
-                    <svg className="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" />
-                    </svg>
-                  </button>
+              ) : chatHistory.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p className="text-sm">No chat history yet</p>
+                  <p className="text-xs mt-1">Start a new conversation to see it here</p>
                 </div>
-              </div>
-            </div>
-
-            {/* Previous Chats */}
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="space-y-2">
-                <div className="p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <h3 className="text-sm font-medium text-gray-900">Project Kickoff: UX/UI Design In...</h3>
+              ) : (
+                <div className="space-y-2 group">
+                  {chatHistory.map(renderChatHistoryItem)}
                 </div>
-                <div className="p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <h3 className="text-sm font-medium text-gray-900">Project Brainstorming</h3>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
