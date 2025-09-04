@@ -186,8 +186,10 @@ export default function ContractEditorPage() {
       
       // Check if AI service is available
       if (aiStatus && aiStatus.available) {
-        // Use the new smart template system with real API
-        result = await AIService.generateContractWithTemplates(promptText, ContractContent);
+        // Use backend AI endpoint directly (mobile-compatible)
+        // Instruct backend to generate a complete contract from the prompt
+        const generationPrompt = `Generate a complete professional contract in clean HTML based on this request: ${promptText}`;
+        result = await AIService.checkWithAi(ContractContent || '', generationPrompt);
       } else {
         // Use mock AI service for testing
         console.log('⚠️ Real AI service unavailable, using mock service...');
@@ -200,7 +202,7 @@ export default function ContractEditorPage() {
         console.log('📄 Generated content length:', result.content?.length || result.analysis?.length || 0);
         
         // Update the editor with generated content
-        const contentToUse = result.content || result.analysis;
+        const contentToUse = result.analysis || result.content;
         setImageSrc(contentToUse);
         dispatch(setContractEditor(contentToUse));
         

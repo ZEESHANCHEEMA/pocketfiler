@@ -52,6 +52,31 @@ export default function Contract(props) {
     position: { x: 150, y: 300 }
   });
   const [contentUpdated, setContentUpdated] = useState(false);
+  const [editedSuggestion, setEditedSuggestion] = useState('');
+  const [initialAISuggestion, setInitialAISuggestion] = useState('');
+
+  // Safely encode text for usage inside inline onclick JS strings
+  const encodeForOnclick = (text) => {
+    try {
+      const str = String(text ?? '')
+        .replace(/\n|\r/g, ' ') // remove newlines which break JS string literal
+        .replace(/\u2028|\u2029/g, ' ') // remove unicode line separators
+        .replace(/</g, '&lt;') // basic HTML safety
+        .replace(/>/g, '&gt;');
+      return encodeURIComponent(str);
+    } catch (e) {
+      return '';
+    }
+  };
+
+  // Normalize AI suggested text to remove markdown labels and artifacts
+  const normalizeSuggestionText = (text) => {
+    if (!text) return '';
+    let cleaned = String(text);
+    cleaned = cleaned.replace(/\*\*\*\*:\s*/gi, '');
+    cleaned = cleaned.replace(/^\s*-\s*/gm, '');
+    return cleaned;
+  };
 
   const ContractName = useSelector(
     (state) => state?.addcontract?.contract.name
@@ -97,6 +122,11 @@ export default function Contract(props) {
       suggested: suggestionData.suggested || suggestionData.suggestion,
       instanceId: suggestionData.instanceId
     });
+    const normalized = normalizeSuggestionText(
+      suggestionData.suggested || suggestionData.suggestion
+    );
+    setEditedSuggestion(normalized || '');
+    setInitialAISuggestion(normalized || '');
     setSuggestionModalVisible(true);
     console.log('🎯 Modal state should now be visible');
   };
@@ -120,7 +150,8 @@ export default function Contract(props) {
         console.log(`🔍 Regex: ${regex}`);
         
         const beforeReplacement = updatedContent;
-        updatedContent = ContractContent.replace(regex, suggestedText);
+        const sanitizedSuggestion = normalizeSuggestionText(suggestedText);
+        updatedContent = ContractContent.replace(regex, sanitizedSuggestion);
         console.log(`🎯 Replaced "${originalText}" with "${suggestedText}"`);
         console.log(`🔍 Content changed: ${beforeReplacement !== updatedContent}`);
         console.log(`🔍 Updated content preview: "${updatedContent.substring(0, 200)}..."`);
@@ -223,7 +254,9 @@ export default function Contract(props) {
               highlightedText = highlightedText.replace(regex, (match, p1) => {
                 matchCount++;
                 const instanceId = `${suggestion.id}_${matchCount}`;
-                return `<span class="highlighted-clause" data-instance-id="${instanceId}" onclick="window.showSuggestion('${suggestion.originalText.replace(/'/g, "\\'")}', '${suggestion.correctedText.replace(/'/g, "\\'")}', '${instanceId}')" style="background-color: #ffeb3b; cursor: pointer; padding: 2px 4px; border-radius: 3px; text-decoration: underline; font-weight: bold;">${p1}<span style="font-size: 10px; color: #666;"> (tap to apply suggestion)</span></span>`;
+                const encodedOriginal = encodeForOnclick(suggestion.originalText);
+                const encodedCorrected = encodeForOnclick(suggestion.correctedText);
+                return `<span class="highlighted-clause" data-instance-id="${instanceId}" onclick="window.showSuggestion(decodeURIComponent('${encodedOriginal}'), decodeURIComponent('${encodedCorrected}'), '${instanceId}')" style="background-color: #ffeb3b; cursor: pointer; padding: 2px 4px; border-radius: 3px; text-decoration: underline; font-weight: bold;">${p1}<span style=\"font-size: 10px; color: #666;\"> (tap to apply suggestion)</span></span>`;
               });
               
               if (beforeHighlight !== highlightedText) {
@@ -507,7 +540,9 @@ export default function Contract(props) {
                 highlightedText = highlightedText.replace(regex, (match, p1) => {
                   matchCount++;
                   const instanceId = `${suggestion.id}_${matchCount}`;
-                  return `<span class="highlighted-clause" data-instance-id="${instanceId}" onclick="window.showSuggestion('${suggestion.originalText.replace(/'/g, "\\'")}', '${suggestion.correctedText.replace(/'/g, "\\'")}', '${instanceId}')" style="background-color: #ffeb3b; cursor: pointer; padding: 2px 4px; border-radius: 3px; text-decoration: underline; font-weight: bold;">${p1}<span style="font-size: 10px; color: #666;"> (tap to apply suggestion)</span></span>`;
+                  const encodedOriginal = encodeForOnclick(suggestion.originalText);
+                  const encodedCorrected = encodeForOnclick(suggestion.correctedText);
+                  return `<span class=\"highlighted-clause\" data-instance-id=\"${instanceId}\" onclick=\"window.showSuggestion(decodeURIComponent('${encodedOriginal}'), decodeURIComponent('${encodedCorrected}'), '${instanceId}')\" style=\"background-color: #ffeb3b; cursor: pointer; padding: 2px 4px; border-radius: 3px; text-decoration: underline; font-weight: bold;\">${p1}<span style=\"font-size: 10px; color: #666;\"> (tap to apply suggestion)</span></span>`;
                 });
               } else {
                 console.log(`❌ Could not find "${suggestion.originalText}" in content`);
@@ -883,7 +918,7 @@ export default function Contract(props) {
                     dangerouslySetInnerHTML={{ __html: highlightedContent }}
                   />
                   <div className="highlighting-controls">
-                    <button
+                    {/* <button
                       className="btn-clear-highlighting"
                       onClick={() => {
                         setHighlightedContent('');
@@ -891,8 +926,8 @@ export default function Contract(props) {
                       }}
                     >
                       Clear Highlighting
-                    </button>
-                    {window.currentAISuggestions && window.currentAISuggestions.length > 0 && (
+                    </button> */}
+                    {/* {window.currentAISuggestions && window.currentAISuggestions.length > 0 && (
                       <button
                         className="btn-regenerate-highlighting"
                         onClick={() => {
@@ -903,7 +938,7 @@ export default function Contract(props) {
                       >
                         Regenerate Highlighting
                       </button>
-                    )}
+                    )} */}
                   </div>
             </div>
               ) : (
@@ -1020,7 +1055,7 @@ export default function Contract(props) {
                 <Button className="check-clause-ai-btn" onClick={handleCheckClauseWithAI}>
                   Check Clause with AI
                 </Button>
-                {highlightedContent && (
+                {/* {highlightedContent && (
                   <Button 
                     className="clear-highlighting-btn" 
                     onClick={() => {
@@ -1034,7 +1069,7 @@ export default function Contract(props) {
                   >
                     Clear Highlighting
                   </Button>
-                )}
+                )} */}
               </div>
             </div>
             <div className="contract-footer">
@@ -1063,7 +1098,23 @@ export default function Contract(props) {
               
               <div className="suggestion-item">
                 <label className="suggestion-label">Suggested:</label>
-                <p className="suggested-text">{currentSuggestion?.suggested}</p>
+                <textarea
+                  className="suggestion-textarea"
+                  value={editedSuggestion}
+                  onChange={(e) => setEditedSuggestion(e.target.value)}
+                  placeholder="Edit the suggestion before applying..."
+                />
+                <div className="char-count-row">
+                  <span className="char-count">{editedSuggestion.length} chars</span>
+                  {initialAISuggestion && editedSuggestion !== initialAISuggestion && (
+                    <button
+                      className="reset-suggestion-link"
+                      onClick={() => setEditedSuggestion(initialAISuggestion)}
+                    >
+                      Reset to AI suggestion
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -1079,7 +1130,11 @@ export default function Contract(props) {
                 className="apply-button"
                 onClick={() => {
                   if (currentSuggestion) {
-                    applyClauseSuggestion(currentSuggestion.original, currentSuggestion.suggested, currentSuggestion.instanceId);
+                    applyClauseSuggestion(
+                      currentSuggestion.original,
+                      editedSuggestion || currentSuggestion.suggested,
+                      currentSuggestion.instanceId
+                    );
                   }
                 }}
               >

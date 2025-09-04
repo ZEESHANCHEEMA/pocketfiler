@@ -460,44 +460,47 @@ Please provide your analysis in a structured format with clear sections.`;
     }
   }
 
-  // Check AI service status (Mobile-compatible)
+  // Check AI service status by calling backend AI endpoint (mobile-compatible)
   static async checkAIService() {
     try {
-      console.log('🔍 Checking AI service status...');
-      
-      // Check if API is configured
+      console.log('🔍 Checking AI service status via /contract/checkWithAi ...');
+
+      // Feature flag
       if (!API_CONFIG.ENABLE_AI_FEATURES) {
         return { available: false, error: 'AI features are disabled' };
       }
 
-      // Check if API keys are configured
-      const isUsingOpenRouter = API_CONFIG.USE_OPENROUTER;
-      const apiKey = isUsingOpenRouter
-        ? API_CONFIG.OPENROUTER_API_KEY
-        : API_CONFIG.OPENAI_API_KEY;
-      
-      if (!apiKey || apiKey === 'your-api-key-here') {
-        return { available: false, error: 'API key not configured' };
+      // Build a lightweight payload for a non-invasive health check
+      const requestData = {
+        text: 'health-check',
+        prompt: 'ping'
+      };
+
+      const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+
+      const url = `${API_CONFIG.API_URL}${API_ENDPOINTS.CONTRACT.CHECK_WITH_AI}`;
+      console.log('📤 Pinging AI endpoint:', url);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      if (response.ok) {
+        return { available: true, message: 'AI service is available' };
       }
 
-      // Test backend API availability
-      try {
-        const response = await fetch(`${API_CONFIG.API_URL}/health`, {
-          method: 'GET',
-          timeout: 5000
-        });
-        
-        if (response.ok) {
-          return { available: true, message: 'AI service is available' };
-        } else {
-          return { available: false, error: 'Backend service unavailable' };
-        }
-      } catch (error) {
-        console.log('⚠️ Backend health check failed, but continuing with API keys...');
-        // If backend is not available, we can still use direct API calls
-        return { available: true, message: 'AI service available (direct API)' };
-      }
-      
+      // Non-200 response from backend
+      const errorText = await response.text().catch(() => '');
+      return {
+        available: false,
+        error: `AI endpoint responded with ${response.status}. ${errorText || ''}`.trim()
+      };
+
     } catch (error) {
       console.error('❌ AI service status check failed:', error);
       return { available: false, error: error.message || 'Service check failed' };
