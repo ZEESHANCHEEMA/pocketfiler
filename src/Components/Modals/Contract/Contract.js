@@ -78,6 +78,53 @@ export default function Contract(props) {
     return cleaned;
   };
 
+  // Replace first occurrence of plain text in an HTML string using a DOM-safe approach
+  const replaceFirstTextInHtml = (htmlString, searchText, replacementText) => {
+    try {
+      if (!htmlString || !searchText) return htmlString;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlString, 'text/html');
+
+      const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null);
+      const lowerSearch = searchText.toLowerCase();
+      let found = false;
+
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        const textLower = node.nodeValue.toLowerCase();
+        const idx = textLower.indexOf(lowerSearch);
+        if (idx !== -1) {
+          // Split the text node around the match
+          const before = node.nodeValue.slice(0, idx);
+          const match = node.nodeValue.slice(idx, idx + searchText.length);
+          const after = node.nodeValue.slice(idx + searchText.length);
+
+          const spanBefore = doc.createTextNode(before);
+          const replacement = doc.createTextNode(replacementText);
+          const spanAfter = doc.createTextNode(after);
+
+          const parent = node.parentNode;
+          parent.replaceChild(spanAfter, node);
+          parent.insertBefore(replacement, spanAfter);
+          parent.insertBefore(spanBefore, replacement);
+
+          found = true;
+          break;
+        }
+      }
+
+      return found ? doc.body.innerHTML : htmlString;
+    } catch (e) {
+      console.error('❌ DOM replace failed, falling back to regex:', e);
+      try {
+        const regex = new RegExp(searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        return htmlString.replace(regex, replacementText);
+      } catch {
+        return htmlString;
+      }
+    }
+  };
+
   const ContractName = useSelector(
     (state) => state?.addcontract?.contract.name
   );
@@ -151,7 +198,8 @@ export default function Contract(props) {
         
         const beforeReplacement = updatedContent;
         const sanitizedSuggestion = normalizeSuggestionText(suggestedText);
-        updatedContent = ContractContent.replace(regex, sanitizedSuggestion);
+        // DOM-safe replacement to handle nested tags/spacing variations
+        updatedContent = replaceFirstTextInHtml(ContractContent, originalText, sanitizedSuggestion);
         console.log(`🎯 Replaced "${originalText}" with "${suggestedText}"`);
         console.log(`🔍 Content changed: ${beforeReplacement !== updatedContent}`);
         console.log(`🔍 Updated content preview: "${updatedContent.substring(0, 200)}..."`);
@@ -186,7 +234,7 @@ export default function Contract(props) {
             const spanInstanceId = span.getAttribute('data-instance-id');
             if (spanInstanceId === instanceId) {
               // Replace this span with the corrected text
-              const correctedTextNode = document.createTextNode(suggestedText);
+              const correctedTextNode = document.createTextNode(sanitizedSuggestion);
               span.parentNode.replaceChild(correctedTextNode, span);
             }
           });

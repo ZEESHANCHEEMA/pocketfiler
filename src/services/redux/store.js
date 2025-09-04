@@ -34,6 +34,7 @@ import getNotification from "./reducer/getNotification";
 import getLatestProjCon from "./reducer/getLatestProjCon";
 import authReducer from './reducer/authSlice';
 import contractTemplates from './reducer/contractTemplates';
+import aiChat from './reducer/aiChat';
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -72,6 +73,7 @@ const appReducer = combineReducers({
   getLatestProjCon,
   auth: authReducer, // Add the new auth reducer
   contractTemplates, // Add the contract templates reducer
+  aiChat, // Add the AI chat reducer
 });
 
 // Reset state when RESET_STORE is dispatched
