@@ -5,7 +5,24 @@ module.exports = {
     "./public/index.html"
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: [
+          'Poppins',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'Segoe UI',
+          'Roboto',
+          'Noto Sans',
+          'Ubuntu',
+          'Cantarell',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif',
+        ],
+      },
+    },
   },
   plugins: [],
   important: true,

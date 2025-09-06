@@ -1,0 +1,28 @@
+.ls-container{display:flex;flex-direction:column;background:#fff;min-height:100vh}
+.ls-header{background:#fff;padding:20px;border-bottom:1px solid #F0F0F0;display:flex;align-items:center;gap:14px}
+.ls-back{width:36px;height:36px;border-radius:18px;background:#F8F8F8;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ls-header-title{font-size:20px;font-weight:600}
+.ls-actions{display:flex;justify-content:flex-end;align-items:center;padding:15px 20px;border-bottom:1px solid #F0F0F0;gap:5px}
+.ls-primary-sm{background:#0A1126;color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer}
+.ls-icon-btn{width:40px;height:40px;border-radius:20px;background:#F8F8F8;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ls-scroll{flex:1;background:#F8F9FB;padding:20px}
+.ls-card{background:#fff;border-radius:20px;padding:20px;margin-bottom:20px}
+.ls-empty-card{display:flex;align-items:center;justify-content:center}
+.ls-empty-stack{display:flex;flex-direction:column;align-items:center}
+.ls-empty-icon{position:relative;margin-bottom:25px;font-size:40px}
+.ls-empty-badge{position:absolute;bottom:-5px;right:-5px;width:24px;height:24px;border-radius:12px;background:#0A1126;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+.ls-empty-title{font-size:18px;font-weight:600;color:#0A1126;margin-bottom:10px;text-align:center}
+.ls-empty-desc{font-size:14px;color:#858585;text-align:center;line-height:20px;margin-bottom:15px;max-width:560px}
+.ls-row-gap{display:flex;gap:15px;margin-bottom:15px}
+.ls-primary{background:#0A1126;color:#fff;border:none;border-radius:10px;padding:12px 20px;cursor:pointer}
+.ls-outline{border:1px solid #0A1126;background:#fff;color:#0A1126;border-radius:10px;padding:12px 20px;cursor:pointer}
+.ls-foot-note{font-size:12px;color:#858585;text-align:center}
+.ls-row-between{display:flex;justify-content:space-between}
+.ls-row-center{align-items:center}
+.ls-section-title{font-size:18px;font-weight:600;color:#0A1126}
+.ls-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-top:20px}
+.ls-tile{display:flex;align-items:center;gap:10px;background:#F8F8F8;padding:10px;border-radius:10px}
+.ls-tile-texts{display:flex;flex-direction:column}
+.ls-tile-title{font-size:14px;color:#0A1126}
+.ls-tile-sub{font-size:12px;color:#858585}
+

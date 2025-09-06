@@ -44,6 +44,8 @@ import Layout from "./Components/Layout/Layout";
 import PrivacyPolicy from "./Pages/PrivacyPolicy/PrivacyPolicy";
 import AiAssistance from "./Pages/AiAssistance/AiAssistance";
 import AiChat from "./Pages/AiChat/AiChat";
+import EncryptedLocker from "./Pages/EncryptedLocker/EncryptedLocker";
+import LockerScreen from "./Pages/Locker/LockerScreen";
 
 const client = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
 const DashboardLayout = () => (
@@ -194,6 +196,22 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Templates />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/EncryptedLocker"
+                  element={
+                    <ProtectedRoute>
+                      <EncryptedLocker />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/Locker/:lockerName"
+                  element={
+                    <ProtectedRoute>
+                      <LockerScreen />
                     </ProtectedRoute>
                   }
                 />

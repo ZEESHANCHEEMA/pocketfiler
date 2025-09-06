@@ -1,0 +1,26 @@
+.smw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9998}
+.smw-modal{background:#fff;border-radius:20px;width:90%;max-width:400px;min-height:400px;z-index:9999;overflow:hidden}
+.smw-content{padding:24px 24px 32px}
+.smw-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
+.smw-header-text{flex:1}
+.smw-title{font-size:18px;color:#0A1126;margin-bottom:4px;font-weight:600}
+.smw-desc{font-size:12px;color:#858585}
+.smw-close{width:32px;height:32px;border-radius:16px;background:#F4F4F4;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer}
+.smw-section{margin-bottom:24px;position:relative}
+.smw-section-title{font-size:14px;color:#0A1126;margin-bottom:16px;font-weight:600}
+.smw-person{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #F0F0F0}
+.smw-person-info{display:flex;align-items:center;gap:12px;flex:1}
+.smw-avatar{width:40px;height:40px;border-radius:20px;background:#E3F2FD;display:flex;align-items:center;justify-content:center}
+.smw-person-name{font-size:14px;color:#0A1126}
+.smw-role{display:flex;align-items:center;background:#F8F8F8;border:1px solid #E5E5E5;border-radius:16px;padding:6px 12px;gap:8px;cursor:pointer}
+.smw-role-static{font-size:12px;color:#0A1126;background:#F8F8F8;border-radius:16px;padding:6px 12px}
+.smw-caret{font-size:10px;color:#858585}
+.smw-options{background:#fff;border:1px solid #E5E5E5;border-radius:12px;margin-top:4px;overflow:hidden}
+.smw-option{width:100%;text-align:left;padding:12px 16px;border-bottom:1px solid #F4F4F4;background:#fff;cursor:pointer}
+.smw-danger{color:#FF4444}
+.smw-general{display:flex;align-items:center;background:#fff;border:1px solid #E5E5E5;border-radius:12px;padding:14px 16px;width:100%;gap:12px;justify-content:space-between;cursor:pointer}
+.smw-general-icon{width:24px;height:24px;border-radius:12px;background:#E3F2FD;display:flex;align-items:center;justify-content:center}
+.smw-general-text{flex:1;text-align:left;color:#0A1126}
+.smw-general-desc{font-size:12px;color:#858585;line-height:16px;margin-top:8px}
+.smw-primary{width:100%;background:#0A1126;border-radius:12px;padding:16px 12px;color:#fff;border:none;cursor:pointer;font-weight:600}
+

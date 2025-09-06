@@ -17,25 +17,8 @@ code {
 } */
 
 @font-face {
-  font-family: "ClashGrotesk";
-  src: url("/public/Fonts/ClashGrotesk-Medium.ttf") format("truetype");
-}
-@font-face {
-  font-family: "ClashGroteskRegular";
-  src: url("/public/Fonts/ClashGrotesk-Regular.ttf") format("truetype");
-}
-@font-face {
   font-family: "Poppins";
   src: url("/public/Fonts/Poppins-Regular.ttf") format("truetype");
 }
 
-body,
-.common-label {
-  font-family: "ClashGrotesk";
-}
-input,
-::placeholder,
-button,
-Button {
-  font-family: "Poppins" !important;
-}
+html, body { font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif; }

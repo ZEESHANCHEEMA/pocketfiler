@@ -1,0 +1,33 @@
+.alw-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9998}
+.alw-modal{background:#fff;border-radius:20px;width:90%;max-width:400px;min-height:400px;z-index:9999;overflow:hidden}
+.alw-content{padding:24px 24px 32px}
+.alw-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
+.alw-header-text{flex:1}
+.alw-title{font-size:18px;color:#0A1126;margin-bottom:4px;font-weight:600}
+.alw-desc{font-size:12px;color:#858585}
+.alw-close{width:32px;height:32px;border-radius:16px;background:#F4F4F4;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer}
+.alw-copy{margin-bottom:20px}
+.alw-copy-btn{display:flex;gap:12px;align-items:center;background:#E3F2FD;border-radius:12px;padding:14px 16px;border:none;cursor:pointer;color:#2196F3;font-weight:600}
+.alw-copy-icon{width:20px;height:20px;border-radius:4px;background:#2196F3;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.alw-form{margin-bottom:24px}
+.alw-group{margin-bottom:20px;position:relative}
+.alw-label{font-size:14px;color:#0A1126;margin-bottom:8px;display:block;font-weight:600}
+.alw-input{width:100%;border:1px solid #E5E5E5;border-radius:12px;padding:14px 16px;font-size:14px;color:#0A1126;background:#fff}
+.alw-input-error{border-color:#FF4444}
+.alw-error{color:#FF4444;font-size:12px;margin-top:4px}
+.alw-chip-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.alw-chip{border:1px solid #E5E5E5;border-radius:12px;padding:14px 16px;background:#fff;flex:0.95}
+.alw-remove{width:18px;height:18px;border-radius:12px;border:1px solid #0A1126;display:flex;align-items:center;justify-content:center;background:#fff;color:#0A1126;font-size:10px;cursor:pointer}
+.alw-dropdown{display:flex;align-items:center;justify-content:space-between;border:1px solid #E5E5E5;border-radius:12px;padding:14px 16px;background:#fff;width:100%;cursor:pointer}
+.alw-dropdown-ph{font-size:16px;color:#858585}
+.alw-drop-icon{font-size:12px;color:#858585}
+.alw-options{background:#fff;border:1px solid #E5E5E5;border-radius:12px;margin-top:4px;max-height:160px;overflow:hidden}
+.alw-options-scroll{max-height:160px;overflow:auto}
+.alw-option{width:100%;text-align:left;padding:12px 16px;border-bottom:1px solid #F4F4F4;height:50px;display:flex;align-items:center;background:#fff;cursor:pointer}
+.alw-primary{width:100%;background:#0A1126;border-radius:12px;padding:16px 12px;color:#fff;border:none;cursor:pointer;font-weight:600}
+.alw-primary-disabled{background:#858585;opacity:.7}
+.alw-footer{font-size:12px;color:#858585;text-align:center;margin-top:16px}
+.alw-success{padding:30px 20px;text-align:center}
+.alw-success-title{font-size:30px;color:#0A1126;font-weight:600;margin-bottom:8px}
+.alw-success-desc{font-size:18px;color:#858585;margin-bottom:16px}
+

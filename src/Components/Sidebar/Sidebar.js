@@ -184,6 +184,9 @@ export default function Sidebar({ children, showSidebar, PageName }) {
         case "/AllContract":
           setselectedRoute("Contracts");
           break;
+        case "/EncryptedLocker":
+          setselectedRoute("Encrypted Locker");
+          break;
         case "/HelpCenter":
           setselectedRoute("Help");
           break;
@@ -230,6 +233,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     { text: "Associate", path: "/Clients", disabled: false },
     { text: "Associate Request", path: "/ClientReq", disabled: false },
     { text: "Contracts", path: "/AllContract" },
+    { text: "Encrypted Locker", path: "/EncryptedLocker", disabled: false },
     { text: "AI Assistant", path: "/AiAssistance", disabled: false },
     { text: "Help", path: "/HelpCenter" },
     { text: "Dispute", path: "/Disputes" },
@@ -241,6 +245,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     { text: "Clients", path: "/Clients", disabled: false },
     { text: "Client Request", path: "/ClientReq", disabled: false },
     { text: "Contracts", path: "/AllContract" },
+    { text: "Encrypted Locker", path: "/EncryptedLocker", disabled: false },
     { text: "AI Assistant", path: "/AiAssistance", disabled: false },
     { text: "Help", path: "/HelpCenter" },
     { text: "Dispute", path: "/Disputes" },
@@ -251,6 +256,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     "/Images/Dashboard/users-01.svg",
     "/Images/Clients/arrow.svg",
     "/Images/Dashboard/Contracts.svg",
+    "/Images/Dashboard/project-icon.svg",
     "/Images/Dashboard/ai-icon.svg",
     "/Images/Dashboard/headphones-02.svg",
     "/Images/Dashboard/dispute-icon.svg",
@@ -262,6 +268,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     "/Images/Dashboard/users-01.svg",
     "/Images/Clients/arrow.svg",
     "/Images/Dashboard/Contracts.svg",
+    "/Images/Dashboard/project-icon.svg",
     "/Images/Dashboard/ai-icon.svg",
     "/Images/Dashboard/headphones-02.svg",
     "/Images/Dashboard/dispute-icon.svg",
