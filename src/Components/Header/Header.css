@@ -20,6 +20,20 @@
   font-family: "ClashGrotesk";
   /* padding-left: 40px !important; */
 }
+.back-btn {
+  height: 56px;
+  width: 56px;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  padding: 16px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+}
 .navbar__notification {
   position: relative;
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Header.css";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +14,7 @@ import { Button, Modal, Spinner } from "react-bootstrap";
 import { toSentenceCase } from "../../utils/helperFunction";
 import moment from "moment";
 
-export default function Header({ headername }) {
+export default function Header({ headername, showBack, onBack }) {
   const dispatch = useDispatch();
   const [notification, setNotification] = useState(false);
   const [userId, setUserId] = useState();
@@ -23,7 +23,7 @@ export default function Header({ headername }) {
 
   const navigate = useNavigate();
   const notificationRef = useRef(null);
-  let audio = new Audio(notifysound);
+  const audioRef = useRef(new Audio(notifysound));
 
   const handleProfile = () => {
     navigate("/Profile");
@@ -32,7 +32,7 @@ export default function Header({ headername }) {
     const userid = localStorage.getItem("_id");
     setUserId(userid);
     dispatch(getUserNotifications(userid));
-  }, [userId]);
+  }, [dispatch, userId]);
 
   const notificationdata = useSelector(
     (state) => state?.getNotification?.myNotifications?.data
@@ -42,11 +42,11 @@ export default function Header({ headername }) {
     notificationdata &&
     notificationdata?.some((item) => item && item?.NotifyRead === false);
 
-  const getAllNotifications = () => {
-    audio.play();
+  const getAllNotifications = useCallback(() => {
+    audioRef.current.play();
     const userid = localStorage.getItem("_id");
     dispatch(getUserNotifications(userid));
-  };
+  }, [dispatch]);
   useEffect(() => {
     const userid = localStorage.getItem("_id");
     socket.on("connect", () => {
@@ -106,7 +106,7 @@ export default function Header({ headername }) {
         socket.off("disconnect", (reason) => {});
       };
     }
-  }, []);
+  }, [getAllNotifications]);
 
   async function readnotification(id, item) {
     if (item?.NotifyRead) {
@@ -235,7 +235,23 @@ export default function Header({ headername }) {
   return (
     <>
       <div className="header-main">
-        <p className="header-heading">{headername}</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {showBack && (
+            <button
+              type="button"
+              aria-label="Go back"
+              className="back-btn"
+              onClick={() => (onBack ? onBack() : navigate(-1))}
+            >
+              <img
+                src="/Images/Clients/backarrow.svg"
+                alt="back"
+                style={{ height: 24, width: 24 }}
+              />
+            </button>
+          )}
+          <p className="header-heading">{headername}</p>
+        </div>
         <div className="header-Rhs">
           {/* <img src="/Images/Dashboard/notification.svg" alt="notification" /> */}
           <div className="navbar__notification">

@@ -2,7 +2,6 @@ import "./sidebar.css";
 import { Link, useNavigate } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
 import * as React from "react";
-import { useDispatch } from "react-redux";
 import { styled, useTheme } from "@mui/material/styles";
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
@@ -133,7 +132,6 @@ const themeMui = createTheme({
 });
 
 export default function Sidebar({ children, showSidebar, PageName }) {
-  const dispatch = useDispatch();
   const [userRoles, setUserRoles] = useState();
   const [showModal, setShowModal] = useState(false);
   const [selectedRoute, setselectedRoute] = useState("");
@@ -167,6 +165,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     if (path.includes("Project")) {
       setselectedRoute("Projects");
     } else {
+      // eslint-disable-next-line default-case
       switch (path) {
         case "/Dashboard":
           setselectedRoute("Dashboard");
@@ -187,6 +186,12 @@ export default function Sidebar({ children, showSidebar, PageName }) {
         case "/EncryptedLocker":
           setselectedRoute("Encrypted Locker");
           break;
+        case "/Settings":
+          setselectedRoute("Settings");
+          break;
+        case "/ReferFriend":
+          setselectedRoute("Refer a friend");
+          break;
         case "/HelpCenter":
           setselectedRoute("Help");
           break;
@@ -198,7 +203,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
           break;
       }
     }
-  }, [window.location.pathname]);
+  }, [userRoles]);
 
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -234,6 +239,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     { text: "Associate Request", path: "/ClientReq", disabled: false },
     { text: "Contracts", path: "/AllContract" },
     { text: "Encrypted Locker", path: "/EncryptedLocker", disabled: false },
+    { text: "Settings", path: "/Settings", disabled: false },
     { text: "AI Assistant", path: "/AiAssistance", disabled: false },
     { text: "Help", path: "/HelpCenter" },
     { text: "Dispute", path: "/Disputes" },
@@ -246,6 +252,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     { text: "Client Request", path: "/ClientReq", disabled: false },
     { text: "Contracts", path: "/AllContract" },
     { text: "Encrypted Locker", path: "/EncryptedLocker", disabled: false },
+    { text: "Settings", path: "/Settings", disabled: false },
     { text: "AI Assistant", path: "/AiAssistance", disabled: false },
     { text: "Help", path: "/HelpCenter" },
     { text: "Dispute", path: "/Disputes" },
@@ -257,6 +264,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     "/Images/Clients/arrow.svg",
     "/Images/Dashboard/Contracts.svg",
     "/Images/Dashboard/project-icon.svg",
+    "/Images/Dashboard/edit-icon.svg",
     "/Images/Dashboard/ai-icon.svg",
     "/Images/Dashboard/headphones-02.svg",
     "/Images/Dashboard/dispute-icon.svg",
@@ -269,6 +277,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     "/Images/Clients/arrow.svg",
     "/Images/Dashboard/Contracts.svg",
     "/Images/Dashboard/project-icon.svg",
+    "/Images/Dashboard/edit-icon.svg",
     "/Images/Dashboard/ai-icon.svg",
     "/Images/Dashboard/headphones-02.svg",
     "/Images/Dashboard/dispute-icon.svg",

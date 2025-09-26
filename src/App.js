@@ -36,16 +36,15 @@ import ContractEditorPage from "./Pages/ContractEditor/ContractEditor";
 import Templates from "./Pages/Templates/Templates";
 import AgoraRTC, { AgoraRTCProvider } from "agora-rtc-react";
 import { useEffect } from "react";
-import {
-  listenForMessages,
-  requestPermission,
-} from "./utils/Firebase/firebase";
+import { requestPermission } from "./utils/Firebase/firebase";
 import Layout from "./Components/Layout/Layout";
 import PrivacyPolicy from "./Pages/PrivacyPolicy/PrivacyPolicy";
 import AiAssistance from "./Pages/AiAssistance/AiAssistance";
 import AiChat from "./Pages/AiChat/AiChat";
 import EncryptedLocker from "./Pages/EncryptedLocker/EncryptedLocker";
 import LockerScreen from "./Pages/Locker/LockerScreen";
+import Settings from "./Pages/Settings/Settings";
+import ReferFriend from "./Pages/ReferFriend/ReferFriend";
 
 const client = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
 const DashboardLayout = () => (
@@ -183,6 +182,22 @@ function App() {
                 />
                 <Route path="/Subscription" element={<Subscription />} />
                 <Route path="/HelpCenter" element={<HelpCenter />} />
+                <Route
+                  path="/Settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/ReferFriend"
+                  element={
+                    <ProtectedRoute>
+                      <ReferFriend />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/ContractEditor"
                   element={
