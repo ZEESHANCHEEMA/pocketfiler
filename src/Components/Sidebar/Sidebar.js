@@ -650,31 +650,36 @@ export default function Sidebar({ children, showSidebar, PageName }) {
                             }}
                           >
                             <ListItemIcon
-                              minWidth={"24px"}
                               className="list-icons"
-                              selected={index === selectedItem}
-                              onClick={(event) =>
-                                handleListItemClick(event, index)
-                              }
                               sx={{
-                                "& ..MuiListItemIcon-root": {
-                                  minWidth: "24px",
-                                },
+                                minWidth: "24px",
+                                width: "24px",
+                                height: "24px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                               }}
                             >
                               <img
                                 src={icons[index]}
                                 alt={`Icon ${index + 1}`}
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  objectFit: "contain"
+                                }}
                               />
                             </ListItemIcon>
                             <ListItemText
-                              selected={index === selectedItem}
-                              className={
-                                index === selectedItem
-                                  ? "list-item"
-                                  : "list-item"
-                              }
                               primary={text}
+                              sx={{
+                                "& .MuiListItemText-primary": {
+                                  fontSize: "14px",
+                                  fontWeight: "500",
+                                  lineHeight: "160%",
+                                  color: text === selectedRoute ? "#166FBF" : "#0a1126",
+                                },
+                              }}
                             />
                           </ListItemButton>
                         </ListItem>
@@ -796,23 +801,36 @@ export default function Sidebar({ children, showSidebar, PageName }) {
                         }}
                       >
                         <ListItemIcon
-                          minWidth={"24px"}
                           className="list-icons"
-                          selected={index === selectedItem}
                           sx={{
-                            "& ..MuiListItemIcon-root": {
-                              minWidth: "24px",
-                            },
+                            minWidth: "24px",
+                            width: "24px",
+                            height: "24px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                           }}
                         >
-                          <img src={icons[index]} alt={`Icon ${index + 1}`} />
+                          <img 
+                            src={icons[index]} 
+                            alt={`Icon ${index + 1}`}
+                            style={{
+                              width: "20px",
+                              height: "20px",
+                              objectFit: "contain"
+                            }}
+                          />
                         </ListItemIcon>
                         <ListItemText
-                          selected={index === selectedItem}
-                          className={
-                            index === selectedItem ? "list-item" : "list-item"
-                          }
                           primary={text}
+                          sx={{
+                            "& .MuiListItemText-primary": {
+                              fontSize: "14px",
+                              fontWeight: "500",
+                              lineHeight: "160%",
+                              color: text === selectedRoute ? "#166FBF" : "#0a1126",
+                            },
+                          }}
                         />
                       </ListItemButton>
                     </ListItem>

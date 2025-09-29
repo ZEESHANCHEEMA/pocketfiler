@@ -286,21 +286,26 @@
 }
 /* icon-label */
 .css-16ac5r2-MuiButtonBase-root-MuiListItemButton-root {
-  /* padding-top: 12px !important;
-    padding-bottom: 12px !important; */
+  padding: 12px 16px !important;
   gap: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  min-height: 48px !important;
 }
 
 .list-icons {
   min-width: 24px !important;
   width: 24px !important;
-  height: 20px !important;
-  font-size: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   color: var(--Grey-500---Primary, #667085) !important;
 }
 .list-icons img {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 .Logout-div {
   position: absolute;
@@ -337,32 +342,31 @@
 
 .list-item {
   color: #0a1126 !important;
-
   font-family: ClashGrotesk;
   font-size: 14px;
   font-weight: 500;
   line-height: 17.22px;
   text-align: left;
-
-  gap: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: 48px;
 }
 .list-item-active {
   background: #166fbf0f !important;
-  border-radius: 12px !important;
-  display: flex;
-  align-items: center;
-  gap: 18px;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
   font-size: 14px !important;
   font-style: normal !important;
   font-weight: 500 !important;
-  line-height: 160% !important; /* 22.4px */
-  border-radius: 8px;
-  /* padding-top: 12px !important;
-    padding-bottom: 12px !important; */
-  /* background-color: var(--Blue-Text, #0F68FF) !important; */
+  line-height: 160% !important;
+  padding: 12px 16px !important;
+  min-height: 48px !important;
   transition: border-radius 0.15s cubic-bezier(0.4, 0, 0.2, 1) 0s !important;
   color: #166FBF !important;
-
 }
 .list-item:hover {
   /* color: #0f68ff !important; */
@@ -391,13 +395,25 @@
 
 .css-10hburv-MuiTypography-root {
   margin: 0;
-
   display: block;
   font-size: 14px !important;
-
   font-style: normal !important;
   font-weight: 500 !important;
   line-height: 160% !important;
+  color: inherit !important;
+}
+
+/* Ensure ListItemText is properly aligned */
+.MuiListItemText-root {
+  margin: 0 !important;
+  flex: 1;
+}
+
+.MuiListItemText-primary {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 160% !important;
+  color: inherit !important;
 }
 
 .css-ivnu1y-MuiPaper-root-MuiAppBar-root {
