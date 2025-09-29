@@ -32,9 +32,11 @@ import getTotalcount from "./reducer/getTotalcount";
 import getSubscription from "./reducer/getSubscription";
 import getNotification from "./reducer/getNotification";
 import getLatestProjCon from "./reducer/getLatestProjCon";
-import authReducer from './reducer/authSlice';
-import contractTemplates from './reducer/contractTemplates';
-import aiChat from './reducer/aiChat';
+import authReducer from "./reducer/authSlice";
+import contractTemplates from "./reducer/contractTemplates";
+import aiChat from "./reducer/aiChat";
+import lockers from "./reducer/lockers";
+import lockerPeople from "./reducer/lockerPeople";
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -74,6 +76,8 @@ const appReducer = combineReducers({
   auth: authReducer, // Add the new auth reducer
   contractTemplates, // Add the contract templates reducer
   aiChat, // Add the AI chat reducer
+  lockers,
+  lockerPeople,
 });
 
 // Reset state when RESET_STORE is dispatched
@@ -87,10 +91,10 @@ const rootReducer = (state, action) => {
 // Configure store with rootReducer
 export const store = configureStore({
   reducer: rootReducer,
-  middleware: getDefaultMiddleware =>
+  middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST'],
+        ignoredActions: ["persist/PERSIST"],
       },
     }),
 });

@@ -1,0 +1,51 @@
+.cm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.cm-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 92%;
+  max-width: 420px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.12);
+}
+.cm-header {
+  margin-bottom: 16px;
+}
+.cm-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0a1126;
+}
+.cm-desc {
+  margin-top: 6px;
+  color: #98a2b3;
+  font-size: 14px;
+}
+.cm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.cm-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #e4e7ec;
+  background: #fff;
+  cursor: pointer;
+}
+.cm-cancel {
+  color: #0a1126;
+}
+.cm-danger {
+  background: #0a1126;
+  color: #fff;
+  border-color: #0a1126;
+}
