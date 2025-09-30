@@ -4,12 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getLockerPeople,
   upsertLockerAssociates,
+  updateLockerAccess,
 } from "../../services/redux/middleware/locker";
 import { ErrorToast, SuccessToast } from "../toast/Toast";
 import { setLockerPeople } from "../../services/redux/reducer/lockerPeople";
 
 function SettingsModalWeb({ visible, onClose, lockerName, lockerId }) {
-  const [generalAccess, setGeneralAccess] = useState("Anyone with the link");
+  const [generalAccess, setGeneralAccess] = useState(
+    "Restricted (Only invited people)"
+  );
   const [showGeneralAccessDropdown, setShowGeneralAccessDropdown] =
     useState(false);
   const [showEditorDropdown, setShowEditorDropdown] = useState(null);
@@ -20,7 +23,7 @@ function SettingsModalWeb({ visible, onClose, lockerName, lockerId }) {
   const dispatch = useDispatch();
 
   const generalAccessOptions = useMemo(
-    () => ["Anyone with the link", "Only people with access", "Restricted"],
+    () => ["Restricted (Only invited people)", "Anyone with the link"],
     []
   );
 
@@ -228,7 +231,9 @@ function SettingsModalWeb({ visible, onClose, lockerName, lockerId }) {
               <div className="smw-caret">▼</div>
             </button>
             <div className="smw-general-desc">
-              Anyone who has the link will be able to open it.
+              {generalAccess === "Anyone with the link"
+                ? "Anyone who has the link will be able to open it."
+                : "Only people you've invited can access this locker."}
             </div>
             {showGeneralAccessDropdown && (
               <div className="smw-options">
@@ -239,6 +244,23 @@ function SettingsModalWeb({ visible, onClose, lockerName, lockerId }) {
                     onClick={() => {
                       setGeneralAccess(opt);
                       setShowGeneralAccessDropdown(false);
+                      // Call API to update access immediately
+                      const accessTypeMap = {
+                        "Restricted (Only invited people)": "restricted",
+                        "Anyone with the link": "public",
+                      };
+                      const accessType = accessTypeMap[opt] || "restricted";
+                      dispatch(updateLockerAccess({ lockerId, accessType }))
+                        .then((res) => {
+                          if (res?.payload?.status === 200) {
+                            SuccessToast("General access updated");
+                          } else {
+                            ErrorToast("Failed to update general access");
+                          }
+                        })
+                        .catch(() => {
+                          ErrorToast("Failed to update general access");
+                        });
                     }}
                   >
                     {opt}

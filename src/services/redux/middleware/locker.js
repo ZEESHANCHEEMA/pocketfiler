@@ -72,6 +72,38 @@ export const createLocker = createAsyncThunk(
   }
 );
 
+// PUT /locker/item/{itemId}/share — Share or unshare a folder or file with users
+export const updateLockerItemShare = createAsyncThunk(
+  "locker/updateItemShare",
+  async ({ itemId, add = [], remove = [] }) => {
+    try {
+      const res = await api.put(`${API_URL}/locker/item/${itemId}/share`, {
+        add,
+        remove,
+      });
+      // eslint-disable-next-line no-console
+      console.log("[locker] updateLockerItemShare:SUCCESS", {
+        status: res?.status,
+        data: res?.data,
+        itemId,
+      });
+      return { status: res?.status, data: res?.data, itemId };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log("[locker] updateLockerItemShare:ERROR", {
+        status: error?.response?.status || 500,
+        data: error?.response?.data,
+        itemId,
+      });
+      return {
+        status: error?.response?.status || 500,
+        data: error?.response?.data,
+        itemId,
+      };
+    }
+  }
+);
+
 // PUT /locker/{lockerId} — rename locker
 export const renameLocker = createAsyncThunk(
   "locker/rename",
@@ -212,14 +244,14 @@ export const createFolder = createAsyncThunk(
 );
 
 // POST /locker/{lockerId}/upload — upload file (optionally into folder parentId)
-// NEW: POST /locker/{lockerId}/files - FormData with files
 export const uploadLockerFiles = createAsyncThunk(
   "locker/uploadFiles",
   async ({ lockerId, files, parentId }) => {
     try {
       const formData = new FormData();
       const list = Array.isArray(files) ? files : [files];
-      list.forEach((f) => formData.append("files", f, f?.name || "upload.bin"));
+      // Backend expects repeated field name 'file' for each upload
+      list.forEach((f) => formData.append("file", f, f?.name || "upload.bin"));
       if (parentId) formData.append("parentId", parentId);
       // eslint-disable-next-line no-console
       console.log("[locker] upload payload", {
@@ -228,7 +260,7 @@ export const uploadLockerFiles = createAsyncThunk(
         count: list.length,
       });
       const res = await api.post(
-        `${API_URL}/locker/${lockerId}/files`,
+        `${API_URL}/locker/${lockerId}/upload`,
         formData,
         {
           // Let axios set the proper multipart boundary header automatically
@@ -240,7 +272,9 @@ export const uploadLockerFiles = createAsyncThunk(
         status: res?.status,
         data: res?.data,
       });
-      const raw = res?.data?.files || res?.data?.data || res?.data;
+      // Normalize various backend shapes
+      const raw =
+        res?.data?.files || res?.data?.data || res?.data?.file || res?.data;
       const uploaded = Array.isArray(raw) ? raw : raw ? [raw] : [];
       return { status: res?.status, data: { files: uploaded }, lockerId };
     } catch (error) {
@@ -305,9 +339,50 @@ export const upsertLockerAssociates = createAsyncThunk(
 // DELETE /locker/item/{itemId} — delete a folder or file by item id
 export const deleteLockerItem = createAsyncThunk(
   "locker/deleteItem",
-  async ({ itemId }) => {
+  async ({ itemId, type, lockerId }) => {
     try {
-      const res = await api.delete(`${API_URL}/locker/item/${itemId}`);
+      // Try primary endpoint
+      let res;
+      try {
+        res = await api.delete(`${API_URL}/locker/item/${itemId}`);
+      } catch (e) {
+        const notFound = e?.response?.status === 404;
+        if (notFound) {
+          // Try type-specific or plural fallback endpoints
+          const candidates = [];
+          if (lockerId)
+            candidates.push(`${API_URL}/locker/${lockerId}/item/${itemId}`);
+          if (type === "file")
+            candidates.push(`${API_URL}/locker/file/${itemId}`);
+          if (type === "folder")
+            candidates.push(`${API_URL}/locker/folder/${itemId}`);
+          // Query-string variants some backends use
+          if (type === "file")
+            candidates.push(`${API_URL}/locker/item/${itemId}?type=file`);
+          if (type === "folder")
+            candidates.push(`${API_URL}/locker/item/${itemId}?type=folder`);
+          if (lockerId)
+            candidates.push(`${API_URL}/locker/${lockerId}/items/${itemId}`);
+          candidates.push(`${API_URL}/locker/items/${itemId}`);
+          // Iterate until one succeeds
+          for (let i = 0; i < candidates.length; i += 1) {
+            try {
+              // eslint-disable-next-line no-await-in-loop
+              const url = candidates[i];
+              // eslint-disable-next-line no-console
+              console.log("[locker] deleteLockerItem:RETRY", { url });
+              res = await api.delete(url);
+              break;
+            } catch (err) {
+              // Continue trying next candidate on 404
+              if (err?.response?.status !== 404) throw err;
+            }
+          }
+          if (!res) throw e; // rethrow original if none succeeded
+        } else {
+          throw e;
+        }
+      }
       // eslint-disable-next-line no-console
       console.log("[locker] deleteLockerItem:SUCCESS", {
         status: res?.status,
@@ -488,6 +563,40 @@ export const transferLockerOwnership = createAsyncThunk(
         status: error?.response?.status || 500,
         data: error?.response?.data,
         lockerId,
+      };
+    }
+  }
+);
+
+// PUT /locker/{lockerId}/access — update locker access (restricted or public)
+export const updateLockerAccess = createAsyncThunk(
+  "locker/updateAccess",
+  async ({ lockerId, accessType }) => {
+    try {
+      const res = await api.put(`${API_URL}/locker/${lockerId}/access`, {
+        access: accessType,
+      });
+      // eslint-disable-next-line no-console
+      console.log("[locker] updateLockerAccess:SUCCESS", {
+        status: res?.status,
+        data: res?.data,
+        lockerId,
+        accessType,
+      });
+      return { status: res?.status, data: res?.data, lockerId, accessType };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log("[locker] updateLockerAccess:ERROR", {
+        status: error?.response?.status || 500,
+        data: error?.response?.data,
+        lockerId,
+        accessType,
+      });
+      return {
+        status: error?.response?.status || 500,
+        data: error?.response?.data,
+        lockerId,
+        accessType,
       };
     }
   }

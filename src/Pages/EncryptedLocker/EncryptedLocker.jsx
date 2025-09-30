@@ -16,7 +16,11 @@ import {
 } from "../../services/redux/middleware/locker";
 import { setLockers, upsertLocker } from "../../services/redux/reducer/lockers";
 import { getLockerDownload } from "../../services/redux/middleware/locker";
+import { getLockerPeople } from "../../services/redux/middleware/locker";
+// import { updateLockerItemShare } from "../../services/redux/middleware/locker";
+import { upsertLockerAssociates } from "../../services/redux/middleware/locker";
 import { getLockerItemDownloadUrl } from "../../services/redux/middleware/locker";
+// Reuse the unified Share modal used in Locker screen
 
 function EncryptedLocker() {
   const navigate = useNavigate();
@@ -30,6 +34,8 @@ function EncryptedLocker() {
   const [search, setSearch] = useState("");
   const [range, setRange] = useState("last_month");
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [shareTarget, setShareTarget] = useState(null);
+  const [existingAssociateEmails, setExistingAssociateEmails] = useState([]);
 
   function triggerDownload(url, suggestedName) {
     try {
@@ -90,6 +96,23 @@ function EncryptedLocker() {
     setLockersLocal(lockersState);
   }, [lockersState]);
 
+  // Load existing associates when opening Share
+  React.useEffect(() => {
+    if (!shareTarget?.id) return;
+    dispatch(getLockerPeople({ lockerId: shareTarget.id })).then((res) => {
+      const data = res?.payload?.data || {};
+      const assoc = Array.isArray(data?.associates) ? data.associates : [];
+      const emails = assoc
+        .map((a) =>
+          String(a?.email || "")
+            .trim()
+            .toLowerCase()
+        )
+        .filter(Boolean);
+      setExistingAssociateEmails(emails);
+    });
+  }, [dispatch, shareTarget?.id]);
+
   function handleCreateLocker({ name, associates }) {
     // Dispatch API to create locker
     return dispatch(createLocker({ name, associates })).then((res) => {
@@ -136,7 +159,14 @@ function EncryptedLocker() {
               <div className="el-section-title">Your Lockers</div>
               <div className="el-actions">
                 <div className="el-search">
-                  <span className="el-search-icon">🔍</span>
+                  <span className="el-search-icon">
+                    <img
+                      src="/Images/File/search-md.png"
+                      alt="History"
+                      width={18}
+                      height={18}
+                    />
+                  </span>
                   <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -145,15 +175,26 @@ function EncryptedLocker() {
                   />
                 </div>
                 <div className="el-filter">
+                  <img
+                    src="/Images/File/calendar.png"
+                    alt="Calendar"
+                    className="el-filter-icon-left"
+                  />
                   <select
                     value={range}
                     onChange={(e) => setRange(e.target.value)}
+                    className="el-filter-select"
                   >
                     <option value="today">Today</option>
                     <option value="last_week">Last Week</option>
                     <option value="last_month">Last Month</option>
                     <option value="last_year">Last Year</option>
                   </select>
+                  <img
+                    src="/Images/File/Icon.png"
+                    alt="Dropdown"
+                    className="el-filter-icon-right"
+                  />
                 </div>
                 <button
                   className="el-primary-sm"
@@ -238,11 +279,8 @@ function EncryptedLocker() {
                             className="el-menu-item"
                             type="button"
                             onClick={() => {
-                              // eslint-disable-next-line no-console
-                              console.log("[encrypted] share:locker click", {
-                                lockerId: item.id,
-                                name: item.name,
-                              });
+                              // Simple share: grant viewer access to entered emails
+                              setShareTarget(item);
                               setOpenMenuId(null);
                             }}
                           >
@@ -390,6 +428,46 @@ function EncryptedLocker() {
           );
         }}
       />
+
+      {shareTarget && (
+        <AddLockerModalWeb
+          visible={!!shareTarget}
+          onClose={() => setShareTarget(null)}
+          modalType="share"
+          lockerName={shareTarget?.name}
+          existingEmails={existingAssociateEmails}
+          onShareLocker={({ associates, add }) => {
+            let payloadAdd = add;
+            if (!payloadAdd && Array.isArray(associates)) {
+              payloadAdd = associates.map((a) => {
+                if (typeof a === "string") return { email: a, role: "viewer" };
+                if (a?.email)
+                  return { email: a.email, role: a.role || "viewer" };
+                if (a?.name) return { email: a.name, role: a.role || "viewer" };
+                return { email: String(a || "").trim(), role: "viewer" };
+              });
+            }
+            return dispatch(
+              upsertLockerAssociates({
+                lockerId: shareTarget.id,
+                add: payloadAdd,
+              })
+            ).then((res) => {
+              const status = res?.payload?.status;
+              const message = res?.payload?.message;
+              if (status && status !== 200) {
+                if (message) ErrorToast(message);
+              } else if (message) {
+                SuccessToast(message);
+              } else {
+                SuccessToast("Locker shared successfully");
+              }
+              setShareTarget(null);
+              return res;
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

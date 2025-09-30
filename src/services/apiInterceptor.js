@@ -18,6 +18,14 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
 
+    // If the request is sending FormData, let the browser/axios set the multipart boundary
+    if (config.data instanceof FormData) {
+      // eslint-disable-next-line no-param-reassign
+      delete config.headers["Content-Type"]; // allow axios to set correct boundary
+      // Alternatively, explicitly set multipart but without boundary
+      // config.headers["Content-Type"] = "multipart/form-data";
+    }
+
     if (API_CONFIG.ENABLE_LOGGING) {
       console.log("API Request to:", config.url);
       console.log("Request method:", config.method);

@@ -1,52 +1,52 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   AiBackgroundSVG,
   CopyIcon,
   GrayChat,
   SendComposer,
   ThumbsDown,
-  ThumbsUp
-} from '../../assets/svgs';
-import { 
-  newChat, 
-  aiMessage, 
-  getChatHistory, 
-  getSingleChatHistory, 
-  deleteChat, 
-  updateChatTitle 
-} from '../../services/redux/middleware/Project/aiChat';
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+  ThumbsUp,
+} from "../../assets/svgs";
+import {
+  newChat,
+  aiMessage,
+  getChatHistory,
+  getSingleChatHistory,
+  deleteChat,
+  updateChatTitle,
+} from "../../services/redux/middleware/Project/aiChat";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const AiChat = () => {
   const location = useLocation();
   const chatData = location.state;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isComposerFocused, setIsComposerFocused] = useState(false);
   const [editingChatId, setEditingChatId] = useState(null);
-  const [editingTitle, setEditingTitle] = useState('');
+  const [editingTitle, setEditingTitle] = useState("");
   const [messageReactions, setMessageReactions] = useState({});
   const [failedMessages, setFailedMessages] = useState({}); // Track failed messages
   const messagesEndRef = useRef(null);
 
   // Get Redux state with fallbacks
   const aiChatState = useSelector((state) => state.aiChat);
-  const { 
-    loading = false, 
-    error = null, 
-    chatHistory = [], 
-    currentChat = null, 
-    messages = [], 
-    isTyping = false 
+  const {
+    loading = false,
+    error = null,
+    chatHistory = [],
+    currentChat = null,
+    messages = [],
+    isTyping = false,
   } = aiChatState || {};
 
   // Debug logging
-  console.log('Current aiChat state:', aiChatState);
-  console.log('Current messages state:', messages);
-  
+  console.log("Current aiChat state:", aiChatState);
+  console.log("Current messages state:", messages);
+
   // Debug individual messages
   if (messages && messages.length > 0) {
     messages.forEach((msg, index) => {
@@ -56,15 +56,15 @@ const AiChat = () => {
         user: msg.user,
         createdAt: msg.createdAt,
         hasUser: !!msg.user,
-        hasText: !!msg.text
+        hasText: !!msg.text,
       });
     });
   }
 
   const suggestedPrompts = [
-    'Write a professional NDA contract from scratch.',
-    'Summarize lengthy legal documents in seconds.',
-    'Compare versions of documents to highlight changes.',
+    "Write a professional NDA contract from scratch.",
+    "Summarize lengthy legal documents in seconds.",
+    "Compare versions of documents to highlight changes.",
   ];
 
   const scrollToBottom = () => {
@@ -83,51 +83,53 @@ const AiChat = () => {
   // Load single chat history if chatData exists
   useEffect(() => {
     if (chatData?._id) {
-      console.log('Chat data received:', chatData);
+      console.log("Chat data received:", chatData);
       loadSingleChatHistory();
     } else {
-      console.log('No chat data, starting fresh chat');
+      console.log("No chat data, starting fresh chat");
     }
   }, [chatData?._id]);
 
   const loadChatHistory = async () => {
     try {
-      console.log('Loading chat history...');
+      console.log("Loading chat history...");
       const result = await dispatch(getChatHistory());
-      console.log('Chat history result:', result);
+      console.log("Chat history result:", result);
     } catch (error) {
-      console.log('Error loading chat history:', error);
-      toast.error('Failed to load chat history');
+      console.log("Error loading chat history:", error);
+      toast.error("Failed to load chat history");
     }
   };
 
   const loadSingleChatHistory = async () => {
     try {
-      console.log('Loading single chat history for:', chatData._id);
+      console.log("Loading single chat history for:", chatData._id);
       const result = await dispatch(getSingleChatHistory(chatData._id));
-      console.log('Single chat history result:', result);
-      
+      console.log("Single chat history result:", result);
+
       if (result?.payload?.status === 404) {
-        console.log('⚠️ Chat history not found (404) - this might be a new chat');
+        console.log(
+          "⚠️ Chat history not found (404) - this might be a new chat"
+        );
       }
     } catch (error) {
-      console.log('Error loading single chat history:', error);
-      toast.error('Failed to load chat history');
+      console.log("Error loading single chat history:", error);
+      toast.error("Failed to load chat history");
     }
   };
 
   const handleSuggestionClick = (prompt) => {
-    setInputValue('');
+    setInputValue("");
     handleSendMessage(prompt);
   };
-  
+
   const handleCopyMessage = (text) => {
     navigator.clipboard.writeText(text);
-    toast.success('Message copied to clipboard');
+    toast.success("Message copied to clipboard");
   };
 
   const handleReaction = (messageId, reaction) => {
-    setMessageReactions(prev => ({
+    setMessageReactions((prev) => ({
       ...prev,
       [messageId]: reaction,
     }));
@@ -141,22 +143,27 @@ const AiChat = () => {
 
       // If no current chat, create a new one
       if (!currentChatId) {
-        console.log('Creating new chat...');
-        const newChatResult = await dispatch(newChat({
-          title: "New Chat",
-          model: "gpt-4o-mini"
-        }));
+        console.log("Creating new chat...");
+        const newChatResult = await dispatch(
+          newChat({
+            title: "New Chat",
+            model: "gpt-4o-mini",
+          })
+        );
 
         if (newChatResult?.payload?.status === 200) {
           currentChatId = newChatResult.payload.data._id;
           // Navigate to the new chat
-          navigate('/AiChat', { 
+          navigate("/AiChat", {
             state: newChatResult.payload.data,
-            replace: true 
+            replace: true,
           });
         } else {
-          console.log('Failed to create new chat:', newChatResult?.payload?.message);
-          toast.error('Failed to create new chat');
+          console.log(
+            "Failed to create new chat:",
+            newChatResult?.payload?.message
+          );
+          toast.error("Failed to create new chat");
           return;
         }
       }
@@ -167,110 +174,129 @@ const AiChat = () => {
         createdAt: new Date().toISOString(),
         user: {
           _id: 1,
-          name: 'You',
+          name: "You",
         },
       };
 
       // Add user message to local state immediately (optimistic update)
-      dispatch({ type: 'aiChat/addMessage', payload: userMessageObj });
+      dispatch({ type: "aiChat/addMessage", payload: userMessageObj });
 
-      console.log('Sending message:', text, 'to chat:', currentChatId);
+      console.log("Sending message:", text, "to chat:", currentChatId);
 
       const result = await dispatch(
-        aiMessage({ data: { message: text }, chatId: currentChatId }),
+        aiMessage({ data: { message: text }, chatId: currentChatId })
       );
 
       if (result?.payload?.status === 200) {
         // AI response is already handled in the reducer
-        console.log('AI message sent successfully');
+        console.log("AI message sent successfully");
         // Remove from failed messages if it was there
-        setFailedMessages(prev => {
+        setFailedMessages((prev) => {
           const newState = { ...prev };
           delete newState[userMessageObj._id];
           return newState;
         });
       } else {
-        console.log('AI response error', result?.payload?.message);
-        
+        console.log("AI response error", result?.payload?.message);
+
         // Mark message as failed
-        setFailedMessages(prev => ({
+        setFailedMessages((prev) => ({
           ...prev,
           [userMessageObj._id]: {
             error: result?.payload?.message,
-            status: result?.payload?.status
-          }
+            status: result?.payload?.status,
+          },
         }));
-        
+
         // Show specific error messages based on error type
-        if (result?.payload?.status === 'TIMEOUT') {
-          toast.error('AI response timeout. Please try again.');
-        } else if (result?.payload?.status === 'NETWORK_ERROR') {
-          toast.error('Network error. Please check your connection.');
+        if (result?.payload?.status === "TIMEOUT") {
+          toast.error("AI response timeout. Please try again.");
+        } else if (result?.payload?.status === "NETWORK_ERROR") {
+          toast.error("Network error. Please check your connection.");
         } else {
-          toast.error(result?.payload?.message || 'Failed to get AI response');
+          toast.error(result?.payload?.message || "Failed to get AI response");
         }
       }
     } catch (error) {
-      console.log('error', error);
-      toast.error('Failed to send message');
+      console.log("error", error);
+      toast.error("Failed to send message");
     }
   };
 
   const handleNewChat = async () => {
     try {
-      console.log('Creating new chat...');
-      const result = await dispatch(newChat({
-        title: "New Chat",
-        model: "gpt-4o-mini"
-      }));
+      console.log("Creating new chat...");
+      const result = await dispatch(
+        newChat({
+          title: "New Chat",
+          model: "gpt-4o-mini",
+        })
+      );
 
       if (result?.payload?.status === 200) {
         // Navigate to the new chat
-        navigate('/AiChat', { 
+        navigate("/AiChat", {
           state: result.payload.data,
-          replace: true 
+          replace: true,
         });
         // Clear messages for new chat
-        dispatch({ type: 'aiChat/clearMessages' });
+        dispatch({ type: "aiChat/clearMessages" });
       } else {
-        console.log('Failed to create new chat:', result?.payload?.message);
-        toast.error('Failed to create new chat');
+        console.log("Failed to create new chat:", result?.payload?.message);
+        toast.error("Failed to create new chat");
       }
     } catch (error) {
-      console.log('Error creating new chat:', error);
-      toast.error('Failed to create new chat');
+      console.log("Error creating new chat:", error);
+      toast.error("Failed to create new chat");
     }
   };
 
   const handleChatSelect = (chat) => {
-    navigate('/AiChat', { 
+    navigate("/AiChat", {
       state: chat,
-      replace: true 
+      replace: true,
     });
   };
 
-  const handleDeleteChat = async (chatId, e) => {
-    e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this chat?')) {
-      try {
-        console.log('Deleting chat:', chatId);
-        const result = await dispatch(deleteChat(chatId));
+  // Delete confirm modal state
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-        if (result?.payload?.status === 200) {
-          toast.success('Chat deleted successfully');
-          // If we're currently viewing the deleted chat, navigate to new chat
-          if (chatData?._id === chatId) {
-            handleNewChat();
-          }
-        } else {
-          console.log('Failed to delete chat:', result?.payload?.message);
-          toast.error('Failed to delete chat');
+  const handleDeleteChat = (chatId, e) => {
+    e.stopPropagation();
+    setPendingDeleteId(chatId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteChat = async () => {
+    const chatId = pendingDeleteId;
+    setShowDeleteModal(false);
+    if (!chatId) return;
+    try {
+      console.log("Deleting chat:", chatId);
+      const result = await dispatch(deleteChat(chatId));
+
+      if (result?.payload?.status === 200) {
+        toast.success("Chat deleted successfully");
+        // If we're currently viewing the deleted chat, navigate to new chat
+        if (chatData?._id === chatId) {
+          handleNewChat();
         }
-      } catch (error) {
-        console.log('Error deleting chat:', error);
-        toast.error('Failed to delete chat');
+      } else {
+        console.log("Failed to delete chat:", result?.payload?.message);
+        toast.error("Failed to delete chat");
       }
+    } catch (error) {
+      console.log("Error deleting chat:", error);
+      toast.error("Failed to delete chat");
+    } finally {
+      setPendingDeleteId(null);
     }
+  };
+
+  const cancelDeleteChat = () => {
+    setShowDeleteModal(false);
+    setPendingDeleteId(null);
   };
 
   const handleEditTitle = (chat, e) => {
@@ -281,37 +307,39 @@ const AiChat = () => {
 
   const handleSaveTitle = async (chatId) => {
     try {
-      console.log('Updating chat title:', chatId, editingTitle);
-      const result = await dispatch(updateChatTitle({ 
-        chatId, 
-        title: editingTitle 
-      }));
+      console.log("Updating chat title:", chatId, editingTitle);
+      const result = await dispatch(
+        updateChatTitle({
+          chatId,
+          title: editingTitle,
+        })
+      );
 
       if (result?.payload?.status === 200) {
-        toast.success('Chat title updated');
+        toast.success("Chat title updated");
         setEditingChatId(null);
-        setEditingTitle('');
+        setEditingTitle("");
       } else {
-        console.log('Failed to update title:', result?.payload?.message);
-        toast.error('Failed to update title');
+        console.log("Failed to update title:", result?.payload?.message);
+        toast.error("Failed to update title");
       }
     } catch (error) {
-      console.log('Error updating title:', error);
-      toast.error('Failed to update title');
+      console.log("Error updating title:", error);
+      toast.error("Failed to update title");
     }
   };
 
   const handleCancelEdit = () => {
     setEditingChatId(null);
-    setEditingTitle('');
+    setEditingTitle("");
   };
 
   const handleRetryMessage = async (messageId, messageText) => {
     try {
-      console.log('Retrying message:', messageId, messageText);
-      
+      console.log("Retrying message:", messageId, messageText);
+
       // Remove from failed messages
-      setFailedMessages(prev => {
+      setFailedMessages((prev) => {
         const newState = { ...prev };
         delete newState[messageId];
         return newState;
@@ -320,8 +348,8 @@ const AiChat = () => {
       // Retry sending the message
       await handleSendMessage(messageText);
     } catch (error) {
-      console.error('Error retrying message:', error);
-      toast.error('Failed to retry message');
+      console.error("Error retrying message:", error);
+      toast.error("Failed to retry message");
     }
   };
 
@@ -335,7 +363,7 @@ const AiChat = () => {
   const renderMessage = (message) => {
     // Add null checks to prevent errors
     if (!message || !message.user || !message.text) {
-      console.warn('Invalid message object:', message);
+      console.warn("Invalid message object:", message);
       return null;
     }
 
@@ -345,14 +373,22 @@ const AiChat = () => {
       const isFailed = failedMessages[message._id];
 
       return (
-        <div key={message._id || Math.random()} className={`flex ${isAI ? 'justify-start' : 'justify-end'} mb-4`}>
-          <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${isAI
-            ? 'bg-gray-100 text-gray-900'
-            : 'bg-blue-600 text-white'
-            }`}>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text || 'No message content'}</p>
-                        <p className="text-xs text-gray-500 mt-1">
-              {message.createdAt ? new Date(message.createdAt).toLocaleTimeString() : ''}
+        <div
+          key={message._id || Math.random()}
+          className={`flex ${isAI ? "justify-start" : "justify-end"} mb-4`}
+        >
+          <div
+            className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
+              isAI ? "bg-gray-100 text-gray-900" : "bg-blue-600 text-white"
+            }`}
+          >
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+              {message.text || "No message content"}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {message.createdAt
+                ? new Date(message.createdAt).toLocaleTimeString()
+                : ""}
             </p>
 
             {/* Show retry button for failed user messages */}
@@ -365,7 +401,7 @@ const AiChat = () => {
                   Retry
                 </button>
                 <span className="text-xs text-red-600">
-                  {isFailed.status === 'TIMEOUT' ? 'Timeout' : 'Failed'}
+                  {isFailed.status === "TIMEOUT" ? "Timeout" : "Failed"}
                 </span>
               </div>
             )}
@@ -381,18 +417,20 @@ const AiChat = () => {
                 </button>
 
                 <button
-                  onClick={() => handleReaction(message._id, 'like')}
-                  className={`p-1 rounded transition-colors ${reaction === 'like' ? 'bg-blue-100' : 'hover:bg-gray-200'
-                    }`}
+                  onClick={() => handleReaction(message._id, "like")}
+                  className={`p-1 rounded transition-colors ${
+                    reaction === "like" ? "bg-blue-100" : "hover:bg-gray-200"
+                  }`}
                   title="Like"
                 >
                   <ThumbsUp />
                 </button>
 
                 <button
-                  onClick={() => handleReaction(message._id, 'dislike')}
-                  className={`p-1 rounded transition-colors ${reaction === 'dislike' ? 'bg-red-100' : 'hover:bg-gray-200'
-                    }`}
+                  onClick={() => handleReaction(message._id, "dislike")}
+                  className={`p-1 rounded transition-colors ${
+                    reaction === "dislike" ? "bg-red-100" : "hover:bg-gray-200"
+                  }`}
                   title="Dislike"
                 >
                   <ThumbsDown />
@@ -403,9 +441,12 @@ const AiChat = () => {
         </div>
       );
     } catch (error) {
-      console.error('Error rendering message:', error, 'Message:', message);
+      console.error("Error rendering message:", error, "Message:", message);
       return (
-        <div key={message._id || Math.random()} className="flex justify-start mb-4">
+        <div
+          key={message._id || Math.random()}
+          className="flex justify-start mb-4"
+        >
           <div className="bg-red-100 text-red-900 px-4 py-2 rounded-2xl">
             <p className="text-sm">Error rendering message</p>
           </div>
@@ -419,10 +460,10 @@ const AiChat = () => {
     const isActive = chatData?._id === chat._id;
 
     return (
-      <div 
-        key={chat._id} 
+      <div
+        key={chat._id}
         className={`p-3 rounded-lg cursor-pointer transition-colors ${
-          isActive ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'
+          isActive ? "bg-blue-50 border border-blue-200" : "hover:bg-gray-50"
         }`}
         onClick={() => handleChatSelect(chat)}
       >
@@ -435,9 +476,9 @@ const AiChat = () => {
               className="flex-1 text-sm border border-gray-300 rounded px-2 py-1"
               autoFocus
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   handleSaveTitle(chat._id);
-                } else if (e.key === 'Escape') {
+                } else if (e.key === "Escape") {
                   handleCancelEdit();
                 }
               }}
@@ -472,7 +513,11 @@ const AiChat = () => {
                 className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
                 title="Edit title"
               >
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-3 h-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
               </button>
@@ -481,8 +526,16 @@ const AiChat = () => {
                 className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-red-600"
                 title="Delete chat"
               >
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                <svg
+                  className="w-3 h-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
             </div>
@@ -496,12 +549,14 @@ const AiChat = () => {
 
   // Safety check for Redux state
   if (!aiChatState) {
-    console.error('AI Chat Redux state is not available');
+    console.error("AI Chat Redux state is not available");
     return (
       <div className="flex-1 flex bg-gray-50 h-screen justify-center items-center">
         <div className="text-center">
           <div className="text-red-600 mb-4">⚠️</div>
-          <p className="text-gray-600">Unable to load chat state. Please refresh the page.</p>
+          <p className="text-gray-600">
+            Unable to load chat state. Please refresh the page.
+          </p>
         </div>
       </div>
     );
@@ -526,25 +581,43 @@ const AiChat = () => {
         {/* Header */}
         <div className="border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900">PocketFiler AI Assistance</h1>
+            <h1 className="text-xl font-semibold text-gray-900">
+              PocketFiler AI Assistance
+            </h1>
             <div className="flex items-center space-x-3">
               {/* Mobile History Button */}
               <button
                 className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors"
                 onClick={() => setShowHistoryModal(true)}
               >
-                <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                  <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                 </svg>
               </button>
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                 </svg>
               </button>
@@ -567,31 +640,43 @@ const AiChat = () => {
                     onClick={() => handleSuggestionClick(prompt)}
                     className="w-full bg-white rounded-xl p-4 text-left hover:bg-gray-50 transition-colors border border-gray-200"
                   >
-                    <p className="text-sm text-gray-600 leading-relaxed">{prompt}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {prompt}
+                    </p>
                   </button>
                 ))}
               </div>
             </div>
           ) : (
             <div className="space-y-4">
-              {messages && messages.length > 0 && (() => {
-                try {
-                  return messages
-                    .filter(message => message && message.user && message.text)
-                    .map(renderMessage)
-                    .filter(Boolean);
-                } catch (error) {
-                  console.error('Error rendering messages:', error);
-                  return null;
-                }
-              })()}
+              {messages &&
+                messages.length > 0 &&
+                (() => {
+                  try {
+                    return messages
+                      .filter(
+                        (message) => message && message.user && message.text
+                      )
+                      .map(renderMessage)
+                      .filter(Boolean);
+                  } catch (error) {
+                    console.error("Error rendering messages:", error);
+                    return null;
+                  }
+                })()}
               {isTyping && (
                 <div className="flex justify-start mb-4">
                   <div className="bg-gray-100 text-gray-900 px-4 py-2 rounded-2xl">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
                     </div>
                   </div>
                 </div>
@@ -605,10 +690,13 @@ const AiChat = () => {
         <div className="border-t border-gray-200 p-6">
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <div className={`relative rounded-2xl border transition-colors ${isComposerFocused
-                ? 'border-blue-400 bg-blue-50'
-                : 'border-gray-200 bg-gray-100'
-                }`}>
+              <div
+                className={`relative rounded-2xl border transition-colors ${
+                  isComposerFocused
+                    ? "border-blue-400 bg-blue-50"
+                    : "border-gray-200 bg-gray-100"
+                }`}
+              >
                 <textarea
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
@@ -625,10 +713,11 @@ const AiChat = () => {
             <button
               onClick={() => handleSendMessage(inputValue)}
               disabled={!inputValue.trim() || isTyping}
-              className={`p-3 rounded-full transition-colors ${inputValue.trim() && !isTyping
-                ? 'bg-blue-600 hover:bg-blue-700'
-                : 'bg-gray-300 cursor-not-allowed'
-                }`}
+              className={`p-3 rounded-full transition-colors ${
+                inputValue.trim() && !isTyping
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-300 cursor-not-allowed"
+              }`}
             >
               <SendComposer />
             </button>
@@ -641,9 +730,15 @@ const AiChat = () => {
         {/* Header */}
         <div className="border-b border-gray-200 px-4 py-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Chat History</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Chat History
+            </h2>
             <button className="p-1 hover:bg-gray-100 rounded transition-colors">
-              <svg className="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="w-4 h-4 text-gray-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" />
               </svg>
             </button>
@@ -652,7 +747,7 @@ const AiChat = () => {
 
         {/* New Chat Button */}
         <div className="p-4 border-b border-gray-200">
-          <button 
+          <button
             onClick={handleNewChat}
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
@@ -664,7 +759,7 @@ const AiChat = () => {
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             )}
-            <span>{loading ? 'Creating...' : 'New Chat'}</span>
+            <span>{loading ? "Creating..." : "New Chat"}</span>
           </button>
         </div>
 
@@ -677,7 +772,9 @@ const AiChat = () => {
           ) : chatHistory.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <p className="text-sm">No chat history yet</p>
-              <p className="text-xs mt-1">Start a new conversation to see it here</p>
+              <p className="text-xs mt-1">
+                Start a new conversation to see it here
+              </p>
             </div>
           ) : (
             <div className="space-y-2 group">
@@ -694,12 +791,18 @@ const AiChat = () => {
             {/* Header */}
             <div className="border-b border-gray-200 px-4 py-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">Chat History</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Chat History
+                </h2>
                 <button
                   className="p-1 hover:bg-gray-100 rounded transition-colors"
                   onClick={() => setShowHistoryModal(false)}
                 >
-                  <svg className="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-4 h-4 text-gray-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" />
                   </svg>
                 </button>
@@ -708,7 +811,7 @@ const AiChat = () => {
 
             {/* New Chat Button */}
             <div className="p-4 border-b border-gray-200">
-              <button 
+              <button
                 onClick={handleNewChat}
                 disabled={loading}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
@@ -716,11 +819,15 @@ const AiChat = () => {
                 {loading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 ) : (
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 )}
-                <span>{loading ? 'Creating...' : 'New Chat'}</span>
+                <span>{loading ? "Creating..." : "New Chat"}</span>
               </button>
             </div>
 
@@ -733,13 +840,55 @@ const AiChat = () => {
               ) : chatHistory.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <p className="text-sm">No chat history yet</p>
-                  <p className="text-xs mt-1">Start a new conversation to see it here</p>
+                  <p className="text-xs mt-1">
+                    Start a new conversation to see it here
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2 group">
                   {chatHistory.map(renderChatHistoryItem)}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Delete Modal */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog"
+          aria-modal
+          aria-labelledby="confirm-delete-title"
+        >
+          <div className="w-full max-w-sm rounded-xl bg-white p-4 shadow-lg">
+            <h3
+              id="confirm-delete-title"
+              className="text-base font-semibold text-gray-900"
+            >
+              Delete chat?
+            </h3>
+            <p className="mt-2 text-sm text-gray-600">
+              This action cannot be undone.
+            </p>
+            <div className="mt-3 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={cancelDeleteChat}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                aria-label="Cancel delete"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteChat}
+                className="rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+                aria-label="Confirm delete"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

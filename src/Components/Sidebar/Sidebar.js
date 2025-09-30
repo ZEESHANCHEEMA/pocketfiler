@@ -1,5 +1,5 @@
 import "./sidebar.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
@@ -10,7 +10,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -135,10 +134,12 @@ export default function Sidebar({ children, showSidebar, PageName }) {
   const [userRoles, setUserRoles] = useState();
   const [showModal, setShowModal] = useState(false);
   const [selectedRoute, setselectedRoute] = useState("");
+  const location = useLocation();
+
   useEffect(() => {
     const userRole = localStorage.getItem("role");
     setUserRoles(userRole);
-  }, [userRoles]);
+  }, []);
 
   const theme = useTheme();
   const isMobile = useMediaQuery({
@@ -151,19 +152,18 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     }
   }, [isMobile]);
 
-  const [selectedItem, setSelectedItem] = useState(null);
-
   const handleListItemClick = (event, index) => {
     console.log("clicked", index);
-    setSelectedItem((prevIndex) => (prevIndex === index ? null : index));
   };
 
   useEffect(() => {
-    const path = window.location.pathname;
-    console.log(path, "pathpathpathpathƒ");
+    const path = location.pathname;
+    console.log(path, "Current path");
 
     if (path.includes("Project")) {
       setselectedRoute("Projects");
+    } else if (path.includes("AiAssistance")) {
+      setselectedRoute("AI Assistant");
     } else {
       // eslint-disable-next-line default-case
       switch (path) {
@@ -201,9 +201,11 @@ export default function Sidebar({ children, showSidebar, PageName }) {
         case "/Profile":
           setselectedRoute("");
           break;
+        default:
+          setselectedRoute("");
       }
     }
-  }, [userRoles]);
+  }, [location.pathname, userRoles]);
 
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -234,26 +236,26 @@ export default function Sidebar({ children, showSidebar, PageName }) {
   };
 
   const userMenuItems = [
-    { text: "Dashboard", path: "/Dashboard", disabled: false },
-    { text: "Associate", path: "/Clients", disabled: false },
-    { text: "Associate Request", path: "/ClientReq", disabled: false },
+    { text: "Dashboard", path: "/Dashboard" },
+    { text: "Associate", path: "/Clients" },
+    { text: "Associate Request", path: "/ClientReq" },
     { text: "Contracts", path: "/AllContract" },
-    { text: "Encrypted Locker", path: "/EncryptedLocker", disabled: false },
-    { text: "Settings", path: "/Settings", disabled: false },
-    { text: "AI Assistant", path: "/AiAssistance", disabled: false },
+    { text: "Encrypted Locker", path: "/EncryptedLocker" },
+    { text: "Settings", path: "/Settings" },
+    { text: "AI Assistant", path: "/AiAssistance" },
     { text: "Help", path: "/HelpCenter" },
     { text: "Dispute", path: "/Disputes" },
   ];
 
   const organizationMenuItems = [
-    { text: "Dashboard", path: "/Dashboard", disabled: false },
-    { text: "Projects", path: "/ProjectsTable", disabled: false },
-    { text: "Clients", path: "/Clients", disabled: false },
-    { text: "Client Request", path: "/ClientReq", disabled: false },
+    { text: "Dashboard", path: "/Dashboard" },
+    { text: "Projects", path: "/ProjectsTable" },
+    { text: "Clients", path: "/Clients" },
+    { text: "Client Request", path: "/ClientReq" },
     { text: "Contracts", path: "/AllContract" },
-    { text: "Encrypted Locker", path: "/EncryptedLocker", disabled: false },
-    { text: "Settings", path: "/Settings", disabled: false },
-    { text: "AI Assistant", path: "/AiAssistance", disabled: false },
+    { text: "Encrypted Locker", path: "/EncryptedLocker" },
+    { text: "Settings", path: "/Settings" },
+    { text: "AI Assistant", path: "/AiAssistance" },
     { text: "Help", path: "/HelpCenter" },
     { text: "Dispute", path: "/Disputes" },
   ];
@@ -602,99 +604,111 @@ export default function Sidebar({ children, showSidebar, PageName }) {
                     <img
                       src="/Images/pocketfiler_logo.png"
                       alt="logo"
-                      className="web__logo "
+                      className="web__logo"
                     />
-                    <Divider />
-                    <div className="sidebar__border"></div>
-                    <List className="List-div">
-                      {menuItems?.map(({ text, path, disabled }, index) => (
-                        <ListItem
-                          key={text}
-                          disablePadding
-                          divider={false}
-                          sx={{
-                            fontSize: "14px",
-                            fontWeight: "500",
-                            lineHeight: "22.4px",
-                          }}
-                          className={
-                            text === selectedRoute ? "list-item-active" : ""
-                          }
-                        >
-                          <ListItemButton
-                            component={Link}
-                            to={path}
-                            onClick={(event) =>
-                              handleListItemClick(event, index)
-                            }
-                            selected={text === selectedRoute}
-                            className={
-                              text === selectedRoute
-                                ? "list-item-active"
-                                : "list-item"
-                            }
-                            sx={{
-                              "& .MuiListItemText-root": {
-                                fontSize: "14px",
-                              },
-                              "& .MuiListItemText-primary": {
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                color: "#0a1126",
-                                letterSpacing: "1px",
-                              },
-
-                              "&.Mui-selected": {
-                                backgroundColor: "transparent",
-                              },
-                            }}
+                    <div className="sidebar__divider"></div>
+                    <List className="sidebar-menu-list">
+                      {menuItems?.map(({ text, path }, index) => {
+                        const isActive = text === selectedRoute;
+                        return (
+                          <ListItem
+                            key={text}
+                            disablePadding
+                            className="sidebar-list-item"
                           >
-                            <ListItemIcon
-                              className="list-icons"
+                            <ListItemButton
+                              component={Link}
+                              to={path}
+                              onClick={(event) =>
+                                handleListItemClick(event, index)
+                              }
+                              className={
+                                isActive
+                                  ? "sidebar-menu-item-active"
+                                  : "sidebar-menu-item"
+                              }
                               sx={{
-                                minWidth: "24px",
-                                width: "24px",
-                                height: "24px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              <img
-                                src={icons[index]}
-                                alt={`Icon ${index + 1}`}
-                                style={{
-                                  width: "20px",
-                                  height: "20px",
-                                  objectFit: "contain"
-                                }}
-                              />
-                            </ListItemIcon>
-                            <ListItemText
-                              primary={text}
-                              sx={{
-                                "& .MuiListItemText-primary": {
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                  lineHeight: "160%",
-                                  color: text === selectedRoute ? "#166FBF" : "#0a1126",
+                                padding: "10px 16px",
+                                borderRadius: "8px",
+                                marginBottom: "4px",
+                                minHeight: "44px",
+                                gap: "12px",
+                                backgroundColor: isActive
+                                  ? "#E3F2FD"
+                                  : "transparent",
+                                "&:hover": {
+                                  backgroundColor: isActive
+                                    ? "#E3F2FD"
+                                    : "#F5F5F5",
+                                },
+                                "&.Mui-selected": {
+                                  backgroundColor: isActive
+                                    ? "#E3F2FD"
+                                    : "transparent",
                                 },
                               }}
-                            />
-                          </ListItemButton>
-                        </ListItem>
-                      ))}
+                            >
+                              <ListItemIcon
+                                sx={{
+                                  minWidth: "24px",
+                                  width: "24px",
+                                  height: "24px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: isActive ? "#166FBF" : "#0A1126",
+                                }}
+                              >
+                                <img
+                                  src={icons[index]}
+                                  alt={text}
+                                  style={{
+                                    width: "20px",
+                                    height: "20px",
+                                    objectFit: "contain",
+                                    filter: isActive
+                                      ? "brightness(0) saturate(100%) invert(32%) sepia(87%) saturate(1038%) hue-rotate(177deg) brightness(95%) contrast(93%)"
+                                      : "none",
+                                  }}
+                                />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={text}
+                                sx={{
+                                  margin: 0,
+                                  "& .MuiListItemText-primary": {
+                                    fontSize: "14px",
+                                    fontWeight: "500",
+                                    lineHeight: "160%",
+                                    color: isActive ? "#166FBF" : "#0A1126",
+                                    fontFamily: "ClashGrotesk",
+                                  },
+                                }}
+                              />
+                            </ListItemButton>
+                          </ListItem>
+                        );
+                      })}
                     </List>
 
-                    <List className="List-div" sx={{ paddingTop: "0px" }}>
+                    <List
+                      className="sidebar-logout-container"
+                      sx={{ marginTop: "auto", paddingTop: "20px" }}
+                    >
                       <div
-                        onClick={() => {
-                          Logout();
+                        onClick={Logout}
+                        className="sidebar-logout-button"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            Logout();
+                          }
                         }}
-                        className="sidebar__logout  "
+                        aria-label="Logout"
                       >
-                        <img src="/Images/Dashboard/logout.svg" alt="/" />
-                        <p>Logout</p>
+                        <img src="/Images/Dashboard/logout.svg" alt="Logout" />
+                        <span>Logout</span>
                       </div>
                     </List>
                   </div>
@@ -765,89 +779,105 @@ export default function Sidebar({ children, showSidebar, PageName }) {
                   </IconButton>
                 </DrawerHeader>
 
-                <Divider />
-                <div className="sidebar__border"></div>
-                <List className="List-div">
-                  {menuItems?.map(({ text, path, disabled }, index) => (
-                    <ListItem
-                      key={text}
-                      disablePadding
-                      className={
-                        index === selectedItem ? "list-item" : "list-item"
-                      }
-                      sx={{
-                        "&.Mui-selected": {
-                          backgroundColor: "transparent",
-                        },
-                      }}
-                    >
-                      <ListItemButton
-                        component={Link}
-                        to={path}
-                        onClick={(event) => handleListItemClick(event, index)}
-                        selected={index === selectedItem}
-                        className={
-                          index === selectedItem
-                            ? "list-item-active"
-                            : "list-item"
-                        }
-                        sx={{
-                          "& .MuiListItemText-root": {
-                            fontSize: "14px",
-                          },
-                          "& .MuiListItemText-primary": {
-                            fontSize: "14px",
-                          },
-                        }}
+                <div className="sidebar__divider"></div>
+                <List className="sidebar-menu-list">
+                  {menuItems?.map(({ text, path }, index) => {
+                    const isActive = text === selectedRoute;
+                    return (
+                      <ListItem
+                        key={text}
+                        disablePadding
+                        className="sidebar-list-item"
                       >
-                        <ListItemIcon
-                          className="list-icons"
+                        <ListItemButton
+                          component={Link}
+                          to={path}
+                          onClick={(event) => handleListItemClick(event, index)}
+                          className={
+                            isActive
+                              ? "sidebar-menu-item-active"
+                              : "sidebar-menu-item"
+                          }
                           sx={{
-                            minWidth: "24px",
-                            width: "24px",
-                            height: "24px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <img 
-                            src={icons[index]} 
-                            alt={`Icon ${index + 1}`}
-                            style={{
-                              width: "20px",
-                              height: "20px",
-                              objectFit: "contain"
-                            }}
-                          />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={text}
-                          sx={{
-                            "& .MuiListItemText-primary": {
-                              fontSize: "14px",
-                              fontWeight: "500",
-                              lineHeight: "160%",
-                              color: text === selectedRoute ? "#166FBF" : "#0a1126",
+                            padding: "10px 16px",
+                            borderRadius: "8px",
+                            marginBottom: "4px",
+                            minHeight: "44px",
+                            gap: "12px",
+                            backgroundColor: isActive
+                              ? "#E3F2FD"
+                              : "transparent",
+                            "&:hover": {
+                              backgroundColor: isActive ? "#E3F2FD" : "#F5F5F5",
+                            },
+                            "&.Mui-selected": {
+                              backgroundColor: isActive
+                                ? "#E3F2FD"
+                                : "transparent",
                             },
                           }}
-                        />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
+                        >
+                          <ListItemIcon
+                            sx={{
+                              minWidth: "24px",
+                              width: "24px",
+                              height: "24px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: isActive ? "#166FBF" : "#0A1126",
+                            }}
+                          >
+                            <img
+                              src={icons[index]}
+                              alt={text}
+                              style={{
+                                width: "20px",
+                                height: "20px",
+                                objectFit: "contain",
+                                filter: isActive
+                                  ? "brightness(0) saturate(100%) invert(32%) sepia(87%) saturate(1038%) hue-rotate(177deg) brightness(95%) contrast(93%)"
+                                  : "none",
+                              }}
+                            />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={text}
+                            sx={{
+                              margin: 0,
+                              "& .MuiListItemText-primary": {
+                                fontSize: "14px",
+                                fontWeight: "500",
+                                lineHeight: "160%",
+                                color: isActive ? "#166FBF" : "#0A1126",
+                                fontFamily: "ClashGrotesk",
+                              },
+                            }}
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    );
+                  })}
                 </List>
 
-                <Divider />
-
-                <List className="List-div" sx={{ paddingTop: "0px" }}>
+                <List
+                  className="sidebar-logout-container"
+                  sx={{ marginTop: "auto", paddingTop: "20px" }}
+                >
                   <div
-                    onClick={() => {
-                      Logout();
+                    onClick={Logout}
+                    className="sidebar-logout-button"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        Logout();
+                      }
                     }}
-                    className=" sidebar-log-mb"
+                    aria-label="Logout"
                   >
-                    <img src="/Images/Dashboard/logout.svg" alt="/" />
-                    <p>Logout</p>
+                    <img src="/Images/Dashboard/logout.svg" alt="Logout" />
+                    <span>Logout</span>
                   </div>
                 </List>
                 <List>

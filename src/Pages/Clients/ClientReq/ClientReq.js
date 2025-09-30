@@ -93,11 +93,11 @@ const ClientReq = () => {
     setUserId(userid);
   }, []);
 
-  async function AcceptedClient(id) {
+  async function AcceptedClient(associationRecordId) {
     setLoader(true);
     try {
       const data = {
-        id: id,
+        id: associationRecordId,
         status: "accepted",
       };
       dispatch(updateClient(data)).then((res) => {
@@ -120,11 +120,11 @@ const ClientReq = () => {
       console.log(error);
     }
   }
-  async function RejectedClient(associateid) {
+  async function RejectedClient(associationRecordId) {
     setLoader(true);
     try {
       const data = {
-        id: associateid,
+        id: associationRecordId,
         status: "rejected",
       };
       dispatch(updateClient(data)).then((res) => {
@@ -350,7 +350,13 @@ const ClientReq = () => {
                                 borderRadius: "50px",
                                 cursor: "pointer",
                               }}
-                              onClick={() => AcceptedClient(row?.associate?.id)}
+                              onClick={() =>
+                                AcceptedClient(
+                                  row?.associate?._id ||
+                                    row?.associate?.associateid ||
+                                    row?.associate?.id
+                                )
+                              }
                             >
                               Accept
                             </p>
@@ -369,7 +375,13 @@ const ClientReq = () => {
                                 borderRadius: "50px",
                                 cursor: "pointer",
                               }}
-                              onClick={() => RejectedClient(row?.associate?.id)}
+                              onClick={() =>
+                                RejectedClient(
+                                  row?.associate?._id ||
+                                    row?.associate?.associateid ||
+                                    row?.associate?.id
+                                )
+                              }
                             >
                               Reject
                             </p>

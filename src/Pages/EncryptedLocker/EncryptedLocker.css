@@ -102,9 +102,10 @@
     width: 100%;
     margin-top: 0;
   }
-  .el-filter select {
+  .el-filter-select {
     width: 100%;
-    padding-left: 40px;
+    padding-left: 45px;
+    padding-right: 50px;
   }
   .el-primary-sm {
     width: 100%;
@@ -130,50 +131,77 @@
   color: #0a1126;
   height: 100%;
 }
+.el-search input::placeholder,
+.el-search-input-locker::placeholder {
+  color: #858585 !important;
+  opacity: 1 !important;
+}
+.el-search input::-webkit-input-placeholder,
+.el-search-input-locker::-webkit-input-placeholder {
+  color: #858585 !important;
+  opacity: 1 !important;
+}
+.el-search input::-moz-placeholder,
+.el-search-input-locker::-moz-placeholder {
+  color: #858585 !important;
+  opacity: 1 !important;
+}
+.el-search input:-ms-input-placeholder,
+.el-search-input-locker:-ms-input-placeholder {
+  color: #858585 !important;
+  opacity: 1 !important;
+}
 .el-search .el-search-icon {
   font-size: 16px;
-  opacity: 0.6;
+  opacity: 1;
 }
 .el-filter {
   position: relative;
-  margin-top: 6px;
+  display: flex;
+  align-items: center;
 }
-.el-filter select {
+.el-filter-select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   background: #f8f8f8;
   border: 1px solid #eee;
-  border-radius: 12px; /* match search */
-  padding: 0 40px;
+  border-radius: 12px;
+  padding: 0 40px 0 36px;
   font-size: 14px;
   color: #0a1126;
   height: 48px;
+  cursor: pointer;
+  width: 100%;
 }
-.el-filter:before {
-  content: "\1F4C5"; /* calendar icon */
+.el-filter-select option[disabled] {
+  color: #858585;
+}
+.el-filter-select:invalid {
+  color: #858585;
+}
+.el-filter-icon-left {
   position: absolute;
   left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 16px;
-  opacity: 0.6;
-}
-.el-filter:after {
-  content: "";
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-top: 6px solid #0a1126;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
+  width: 16px;
+  height: 16px;
   pointer-events: none;
+  opacity: 1;
+  z-index: 1;
+}
+.el-filter-icon-right {
+  position: absolute;
+  right: 16px;
+  width: 14px;
+  height: 10px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 1;
 }
 .el-icon-btn {
   background: #f8f8f8;
   border: none;
-  border-radius: 12px; /* match */
+  border-radius: 12px;
   padding: 10px;
   cursor: pointer;
   display: flex;
@@ -181,7 +209,6 @@
   justify-content: center;
 }
 
-/* Make Add Locker match 48px and same radius */
 .el-primary-sm {
   height: 48px;
   display: inline-flex;

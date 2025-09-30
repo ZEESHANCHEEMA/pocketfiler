@@ -17,7 +17,7 @@ export default function AccountSuccess(props) {
 
   async function Letsgo() {
     console.log("After Verification");
-    if (profileStatus == true) {
+    if (profileStatus === true) {
       navigate("/Dashboard");
     } else {
       navigate("/Profile");

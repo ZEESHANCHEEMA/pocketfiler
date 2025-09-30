@@ -1,3 +1,35 @@
+.pf-contract-preview h1 {
+  font-size: 24px;
+  margin: 16px 0 8px;
+}
+.pf-contract-preview h2 {
+  font-size: 20px;
+  margin: 14px 0 6px;
+}
+.pf-contract-preview p {
+  margin: 8px 0;
+}
+.pf-contract-preview ul {
+  margin: 8px 0 8px 20px;
+}
+.pf-contract-preview li {
+  margin: 4px 0;
+}
+.pf-contract-preview strong {
+  font-weight: 600;
+}
+
+/* AI highlight styling with #F00A25 */
+.pf-sg-highlight {
+  background: rgba(240, 10, 37, 0.16);
+  outline: 1px solid #f00a25;
+  border-radius: 3px;
+  padding: 1px 2px;
+  transition: box-shadow 0.15s ease;
+}
+.pf-sg-highlight:hover {
+  box-shadow: 0 0 0 3px rgba(240, 10, 37, 0.18);
+}
 .contract-modal .modal-dialog {
   max-width: 1078px;
 }
@@ -91,7 +123,6 @@
 .margin-btn-top {
   padding: 60px 0px !important;
 }
-
 
 .contract-actions {
   display: flex;
@@ -242,7 +273,7 @@
     padding-left: 28px !important;
     padding-right: 28px !important;
   }
-  
+
   .contract-modal .btn-close {
     top: 15px;
     right: 15px;
@@ -273,7 +304,7 @@
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .save-contract-btn,
   .check-clause-ai-btn {
     margin-top: 20px !important;
@@ -344,12 +375,6 @@
   border: 2px solid #f3f3f3;
   border-top: 2px solid #007bff;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .suggestions-list {
@@ -367,6 +392,7 @@
   border-radius: 8px;
   border: 1px solid #dee2e6;
   transition: all 0.3s ease;
+  margin-top: 20px;
 }
 
 .suggestion-item:hover {
@@ -375,7 +401,7 @@
 }
 
 .suggestion-label {
-  background: #6c757d;
+  background: #0a1126;
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
@@ -401,6 +427,7 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .original-text {
@@ -490,8 +517,8 @@
   border-radius: 20px;
   padding: 20px;
   margin: 20px;
-  width: 90%;
-  max-width: 400px;
+  width: 100%;
+  max-width: 560px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -506,19 +533,27 @@
 
 .suggestion-content {
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .suggestion-item {
   margin-bottom: 16px;
+}
+.suggestion-item.full-width {
+  width: 100% !important;
 }
 
 .suggestion-label {
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #333;
+  color: #fff !important;
   font-family: "Poppins", sans-serif;
   margin-bottom: 8px;
+  background: #0a1126 !important;
+  padding: 4px 16px !important;
+  border-radius: 8px;
+  width: fit-content !important;
 }
 
 .original-text {
@@ -530,6 +565,14 @@
   color: #666;
   font-family: "Poppins", sans-serif;
   margin: 0;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+.full-width-pill {
+  width: 100%;
+}
+.full-width {
+  width: 100%;
 }
 
 .suggested-text {
@@ -643,7 +686,7 @@
   max-width: 280px;
   z-index: 1000;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  border: 1px solid #007AFF;
+  border: 1px solid #007aff;
 }
 
 .tooltip-header {
@@ -656,12 +699,12 @@
   width: 8px;
   height: 8px;
   border-radius: 4px;
-  background-color: #007AFF;
+  background-color: #007aff;
   margin-right: 6px;
 }
 
 .tooltip-label {
-  color: #007AFF;
+  color: #007aff;
   font-size: 14px;
   font-weight: bold;
   font-family: "Poppins", sans-serif;
@@ -682,14 +725,14 @@
 }
 
 .tooltip-arrow {
-  color: #007AFF;
+  color: #007aff;
   font-size: 16px;
   font-family: "Poppins", sans-serif;
   margin: 0 8px;
 }
 
 .corrected-container {
-  background-color: #0A1126;
+  background-color: #0a1126;
   padding: 4px 8px;
   border-radius: 4px;
 }
@@ -735,7 +778,7 @@
   padding: 12px;
   background-color: #f8f9fa;
   border-radius: 8px;
-  border-left: 4px solid #007AFF;
+  border-left: 4px solid #007aff;
 }
 
 .content-header h3 {
@@ -752,7 +795,7 @@
 }
 
 .highlighting-badge {
-  background-color: #007AFF;
+  background-color: #007aff;
   color: white;
   padding: 4px 8px;
   border-radius: 12px;

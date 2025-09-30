@@ -3,10 +3,9 @@ import { useParams, useLocation } from "react-router-dom";
 import { Folder01, SettingsIcon } from "../../assets/svgs";
 import AddLockerModalWeb from "../../Components/Modals/AddLockerModalWeb";
 import SettingsModalWeb from "../../Components/Modals/SettingsModalWeb";
-import AddAssociateModalWeb from "../../Components/Modals/AddAssociateModalWeb";
 import "./LockerScreen.css";
 import Header from "../../Components/Header/Header";
-import ConfirmModal from "../../Components/Modals/ConfirmModal";
+// import ConfirmModal from "../../Components/Modals/ConfirmModal";
 import { useDispatch, useSelector } from "react-redux";
 import {
   upsertLockerAssociates,
@@ -14,7 +13,6 @@ import {
   createFolder,
   uploadLockerFiles,
   getLockerPeople,
-  deleteLockerItem,
   getLockerItemDownloadUrl,
   getLockerHistory,
 } from "../../services/redux/middleware/locker";
@@ -34,6 +32,7 @@ function LockerScreen() {
   const lockerId =
     searchParams.get("lockerId") || decodeURIComponent(lockerName || "Locker");
   const decodedLockerName = decodeURIComponent(lockerName || "Locker");
+  // Preload associate options to feed Share modal's suggestions
   const [associateOptions, setAssociateOptions] = useState([]);
 
   React.useEffect(() => {
@@ -50,15 +49,16 @@ function LockerScreen() {
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = React.useRef(null);
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
   const [showShareLockerModal, setShowShareLockerModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [showAddAssociate, setShowAddAssociate] = useState(false);
+  // Legacy associate modal removed; using Share modal instead
   const [existingAssociateEmails, setExistingAssociateEmails] = useState([]);
   const [openItemMenuId, setOpenItemMenuId] = useState(null);
-  const [deleteItemTarget, setDeleteItemTarget] = useState(null);
+  // const [deleteItemTarget, setDeleteItemTarget] = useState(null);
   const [historyItems, setHistoryItems] = useState([]);
 
   React.useEffect(() => {
@@ -98,17 +98,33 @@ function LockerScreen() {
   }
 
   function handleUploadClick() {
+    if (isUploading) return;
     fileInputRef.current?.click();
   }
 
   function handleFileSelected(e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    dispatch(uploadLockerFiles({ lockerId, files: [file] })).then((res) => {
-      const uploaded = res?.payload?.data?.files || [];
-      if (uploaded?.length) setFiles((prev) => [...prev, ...uploaded]);
+    // 5MB limit check
+    const maxBytes = 5 * 1024 * 1024;
+    const sizeBytes = file.size || 0;
+    // eslint-disable-next-line no-console
+    console.log("[locker] selected file size(bytes)", sizeBytes);
+    if (sizeBytes > maxBytes) {
+      ErrorToast("Up to 5MB only (no larger)");
       e.target.value = "";
-    });
+      return;
+    }
+    setIsUploading(true);
+    dispatch(uploadLockerFiles({ lockerId, files: [file] }))
+      .then((res) => {
+        const uploaded = res?.payload?.data?.files || [];
+        if (uploaded?.length) setFiles((prev) => [...prev, ...uploaded]);
+      })
+      .finally(() => {
+        setIsUploading(false);
+        e.target.value = "";
+      });
   }
 
   function handleShareLocker({ associates, add }) {
@@ -211,7 +227,12 @@ function LockerScreen() {
                   }}
                   aria-label="History"
                 >
-                  ⏱
+                  <img
+                    src="/Images/File/git-merge.png"
+                    alt="History"
+                    width={18}
+                    height={18}
+                  />
                 </button>
                 <button
                   className="ls-icon-btn-light"
@@ -222,9 +243,9 @@ function LockerScreen() {
                 </button>
                 <button
                   className="ls-primary-sm"
-                  onClick={() => setShowAddAssociate(true)}
+                  onClick={() => setShowShareLockerModal(true)}
                 >
-                  Add Associate
+                  Share Locker
                 </button>
               </div>
             </div>
@@ -289,8 +310,10 @@ function LockerScreen() {
                       <button
                         className="ls-primary"
                         onClick={handleUploadClick}
+                        disabled={isUploading}
+                        aria-busy={isUploading}
                       >
-                        Upload File
+                        {isUploading ? "Uploading…" : "Upload File"}
                       </button>
                       <button
                         className="ls-outline"
@@ -323,7 +346,9 @@ function LockerScreen() {
                     ) : (
                       <div className="ls-grid">
                         {folders.map((item, idx) => {
-                          const menuKey = `folder-${item?.id || idx}`;
+                          const menuKey = `folder-${
+                            item?.id || item?._id || idx
+                          }`;
                           return (
                             <div key={item?.id || idx} className="ls-tile">
                               <Folder01 />
@@ -366,11 +391,14 @@ function LockerScreen() {
                                         // eslint-disable-next-line no-console
                                         console.log(
                                           "[locker] download:folder click",
-                                          { itemId: item.id, name: item.name }
+                                          {
+                                            itemId: item.id || item?._id,
+                                            name: item.name,
+                                          }
                                         );
                                         dispatch(
                                           getLockerItemDownloadUrl({
-                                            itemId: item.id,
+                                            itemId: item.id || item?._id,
                                           })
                                         ).then((res) => {
                                           // eslint-disable-next-line no-console
@@ -387,21 +415,7 @@ function LockerScreen() {
                                     >
                                       Download
                                     </button>
-                                    <button
-                                      type="button"
-                                      className="ls-menu-item ls-danger"
-                                      onClick={() => {
-                                        setDeleteItemTarget({
-                                          type: "folder",
-                                          id: item.id,
-                                          idx,
-                                          name: item.name,
-                                        });
-                                        setOpenItemMenuId(null);
-                                      }}
-                                    >
-                                      Delete
-                                    </button>
+                                    {null}
                                   </div>
                                 )}
                               </div>
@@ -418,8 +432,10 @@ function LockerScreen() {
                       <button
                         onClick={handleUploadClick}
                         className="ls-outline"
+                        disabled={isUploading}
+                        aria-busy={isUploading}
                       >
-                        Upload File
+                        {isUploading ? "Uploading…" : "Upload File"}
                       </button>
                     </div>
                     {files.length === 0 ? (
@@ -427,7 +443,9 @@ function LockerScreen() {
                     ) : (
                       <div className="ls-grid">
                         {files.map((item, idx) => {
-                          const menuKey = `file-${item?.id || idx}`;
+                          const menuKey = `file-${
+                            item?.id || item?._id || idx
+                          }`;
                           return (
                             <div key={item?.id || idx} className="ls-tile">
                               <Folder01 />
@@ -470,11 +488,14 @@ function LockerScreen() {
                                         // eslint-disable-next-line no-console
                                         console.log(
                                           "[locker] download:file click",
-                                          { itemId: item.id, name: item.name }
+                                          {
+                                            itemId: item.id || item?._id,
+                                            name: item.name,
+                                          }
                                         );
                                         dispatch(
                                           getLockerItemDownloadUrl({
-                                            itemId: item.id,
+                                            itemId: item.id || item?._id,
                                           })
                                         ).then((res) => {
                                           // eslint-disable-next-line no-console
@@ -501,21 +522,7 @@ function LockerScreen() {
                                     >
                                       Download
                                     </button>
-                                    <button
-                                      type="button"
-                                      className="ls-menu-item ls-danger"
-                                      onClick={() => {
-                                        setDeleteItemTarget({
-                                          type: "file",
-                                          id: item.id,
-                                          idx,
-                                          name: item.name,
-                                        });
-                                        setOpenItemMenuId(null);
-                                      }}
-                                    >
-                                      Delete
-                                    </button>
+                                    {null}
                                   </div>
                                 )}
                               </div>
@@ -529,40 +536,7 @@ function LockerScreen() {
               )}
             </div>
 
-            <ConfirmModal
-              visible={!!deleteItemTarget}
-              title={
-                deleteItemTarget?.type === "file"
-                  ? "Delete file?"
-                  : "Delete folder?"
-              }
-              description={`This ${deleteItemTarget?.type || "item"} "${""}${
-                deleteItemTarget?.name || ""
-              }" will be removed. This cannot be undone.`}
-              confirmText="Delete"
-              cancelText="Cancel"
-              onClose={() => setDeleteItemTarget(null)}
-              onConfirm={() => {
-                const t = deleteItemTarget;
-                if (!t) return;
-                // Optimistic UI update
-                if (t.type === "file") {
-                  setFiles((prev) =>
-                    prev.filter((f, i) => (f.id || i) !== (t.id || t.idx))
-                  );
-                } else {
-                  setFolders((prev) =>
-                    prev.filter((f, i) => (f.id || i) !== (t.id || t.idx))
-                  );
-                }
-                // Call API to delete
-                dispatch(deleteLockerItem({ itemId: t.id })).finally(() => {
-                  setDeleteItemTarget(null);
-                  // Refresh items to ensure consistency
-                  dispatch(getLockerItems({ lockerId }));
-                });
-              }}
-            />
+            {null}
 
             {/* Hidden file input for uploads (available in any state) */}
             <input
@@ -570,6 +544,7 @@ function LockerScreen() {
               type="file"
               onChange={handleFileSelected}
               style={{ display: "none" }}
+              existingEmails={associateOptions}
             />
 
             <AddLockerModalWeb
@@ -598,13 +573,7 @@ function LockerScreen() {
               lockerId={lockerId}
             />
 
-            <AddAssociateModalWeb
-              visible={showAddAssociate}
-              onClose={() => setShowAddAssociate(false)}
-              lockerName={decodedLockerName}
-              onShare={(data) => handleShareLocker(data)}
-              associateOptions={associateOptions}
-            />
+            {null}
           </>
         )}
       </div>

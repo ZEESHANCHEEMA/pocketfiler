@@ -1,0 +1,127 @@
+.sim-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 17, 38, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+}
+.sim-modal {
+  width: 520px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 48px rgba(16, 24, 40, 0.18);
+}
+.sim-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #eee;
+}
+.sim-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0a1126;
+}
+.sim-sub {
+  font-size: 13px;
+  color: #667085;
+}
+.sim-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.sim-body {
+  padding: 16px 20px;
+}
+.sim-label {
+  font-size: 12px;
+  color: #667085;
+  margin-bottom: 6px;
+  display: block;
+}
+.sim-input-row {
+  display: flex;
+  gap: 8px;
+}
+.sim-input {
+  flex: 1;
+  height: 40px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 0 12px;
+}
+.sim-input::placeholder,
+.sim-input::-webkit-input-placeholder,
+.sim-input::-moz-placeholder,
+.sim-input:-ms-input-placeholder {
+  color: #858585;
+  opacity: 1;
+}
+.sim-add {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  cursor: pointer;
+}
+.sim-chips {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sim-chip {
+  background: #f2f4f7;
+  color: #0a1126;
+  padding: 6px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sim-chip-x {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.sim-select-wrap {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+}
+.sim-select {
+  height: 40px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 0 12px;
+}
+.sim-footer {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid #eee;
+}
+.sim-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+}
+.sim-btn-primary {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: none;
+  background: #0a1126;
+  color: #fff;
+  cursor: pointer;
+}

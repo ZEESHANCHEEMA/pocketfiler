@@ -70,7 +70,7 @@ const ClientRequest = () => {
       page: 1,
     };
     dispatch(getContributors(data));
-  }, []);
+  }, [dispatch, projectid]);
 
   const handleChangePagitation = (event, value) => {
     const data = {
@@ -102,7 +102,7 @@ const ClientRequest = () => {
 
   useEffect(() => {
     dispatch(viewproject(projectid));
-  }, [projectid]);
+  }, [dispatch, projectid]);
   return (
     <>
       <Header
@@ -156,7 +156,7 @@ const ClientRequest = () => {
                 </div>
               </div>
 
-              {ProjectData?.userId == UserId && (
+              {ProjectData?.userId === UserId && (
                 <div className="Add-con-btn-div">
                   <Button
                     className="add-btn-contract"
@@ -307,7 +307,7 @@ const ClientRequest = () => {
                           >
                             Project Owner
                           </p>
-                        ) : ProjectData?.userId == UserId ? (
+                        ) : ProjectData?.userId === UserId ? (
                           <p
                             onClick={() => {
                               setRemoveClient(true);
