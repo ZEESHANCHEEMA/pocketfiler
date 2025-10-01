@@ -76,6 +76,36 @@
   font-weight: 500 !important;
   line-height: 160% !important;
   font-family: "ClashGrotesk";
-
   /* 22.4px */
+}
+
+.eye-share-dropimg {
+  width: 20px !important;
+  height: 20px !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+}
+
+.drop-contract-dot .dropdown-menu.show {
+  box-shadow: 0px 0px 30px 0px #0000001f !important;
+  border-radius: 18px 0px 18px 18px !important;
+  border: 1px solid #ececec !important;
+}
+
+.drop-contract-dot .dropdown-item {
+  font-family: "ClashGrotesk";
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 14.76px !important;
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
+  padding-left: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.drop-contract-dot .dropdown-item:hover {
+  border-radius: 10px !important;
+  padding-left: 16px;
 }

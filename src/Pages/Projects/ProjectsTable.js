@@ -1,10 +1,9 @@
 // import React from 'react';
 import Header from "../../Components/Header/Header";
-import Sidebar from "../../Components/Sidebar/Sidebar";
 import "./projecttable.css";
 import IconButton from "@mui/material/IconButton";
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -13,7 +12,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
-import React, { useEffect } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import AddProject from "../../Components/Modals/AddProject/AddProject";
 import UpdateProject from "../../Components/Modals/UpdateProject/UpdateProject";
@@ -24,19 +22,8 @@ import ScreenLoader from "../../Components/loader/ScreenLoader";
 import { useNavigate } from "react-router-dom";
 import AddClientOrg from "../../Components/Modals/Organization/AddClientOrg/AddClientOrg";
 import { LatestProjContract } from "../../services/redux/middleware/Project/project";
-import { ErrorToast } from "../../Components/toast/Toast";
 import Calendar from "react-calendar";
 import { toSentenceCase } from "../../utils/helperFunction";
-function createData(date, title, organization, status, type, more) {
-  return {
-    date,
-    title,
-    organization,
-    status,
-    type,
-    more,
-  };
-}
 
 const ProjectsTable = () => {
   const isMobile = useMediaQuery({
@@ -51,6 +38,7 @@ const ProjectsTable = () => {
   const [selectedEdit, setSelectedEdit] = useState("");
   const [selectedAddClient, setSelectedAddClient] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
   const [modalShowUpdate, setModalShowUpdate] = useState(false);
   const [modalShowClient, setModalShowClient] = useState(false);
@@ -80,10 +68,10 @@ const ProjectsTable = () => {
   const handleChangePagitation = (event, value) => {
     const userid = localStorage.getItem("_id");
     const data =
-      searchQuery?.length > 0
+      debouncedSearchQuery?.length > 0
         ? {
             id: userid,
-            search: searchQuery,
+            search: debouncedSearchQuery,
             page: value ? value : 1,
           }
         : {
@@ -112,31 +100,40 @@ const ProjectsTable = () => {
     setModalShowUpdate(true);
   };
 
-  const getAllProjects = () => {
-    const userid = localStorage.getItem("_id");
-    console.log("user id ", userid);
-    setUserId(userid);
+  // Debounce search query to prevent API calls on every keystroke
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // 500ms delay
 
-    const data =
-      searchQuery?.length > 0
-        ? {
-            id: userid,
-            search: searchQuery,
-          }
-        : {
-            id: userid,
-            page: 1,
-            year: value,
-          };
-
-    dispatch(getAllProject(data));
-    dispatch(LatestProjContract(userid));
-    setCurrentPage(1);
-  };
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
+    const getAllProjects = () => {
+      const userid = localStorage.getItem("_id");
+      console.log("user id ", userid);
+      setUserId(userid);
+
+      const data =
+        debouncedSearchQuery?.length > 0
+          ? {
+              id: userid,
+              search: debouncedSearchQuery,
+            }
+          : {
+              id: userid,
+              page: 1,
+              year: value,
+            };
+
+      dispatch(getAllProject(data));
+      dispatch(LatestProjContract(userid));
+      setCurrentPage(1);
+    };
+
     getAllProjects();
-  }, [value, searchQuery]);
+  }, [value, debouncedSearchQuery, dispatch]);
 
   async function AddProj() {
     setModalShow(true);
@@ -197,7 +194,7 @@ const ProjectsTable = () => {
                     <input
                       type="text"
                       placeholder="Search projects..."
-                      className="search-input"
+                      className="search-input-contract"
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
@@ -231,7 +228,7 @@ const ProjectsTable = () => {
                       </Dropdown.Menu>
                     </Dropdown>
                   </div>
-                  {userRole == "organization" ? (
+                  {userRole === "organization" ? (
                     <div className="projecttable__main-headingbtn">
                       <button onClick={() => AddProj()}>Add project</button>
                     </div>
@@ -432,7 +429,7 @@ const ProjectsTable = () => {
                                   size="small"
                                   style={{ background: "transparent" }}
                                 >
-                                  {row?.userId == USERID && (
+                                  {row?.userId === USERID && (
                                     <img
                                       src="/Images/Dashboard/edit-icon.svg"
                                       alt="edit"
@@ -454,7 +451,7 @@ const ProjectsTable = () => {
                                     marginLeft: "20px",
                                   }}
                                 >
-                                  {row?.userId != USERID ? (
+                                  {row?.userId !== USERID ? (
                                     <img
                                       src="/Images/Projects/menu-eye-icon.svg"
                                       alt="view"
@@ -490,7 +487,7 @@ const ProjectsTable = () => {
                                           </Dropdown.Item>
                                           <Dropdown.Item
                                             onClick={() =>
-                                              handleClient(row?.id)
+                                              handleClient(row?._id || row?.id)
                                             }
                                           >
                                             <img

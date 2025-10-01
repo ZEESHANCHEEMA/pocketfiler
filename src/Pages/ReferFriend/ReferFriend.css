@@ -41,13 +41,19 @@
     flex-direction: column;
     row-gap: 12px;
   }
+
+  .refer__left {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
 }
 
 .refer__left {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1 1 60%;
+  flex: 0 1 60%;
+  max-width: 60%;
 }
 
 .refer__label {
@@ -86,6 +92,18 @@
   min-height: 64px;
   box-sizing: border-box;
   margin: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refer__redeem:hover:not([disabled]) {
+  background: #1a2136;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 17, 38, 0.2);
+}
+
+.refer__redeem:active:not([disabled]) {
+  transform: translateY(0);
 }
 
 .refer__redeem[disabled] {
@@ -131,6 +149,12 @@
   font-size: 12px;
 }
 
+.invited__date {
+  opacity: 0.7;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
 .refer__link {
   color: #2563eb;
   overflow: hidden;
@@ -142,13 +166,27 @@
   background: transparent;
   padding: 6px;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.refer__actions button:hover {
+  transform: scale(1.1);
+}
+
+.refer__actions button:active {
+  transform: scale(0.95);
 }
 
 .refer__actions img {
   width: 18px;
   height: 18px;
+  color: #2563eb;
 }
-
+.share-icon {
+  width: 18px;
+  height: 18px;
+  color: #2563eb;
+}
 .refer__count {
   margin-top: 12px;
   display: flex;

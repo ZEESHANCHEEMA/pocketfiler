@@ -25,7 +25,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { Menu } from "@mui/material";
 
 import { useMediaQuery } from "react-responsive";
-import { requestPermission } from "../../utils/Firebase/firebase";
+// import { requestPermission } from "../../utils/Firebase/firebase";
 import { store } from "../../services/redux/store";
 
 const drawerWidth = 310;
@@ -267,7 +267,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     "/Images/Dashboard/Contracts.svg",
     "/Images/Dashboard/project-icon.svg",
     "/Images/Dashboard/edit-icon.svg",
-    "/Images/Dashboard/ai-icon.svg",
+    "/Images/Dashboard/vector.svg",
     "/Images/Dashboard/headphones-02.svg",
     "/Images/Dashboard/dispute-icon.svg",
   ];
@@ -280,7 +280,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     "/Images/Dashboard/Contracts.svg",
     "/Images/Dashboard/project-icon.svg",
     "/Images/Dashboard/edit-icon.svg",
-    "/Images/Dashboard/ai-icon.svg",
+    "/Images/Dashboard/vector.svg",
     "/Images/Dashboard/headphones-02.svg",
     "/Images/Dashboard/dispute-icon.svg",
   ];
@@ -290,10 +290,15 @@ export default function Sidebar({ children, showSidebar, PageName }) {
   const icons = userRoles === "user" ? userIcons : organizationIcons;
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
-    store.dispatch({ type: "RESET_STORE" });
-    requestPermission();
+    try {
+      setShowModal(false);
+      localStorage.clear();
+      store.dispatch({ type: "RESET_STORE" });
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+      navigate("/");
+    }
   };
   async function Logout() {
     setShowModal(true);

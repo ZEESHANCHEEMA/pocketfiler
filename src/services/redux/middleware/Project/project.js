@@ -1,5 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 import api from "../../../apiInterceptor";
 import { API_URL } from "../../../client";
 
@@ -183,6 +182,7 @@ export const addProjectClient = createAsyncThunk(
   async (data) => {
     try {
       console.log("Inside Add Client Project Modal");
+      console.log("Request data:", data);
 
       const res = await api.post(`${API_URL}/project/addClients`, data);
       console.log("Inside Add Client Project Modal", res);
@@ -194,6 +194,8 @@ export const addProjectClient = createAsyncThunk(
         token: res?.data?.token,
       };
     } catch (error) {
+      console.log("Add Client API Error:", error);
+      console.log("Error response:", error?.response?.data);
       return {
         message: error?.response?.data?.error,
         status: error?.response?.status,

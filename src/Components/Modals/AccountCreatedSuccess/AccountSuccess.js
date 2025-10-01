@@ -12,15 +12,27 @@ export default function AccountSuccess(props) {
   useEffect(() => {
     const userProfile = localStorage.getItem("Profile_Update_Status");
     console.log("USER PROFILE IS", userProfile);
-    setProfileStatus(userProfile);
-  }, [profileStatus]);
+    // Convert string to boolean
+    setProfileStatus(userProfile === "true");
+  }, []);
 
   async function Letsgo() {
     console.log("After Verification");
-    if (profileStatus === true) {
+    console.log("Profile Status:", profileStatus);
+
+    // Add error handling and fallback
+    try {
+      if (profileStatus === true) {
+        console.log("Navigating to Dashboard");
+        navigate("/Dashboard");
+      } else {
+        console.log("Navigating to Profile");
+        navigate("/Profile");
+      }
+    } catch (error) {
+      console.error("Navigation error:", error);
+      // Fallback navigation
       navigate("/Dashboard");
-    } else {
-      navigate("/Profile");
     }
   }
 

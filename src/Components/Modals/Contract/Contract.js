@@ -2,7 +2,7 @@ import Button from "@mui/material/Button";
 import Modal from "react-bootstrap/Modal";
 import "./Contract.css";
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import UploadSign from "../UploadSign/UploadSign";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -23,16 +23,6 @@ import { getTotalCount } from "../../../services/redux/middleware/Project/projec
 import { setContractEditor } from "../../../services/redux/reducer/addcontracteditor";
 
 export default function Contract(props) {
-  const { show, onHide, onHideAdd } = props;
-
-  // Debug modal state changes
-  useEffect(() => {
-    console.log("🔍 Contract: show prop changed to:", show);
-    if (show) {
-      console.log("🔍 Contract: Modal is being opened!");
-    }
-  }, [show]);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
@@ -89,109 +79,38 @@ export default function Contract(props) {
   ) => {
     try {
       if (!htmlString || !originalText) return htmlString;
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlString, "text/html");
+
       const search = String(originalText).trim();
       if (!search) return htmlString;
-      const searchLower = search.toLowerCase();
+
+      // Use simple string replacement for exact matches
+      const regex = new RegExp(
+        `(${search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+        "gi"
+      );
 
       let matchCount = 0;
-      const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null);
-      const toWrap = [];
-      let node;
-      while ((node = walker.nextNode())) {
-        let offset = 0;
-        const valueLower = node.nodeValue.toLowerCase();
-        let idx = valueLower.indexOf(searchLower, offset);
-        while (idx !== -1) {
-          const range = doc.createRange();
-          range.setStart(node, idx);
-          range.setEnd(node, idx + search.length);
-          toWrap.push({ range });
-          offset = idx + search.length;
-          idx = valueLower.indexOf(searchLower, offset);
-        }
-      }
-
-      toWrap.forEach(({ range }) => {
-        matchCount += 1;
+      const highlightedHtml = htmlString.replace(regex, (match) => {
+        matchCount++;
         const instanceId = `${idBase}_${matchCount}`;
-        const span = doc.createElement("span");
-        span.className = "highlighted-clause pf-sg-highlight";
-        span.setAttribute("data-instance-id", instanceId);
-        // Build a safe inline handler by JSON-stringifying pre-decoded strings
+
         const decodedOriginal = decodeURIComponent(encodedOriginal);
         const decodedCorrected = decodeURIComponent(encodedCorrected);
-        const onClick = `window.showSuggestion(${JSON.stringify(
-          decodedOriginal
-        )}, ${JSON.stringify(decodedCorrected)}, '${instanceId}')`;
-        span.setAttribute("onclick", onClick);
-        // Provide a small affordance text only for accessibility; visual style via CSS
-        span.style.cursor = "pointer";
-        try {
-          range.surroundContents(span);
-        } catch {
-          // Fallback: when range crosses element boundaries, replace text directly
-          const text = doc.createTextNode(range.toString());
-          span.appendChild(text);
-          range.deleteContents();
-          range.insertNode(span);
-        }
+
+        // Use data attributes to avoid onclick syntax issues
+        const safeOriginal = decodedOriginal
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+        const safeCorrected = decodedCorrected
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+        return `<span class="highlighted-clause pf-sg-highlight" data-instance-id="${instanceId}" data-original="${safeOriginal}" data-corrected="${safeCorrected}" onclick="window.showSuggestion(this.dataset.original, this.dataset.corrected, this.dataset.instanceId)" style="cursor: pointer;">${match}</span>`;
       });
-
-      return doc.body.innerHTML;
+      return highlightedHtml;
     } catch (e) {
-      console.error("❌ DOM highlight failed, keeping original html", e);
+      console.error("DOM highlight failed, keeping original html", e);
       return htmlString;
-    }
-  };
-
-  // Replace first occurrence of plain text in an HTML string using a DOM-safe approach
-  const replaceFirstTextInHtml = (htmlString, searchText, replacementText) => {
-    try {
-      if (!htmlString || !searchText) return htmlString;
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlString, "text/html");
-
-      const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null);
-      const lowerSearch = searchText.toLowerCase();
-      let found = false;
-
-      while (walker.nextNode()) {
-        const node = walker.currentNode;
-        const textLower = node.nodeValue.toLowerCase();
-        const idx = textLower.indexOf(lowerSearch);
-        if (idx !== -1) {
-          // Split the text node around the match
-          const before = node.nodeValue.slice(0, idx);
-          const after = node.nodeValue.slice(idx + searchText.length);
-
-          const spanBefore = doc.createTextNode(before);
-          const replacement = doc.createTextNode(replacementText);
-          const spanAfter = doc.createTextNode(after);
-
-          const parent = node.parentNode;
-          parent.replaceChild(spanAfter, node);
-          parent.insertBefore(replacement, spanAfter);
-          parent.insertBefore(spanBefore, replacement);
-
-          found = true;
-          break;
-        }
-      }
-
-      return found ? doc.body.innerHTML : htmlString;
-    } catch (e) {
-      console.error("❌ DOM replace failed, falling back to regex:", e);
-      try {
-        const regex = new RegExp(
-          searchText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-          "i"
-        );
-        return htmlString.replace(regex, replacementText);
-      } catch {
-        return htmlString;
-      }
     }
   };
 
@@ -206,15 +125,10 @@ export default function Contract(props) {
   const ContractContent = useSelector(
     (state) => state?.addcontracteditor?.contracteditorcontent
   );
-  console.log("this is content on contract", ContractContent);
-
   const ContractSign = useSelector((state) => state?.addsign.contractsign);
-  console.log("Contract Sign is", ContractSign);
 
   // Function to show suggestion modal (Mobile-compatible)
-  const showSuggestionModal = (suggestionData) => {
-    console.log("🎯 showSuggestionModal called with:", suggestionData);
-    console.log("🎯 Setting modal visible to true");
+  const showSuggestionModal = useCallback((suggestionData) => {
     setCurrentSuggestion({
       original: suggestionData.original || suggestionData.text,
       suggested: suggestionData.suggested || suggestionData.suggestion,
@@ -226,8 +140,7 @@ export default function Contract(props) {
     setEditedSuggestion(normalized || "");
     setInitialAISuggestion(normalized || "");
     setSuggestionModalVisible(true);
-    console.log("🎯 Modal state should now be visible");
-  };
+  }, []);
 
   // Function to apply suggestion (Mobile-compatible) - EXACTLY like mobile
   const applyClauseSuggestion = (
@@ -236,46 +149,17 @@ export default function Contract(props) {
     instanceId = null
   ) => {
     try {
-      console.log("🔧 Applying suggestion:", {
-        originalText,
-        suggestedText,
-        instanceId,
-      });
-      console.log("📝 Current ContractContent:", ContractContent);
-
       if (ContractContent) {
-        console.log("✅ Using Redux state for update");
-
         let updatedContent = ContractContent;
 
-        // For now, let's use a simpler approach - replace the first occurrence of the original text
-        // This is more reliable than trying to match complex HTML spans
+        const sanitizedSuggestion = normalizeSuggestionText(suggestedText);
+
+        // Use simple string replacement for the first occurrence
         const regex = new RegExp(
           originalText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
           "i"
         );
-        console.log(`🔍 Looking for: "${originalText}"`);
-        console.log(`🔍 In content: "${ContractContent.substring(0, 200)}..."`);
-        console.log(`🔍 Regex: ${regex}`);
-
-        const beforeReplacement = updatedContent;
-        const sanitizedSuggestion = normalizeSuggestionText(suggestedText);
-        // DOM-safe replacement to handle nested tags/spacing variations
-        updatedContent = replaceFirstTextInHtml(
-          ContractContent,
-          originalText,
-          sanitizedSuggestion
-        );
-        console.log(`🎯 Replaced "${originalText}" with "${suggestedText}"`);
-        console.log(
-          `🔍 Content changed: ${beforeReplacement !== updatedContent}`
-        );
-        console.log(
-          `🔍 Updated content preview: "${updatedContent.substring(0, 200)}..."`
-        );
-
-        console.log("📝 Updated content length:", updatedContent.length);
-        console.log("🔄 Dispatching to Redux...");
+        updatedContent = ContractContent.replace(regex, sanitizedSuggestion);
 
         // Update Redux state
         dispatch(setContractEditor(updatedContent));
@@ -290,95 +174,36 @@ export default function Contract(props) {
         setSuggestionModalVisible(false);
         setCurrentSuggestion(null);
 
-        // Update highlighted content to reflect the applied change while keeping other highlights
-        if (highlightedContent) {
-          console.log(
-            "🔄 Updating highlighted content to reflect applied change"
-          );
-
-          // Remove the specific highlighted span for this suggestion
-          const tempDiv = document.createElement("div");
-          tempDiv.innerHTML = highlightedContent;
-
-          // Find and remove the specific highlighted span for this instance
-          const highlightedSpans = tempDiv.querySelectorAll(
-            ".highlighted-clause"
-          );
-          highlightedSpans.forEach((span) => {
-            const spanInstanceId = span.getAttribute("data-instance-id");
-            if (spanInstanceId === instanceId) {
-              // Replace this span with the corrected text
-              const correctedTextNode =
-                document.createTextNode(sanitizedSuggestion);
-              span.parentNode.replaceChild(correctedTextNode, span);
-            }
-          });
-
-          // Update the highlighted content with the corrected version
-          const updatedHighlightedContent = tempDiv.innerHTML;
-          setHighlightedContent(updatedHighlightedContent);
-
-          console.log(
-            "✅ Highlighted content updated, keeping other highlights"
-          );
-        } else {
-          // If no highlighted content, just clear it to show the updated content
-          setHighlightedContent(null);
-        }
+        // Clear highlighted content to show the updated content
+        setHighlightedContent("");
 
         // Show success message
         SuccessToast("Suggestion applied successfully");
-
-        console.log("✅ Suggestion applied successfully");
       } else {
-        console.log("❌ No ContractContent available");
         ErrorToast("No contract content available to update");
       }
     } catch (error) {
-      console.error("❌ Error applying suggestion:", error);
+      console.error("Error applying suggestion:", error);
       ErrorToast("Failed to apply suggestion");
     }
   };
 
   // Function to regenerate highlighting after applying suggestions
   const regenerateHighlighting = (content) => {
-    console.log(
-      "🔄 Regenerating highlighting for content:",
-      content ? "Available" : "Not available"
-    );
-    console.log("📋 Applied suggestions:", Array.from(appliedSuggestions));
-    console.log("📋 Current AI suggestions:", window.currentAISuggestions);
-
-    if (!content) {
-      console.log("❌ No content provided for highlighting");
-      return;
-    }
+    if (!content) return;
 
     // Get the current AI suggestions (we need to store them globally)
     if (window.currentAISuggestions && window.currentAISuggestions.length > 0) {
-      console.log(
-        "📋 Regenerating highlighting with",
-        window.currentAISuggestions.length,
-        "suggestions"
-      );
-
       let highlightedText = content;
       let hasChanges = false;
 
       window.currentAISuggestions.forEach((suggestion) => {
-        console.log("🎯 Processing suggestion for regeneration:", suggestion);
         if (suggestion.originalText && suggestion.correctedText) {
           // Check if this suggestion has been applied
           const originalText = suggestion.originalText;
           const isApplied = appliedSuggestions.has(originalText);
 
-          console.log(`🔍 Suggestion "${originalText}" applied: ${isApplied}`);
-
           if (!isApplied) {
-            console.log(
-              `✅ Highlighting suggestion: ${suggestion.originalText}`
-            );
-
             // Check if the original text still exists in the updated content
             if (
               content
@@ -397,76 +222,53 @@ export default function Contract(props) {
               highlightedText = highlightedText.replace(regex, (match, p1) => {
                 matchCount++;
                 const instanceId = `${suggestion.id}_${matchCount}`;
-                const encodedOriginal = encodeForOnclick(
-                  suggestion.originalText
-                );
-                const encodedCorrected = encodeForOnclick(
-                  suggestion.correctedText
-                );
-                const decodedOriginal =
-                  decodeURIComponent("${encodedOriginal}");
-                const decodedCorrected = decodeURIComponent(
-                  "${encodedCorrected}"
-                );
-                const safeCall = `window.showSuggestion(${JSON.stringify(
-                  decodedOriginal
-                )}, ${JSON.stringify(decodedCorrected)}, '${instanceId}')`;
-                return `<span class="highlighted-clause" data-instance-id="${instanceId}" onclick="${safeCall}" style="background-color: #ffeb3b; cursor: pointer; padding: 2px 4px; border-radius: 3px; text-decoration: underline; font-weight: bold;">${p1}<span style=\"font-size: 10px; color: #666;\"> (tap to apply suggestion)</span></span>`;
+                const safeOriginal = suggestion.originalText
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&#39;");
+                const safeCorrected = suggestion.correctedText
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&#39;");
+                return `<span class=\"highlighted-clause pf-sg-highlight\" data-instance-id=\"${instanceId}\" data-original=\"${safeOriginal}\" data-corrected=\"${safeCorrected}\" onclick=\"window.showSuggestion(this.dataset.original, this.dataset.corrected, this.dataset.instanceId)\" style=\"cursor: pointer;\">${p1}</span>`;
               });
 
               if (beforeHighlight !== highlightedText) {
                 hasChanges = true;
-                console.log(
-                  `✅ Added highlighting for: ${suggestion.originalText}`
-                );
               }
-            } else {
-              console.log(
-                `❌ Suggestion text not found in updated content: ${suggestion.originalText}`
-              );
             }
-          } else {
-            console.log(
-              `⏭️ Skipping applied suggestion: ${suggestion.originalText}`
-            );
           }
         }
       });
 
       if (hasChanges) {
         setHighlightedContent(highlightedText);
-        console.log("✅ Highlighting regenerated successfully");
-      } else {
-        console.log("ℹ️ No highlighting changes needed");
       }
-    } else {
-      console.log("❌ No AI suggestions available for regeneration");
     }
   };
 
   useEffect(() => {
     const userid = localStorage.getItem("_id");
-    console.log("🔍 Retrieved userid from localStorage:", userid);
 
     if (userid && userid !== "undefined" && userid !== "null") {
       setUserID(userid);
-      console.log("✅ UserID set successfully:", userid);
     } else {
-      console.error("❌ Invalid userid from localStorage:", userid);
+      console.error("Invalid userid from localStorage:", userid);
       ErrorToast("User authentication error. Please login again.");
       return;
     }
 
     // Add global function for handling suggestion clicks
     window.showSuggestion = (originalText, suggestedText, instanceId) => {
-      console.log("🎯 Global showSuggestion called with:", {
-        originalText,
-        suggestedText,
-        instanceId,
-      });
+      // Decode HTML entities if they exist
+      const decodedOriginal = originalText
+        ? originalText.replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+        : originalText;
+      const decodedSuggested = suggestedText
+        ? suggestedText.replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+        : suggestedText;
+
       showSuggestionModal({
-        original: originalText,
-        suggested: suggestedText,
+        original: decodedOriginal,
+        suggested: decodedSuggested,
         instanceId: instanceId,
       });
     };
@@ -497,46 +299,28 @@ export default function Contract(props) {
 
   // Force re-render when ContractContent changes to show updated content
   useEffect(() => {
-    console.log(
-      "🔄 ContractContent changed:",
-      ContractContent ? "Available" : "Not available"
-    );
     if (ContractContent && highlightedContent === null) {
-      console.log("✅ Showing updated content");
-    }
-
-    // If content was updated and highlighted content is cleared, ensure we show the updated content
-    if (contentUpdated && !highlightedContent && ContractContent) {
-      console.log("✅ Content updated, showing new content");
-      // Force a re-render by updating the formatted content
-      if (ContractContent && ContractContent !== "undefined") {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(ContractContent, "text/html");
-        const images = doc.querySelectorAll("img");
-        images.forEach((image) => {
-          image.style.width = "100%";
-        });
-        setFormattedContent(doc.body.innerHTML);
+      // If content was updated and highlighted content is cleared, ensure we show the updated content
+      if (contentUpdated && !highlightedContent && ContractContent) {
+        // Force a re-render by updating the formatted content
+        if (ContractContent && ContractContent !== "undefined") {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(ContractContent, "text/html");
+          const images = doc.querySelectorAll("img");
+          images.forEach((image) => {
+            image.style.width = "100%";
+          });
+          setFormattedContent(doc.body.innerHTML);
+        }
       }
     }
   }, [ContractContent, highlightedContent, contentUpdated]);
 
   // Monitor ContractContent changes and force re-render
   useEffect(() => {
-    console.log(
-      "📝 ContractContent updated in Redux:",
-      ContractContent ? "Available" : "Not available"
-    );
-    console.log(
-      "📝 ContractContent length:",
-      ContractContent ? ContractContent.length : 0
-    );
-
     // Force component to re-render when ContractContent changes
     if (ContractContent) {
-      console.log(
-        "🔄 Forcing component re-render due to ContractContent change"
-      );
+      // Component will re-render automatically
     }
   }, [ContractContent]);
 
@@ -582,16 +366,6 @@ export default function Contract(props) {
     }
     setLoader(true);
     try {
-      console.log("🔍 SaveContract - UserID:", UserID);
-      console.log("🔍 SaveContract - ContractType:", ContractType);
-      console.log("🔍 SaveContract - ContractName:", ContractName);
-      console.log("🔍 SaveContract - startDate:", startDate);
-      console.log("🔍 SaveContract - ContractSign:", ContractSign);
-      console.log(
-        "🔍 SaveContract - ContractContent length:",
-        ContractContent ? ContractContent.length : 0
-      );
-
       const data = {
         category: ContractType,
         contractName: ContractName,
@@ -600,8 +374,6 @@ export default function Contract(props) {
         signatureImage: ContractSign,
         contractText: ContractContent,
       };
-
-      console.log("📤 Sending contract data:", data);
       const dataall = {
         id: userid, // Use fresh userid from localStorage
         page: 1,
@@ -609,7 +381,6 @@ export default function Contract(props) {
       dispatch(savecontract(data)).then((res) => {
         if (res?.payload?.status === 200) {
           setLoader(false);
-          console.log("Contract Added res", res?.payload?.data);
           dispatch(setContract({ name: "", type: "" }));
           dispatch(setContractSign(""));
           SuccessToast("Contract Added Successfully");
@@ -629,13 +400,10 @@ export default function Contract(props) {
     }
   }
 
-  console.log("format", formattedContent);
-
   const handleEditName = () => {
     setModalShow(true);
     // props.onHide();
   };
-  console.log(ContractSign, "ContractSignContractSignContractSign");
 
   const getFileContent = (file) => {
     if (!file) return <p>No file available</p>;
@@ -687,15 +455,12 @@ export default function Contract(props) {
       return;
     }
 
-    console.log("🔍 Starting AI clause check...");
-    console.log("📝 Contract content:", ContractContent);
-
-    setLoader(true); // Add loader back
-    setContentUpdated(false); // Clear content updated indicator
+    setLoader(true);
+    setContentUpdated(false);
 
     // Clear previous AI suggestions
     window.currentAISuggestions = [];
-    window.lastUpdatedContent = null; // Clear locally stored content
+    window.lastUpdatedContent = null;
     setAppliedSuggestions(new Set());
 
     try {
@@ -704,14 +469,8 @@ export default function Contract(props) {
         "Analyze this contract and identify specific text that needs improvement. Look for placeholder text like [Insert...], grammatical issues, missing details, or unclear clauses. Provide specific suggestions for text that actually exists in the contract."
       );
 
-      console.log("🤖 AI Response:", result);
-
-      if (result && (result.analysis || result.data || result)) {
-        const aiSuggestions = parseAISuggestions(
-          result.analysis || result.data || result
-        );
-
-        console.log("📋 Parsed AI suggestions:", aiSuggestions);
+      if (result && result.success && result.analysis) {
+        const aiSuggestions = parseAISuggestions(result.analysis);
 
         if (aiSuggestions.length > 0) {
           // Store AI suggestions globally for regeneration
@@ -721,7 +480,6 @@ export default function Contract(props) {
           let highlightedText = ContractContent;
 
           aiSuggestions.forEach((suggestion) => {
-            console.log("🎯 Processing suggestion:", suggestion);
             if (suggestion.originalText && suggestion.correctedText) {
               // Check if the original text actually exists in the contract content
               if (
@@ -729,23 +487,19 @@ export default function Contract(props) {
                   suggestion.originalText.toLowerCase()
                 )
               ) {
-                console.log(`✅ Found "${suggestion.originalText}" in content`);
                 const encodedOriginal = encodeForOnclick(
                   suggestion.originalText
                 );
                 const encodedCorrected = encodeForOnclick(
                   suggestion.correctedText
                 );
+
                 highlightedText = highlightInHtmlDom(
                   highlightedText,
                   suggestion.originalText,
                   encodedOriginal,
                   encodedCorrected,
                   suggestion.id
-                );
-              } else {
-                console.log(
-                  `❌ Could not find "${suggestion.originalText}" in content`
                 );
               }
             }
@@ -757,18 +511,19 @@ export default function Contract(props) {
           );
         } else {
           window.currentAISuggestions = [];
-          setHighlightedContent(null);
-          SuccessToast("Contract analysis complete. No major issues found.");
+          setHighlightedContent(ContractContent);
+          SuccessToast("No issues found! Contract looks good.");
         }
       } else {
-        console.error("❌ AI analysis failed:", result.error);
-        ErrorToast(result.error || "Failed to analyze contract with AI");
+        ErrorToast(
+          result?.message || "Failed to get AI analysis. Please try again."
+        );
       }
     } catch (error) {
-      console.error("❌ Error during AI clause check:", error);
-      ErrorToast("Failed to check contract clauses with AI. Please try again.");
+      console.error("AI clause check error:", error);
+      ErrorToast("AI analysis failed. Please try again.");
     } finally {
-      setLoader(false); // Remove loader
+      setLoader(false);
     }
   };
 
@@ -777,8 +532,6 @@ export default function Contract(props) {
     const suggestions = [];
 
     try {
-      console.log("🔍 Parsing AI response:", aiResponse);
-
       // Handle different response formats
       let responseData = aiResponse;
 
@@ -824,10 +577,6 @@ export default function Contract(props) {
       } else if (responseData.text || typeof responseData === "string") {
         // Parse plain text response for suggestions
         const text = responseData.text || responseData;
-        console.log(
-          "📝 Parsing text response:",
-          text.substring(0, 200) + "..."
-        );
 
         // Look for specific patterns in the text
         const lines = text.split("\n");
@@ -990,29 +739,19 @@ export default function Contract(props) {
         });
       }
 
-      console.log("📋 Final parsed suggestions:", suggestions);
       return suggestions;
     } catch (error) {
-      console.error("❌ Error parsing AI suggestions:", error);
+      console.error("Error parsing AI suggestions:", error);
       return [];
     }
   };
 
   const applySuggestion = async (suggestion) => {
-    console.log("Applying suggestion:", suggestion);
-
     try {
       // Apply the correction to the contract content
       let updatedContent = formattedContent || ContractContent;
 
       if (suggestion.originalText && suggestion.correctedText) {
-        console.log(
-          "🔄 Applying correction:",
-          suggestion.originalText,
-          "→",
-          suggestion.correctedText
-        );
-
         // Replace the original text with corrected text
         updatedContent = updatedContent.replace(
           new RegExp(
@@ -1027,45 +766,8 @@ export default function Contract(props) {
         console.log("✅ Content updated with correction");
       }
 
-      // Remove the applied suggestion from the list
-      // const updatedSuggestions = suggestions.filter(s => s.id !== suggestion.id); // This line was removed as per the edit hint
-      // setSuggestions(updatedSuggestions); // This line was removed as per the edit hint
-
       // Show success message
       SuccessToast("Suggestion applied successfully");
-
-      // If no more suggestions, re-check the contract
-      // if (updatedSuggestions.length === 0) { // This line was removed as per the edit hint
-      //   console.log('🔄 No more suggestions, re-checking contract...'); // This line was removed as per the edit hint
-
-      //   // Re-run AI check with updated content // This line was removed as per the edit hint
-      //   setAiLoading(true); // This line was removed as per the edit hint
-
-      //   const result = await AIService.checkWithAi(updatedContent, 'Analyze this contract for legal issues, grammar errors, and improvement suggestions'); // This line was removed as per the edit hint
-
-      //   if (result.success) { // This line was removed as per the edit hint
-      //     const parsedSuggestions = parseAISuggestions(result.analysis, result.highlightedSections); // This line was removed as per the edit hint
-
-      //     if (parsedSuggestions.length === 0) { // This line was removed as per the edit hint
-      //       // No issues found - show popup and hide suggestions // This line was removed as per the edit hint
-      //       console.log('✅ No issues found after applying suggestion'); // This line was removed as per the edit hint
-      //       SuccessToast('All issues have been resolved! Contract is now error-free.'); // This line was removed as per the edit hint
-
-      //       // Hide suggestions component after a short delay // This line was removed as per the edit hint
-      //       setTimeout(() => { // This line was removed as per the edit hint
-      //         setShowSuggestions(false); // This line was removed as per the edit hint
-      //       }, 2000); // This line was removed as per the edit hint
-      //     } else { // This line was removed as per the edit hint
-      //       // Still have issues - update suggestions // This line was removed as per the edit hint
-      //       setSuggestions(parsedSuggestions); // This line was removed as per the edit hint
-      //       console.log('⚠️ Still have issues after applying suggestion:', parsedSuggestions.length); // This line was removed as per the edit hint
-      //     } // This line was removed as per the edit hint
-      //   } else { // This line was removed as per the edit hint
-      //     ErrorToast('Failed to re-check contract after applying suggestion'); // This line was removed as per the edit hint
-      //   } // This line was removed as per the edit hint
-
-      //   setAiLoading(false); // This line was removed as per the edit hint
-      // } // This line was removed as per the edit hint
     } catch (error) {
       console.error("❌ Error applying suggestion:", error);
       ErrorToast("Failed to apply suggestion. Please try again.");
@@ -1148,6 +850,18 @@ export default function Contract(props) {
             }}
           >
             <div className="contract-content">
+              {console.log(
+                "🎯 Render check - highlightedContent:",
+                !!highlightedContent
+              )}
+              {console.log(
+                "🎯 Render check - highlightedContent length:",
+                highlightedContent?.length || 0
+              )}
+              {console.log(
+                "🎯 Render check - highlightedContent preview:",
+                highlightedContent?.substring(0, 100) + "..."
+              )}
               {highlightedContent ? (
                 <div>
                   <div className="content-header">
@@ -1161,6 +875,12 @@ export default function Contract(props) {
                   <div
                     className="highlighted-content pf-contract-preview"
                     dangerouslySetInnerHTML={{ __html: highlightedContent }}
+                    style={{
+                      border: "2px solid #ffeb3b",
+                      padding: "10px",
+                      margin: "10px 0",
+                      backgroundColor: "#f9f9f9",
+                    }}
                   />
                   <div className="highlighting-controls">
                     {/* <button
@@ -1188,18 +908,6 @@ export default function Contract(props) {
                 </div>
               ) : (
                 <div>
-                  {console.log(
-                    "🎯 Displaying normal content, highlightedContent:",
-                    highlightedContent
-                  )}
-                  {console.log(
-                    "🎯 ContractContent available:",
-                    !!ContractContent
-                  )}
-                  {console.log(
-                    "🎯 Last updated content available:",
-                    !!window.lastUpdatedContent
-                  )}
                   {contentUpdated && (
                     <div
                       style={{

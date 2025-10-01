@@ -343,18 +343,22 @@ const Subscription = () => {
       <>
         {loader && <ScreenLoader />}
         <div className="Subscription__top-div">
-          {/* <div className="Subscription__top-div_switch">
-            <p>Monthly</p>
-            <label className="switch">
+          <div className="Subscription__top-div_switch">
+            <span className={`switch-label ${!isYearly ? "active" : ""}`}>
+              Monthly
+            </span>
+            <label className="toggle-switch">
               <input
                 type="checkbox"
                 checked={isYearly}
                 onChange={handleToggle}
               />
-              <span className="slider"></span>
+              <span className="toggle-slider"></span>
             </label>
-            <p>Yearly</p>
-          </div> */}
+            <span className={`switch-label ${isYearly ? "active" : ""}`}>
+              Yearly
+            </span>
+          </div>
           <div className="Subscription__top-div_img">
             <p>Save 65%</p>
             <img src="/Images/Subscription/arrow.svg" alt="/" />

@@ -1,22 +1,27 @@
-import api from './apiInterceptor';
-import { API_CONFIG, API_ENDPOINTS, CONTRACT_AI_PROMPTS, API_ERROR_MESSAGES } from '../config/apiConfig';
+import api from "./apiInterceptor";
+import {
+  API_CONFIG,
+  API_ENDPOINTS,
+  CONTRACT_AI_PROMPTS,
+  API_ERROR_MESSAGES,
+} from "../config/apiConfig";
 
 class AIService {
   // Enhanced contract generation using direct API calls (like src2)
-  static async generateContractContent(prompt, existingContent = '') {
+  static async generateContractContent(prompt, existingContent = "") {
     try {
       if (!prompt.trim()) {
-        throw new Error('Please enter a prompt for contract generation');
+        throw new Error("Please enter a prompt for contract generation");
       }
 
       // Check if AI features are enabled
       if (!API_CONFIG.ENABLE_AI_FEATURES) {
-        throw new Error('AI features are currently disabled');
+        throw new Error("AI features are currently disabled");
       }
 
-      console.log('🤖 Generating contract content with AI...');
-      console.log('📝 Prompt:', prompt);
-      console.log('📄 Existing content length:', existingContent.length);
+      console.log("🤖 Generating contract content with AI...");
+      console.log("📝 Prompt:", prompt);
+      console.log("📄 Existing content length:", existingContent.length);
 
       // Check if using OpenRouter or OpenAI
       const isUsingOpenRouter = API_CONFIG.USE_OPENROUTER;
@@ -37,30 +42,32 @@ class AIService {
         : API_CONFIG.OPENAI_TEMPERATURE;
 
       // Debug logging
-      console.log('🔧 AI Configuration:');
-      console.log('- Using OpenRouter:', isUsingOpenRouter);
-      console.log('- Model:', model);
-      console.log('- Max Tokens:', maxTokens);
-      console.log('- Temperature:', temperature);
-      console.log('- Endpoint:', endpoint);
+      console.log("🔧 AI Configuration:");
+      console.log("- Using OpenRouter:", isUsingOpenRouter);
+      console.log("- Model:", model);
+      console.log("- Max Tokens:", maxTokens);
+      console.log("- Temperature:", temperature);
+      console.log("- Endpoint:", endpoint);
 
       // Check if API key is configured
-      if (!apiKey || apiKey === 'your-api-key-here') {
-        throw new Error(isUsingOpenRouter
-          ? 'OpenRouter API key is not configured'
-          : 'OpenAI API key is not configured');
+      if (!apiKey || apiKey === "your-api-key-here") {
+        throw new Error(
+          isUsingOpenRouter
+            ? "OpenRouter API key is not configured"
+            : "OpenAI API key is not configured"
+        );
       }
 
       // Prepare headers based on API provider
       const headers = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       };
 
       // Add OpenRouter-specific headers for app attribution (optional)
       if (isUsingOpenRouter) {
-        headers['HTTP-Referer'] = 'https://pocketfiler.app';
-        headers['X-Title'] = 'PocketFiler';
+        headers["HTTP-Referer"] = "https://pocketfiler.app";
+        headers["X-Title"] = "PocketFiler";
       }
 
       // Create enhanced prompt that includes existing content
@@ -72,11 +79,11 @@ class AIService {
         model: model,
         messages: [
           {
-            role: 'system',
+            role: "system",
             content: CONTRACT_AI_PROMPTS.SYSTEM_PROMPT,
           },
           {
-            role: 'user',
+            role: "user",
             content: CONTRACT_AI_PROMPTS.USER_PROMPT_TEMPLATE(enhancedPrompt),
           },
         ],
@@ -84,29 +91,29 @@ class AIService {
         temperature: temperature,
       };
 
-      console.log('📤 Sending AI Request:');
-      console.log('- Prompt:', prompt);
-      console.log('- Request Body:', JSON.stringify(requestBody, null, 2));
+      console.log("📤 Sending AI Request:");
+      console.log("- Prompt:", prompt);
+      console.log("- Request Body:", JSON.stringify(requestBody, null, 2));
 
       // Real API call (OpenRouter or OpenAI)
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: headers,
         body: JSON.stringify(requestBody),
       });
 
-      console.log('📥 AI Response Status:', response.status);
+      console.log("📥 AI Response Status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ AI API Error:', errorData);
+        console.error("❌ AI API Error:", errorData);
 
         let errorMessage = API_ERROR_MESSAGES.API_REQUEST_FAILED;
 
         if (response.status === 401) {
           errorMessage = isUsingOpenRouter
-            ? 'Invalid OpenRouter API key. Please check your API key.'
-            : 'Invalid API key. Please check your OpenAI API key.';
+            ? "Invalid OpenRouter API key. Please check your API key."
+            : "Invalid API key. Please check your OpenAI API key.";
         } else if (response.status === 429) {
           errorMessage = API_ERROR_MESSAGES.RATE_LIMIT;
         } else if (response.status === 402) {
@@ -117,32 +124,32 @@ class AIService {
       }
 
       const data = await response.json();
-      console.log('✅ AI Response Data:', data);
+      console.log("✅ AI Response Data:", data);
 
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         throw new Error(API_ERROR_MESSAGES.INVALID_RESPONSE);
       }
 
       const aiResponse = data.choices[0].message.content;
-      console.log('🤖 AI Generated Content:', aiResponse);
+      console.log("🤖 AI Generated Content:", aiResponse);
 
       return {
         success: true,
         content: aiResponse,
-        message: 'Contract content generated successfully'
+        message: "Contract content generated successfully",
       };
     } catch (error) {
-      console.error('❌ AI generation error:', error);
-      
+      console.error("❌ AI generation error:", error);
+
       let errorMessage = API_ERROR_MESSAGES.GENERIC_ERROR;
-      
+
       if (error.message) {
         errorMessage = error.message;
       }
 
       return {
         success: false,
-        error: errorMessage
+        error: errorMessage,
       };
     }
   }
@@ -150,11 +157,11 @@ class AIService {
   // Enhanced contract review and suggestions using direct API calls
   static async reviewContract(contractContent) {
     try {
-      if (!contractContent || contractContent.trim() === '') {
-        throw new Error('No contract content provided for review');
+      if (!contractContent || contractContent.trim() === "") {
+        throw new Error("No contract content provided for review");
       }
 
-      console.log('🔍 Reviewing contract content...');
+      console.log("🔍 Reviewing contract content...");
 
       // Check if using OpenRouter or OpenAI
       const isUsingOpenRouter = API_CONFIG.USE_OPENROUTER;
@@ -175,22 +182,24 @@ class AIService {
         : API_CONFIG.OPENAI_TEMPERATURE;
 
       // Check if API key is configured
-      if (!apiKey || apiKey === 'your-api-key-here') {
-        throw new Error(isUsingOpenRouter
-          ? 'OpenRouter API key is not configured'
-          : 'OpenAI API key is not configured');
+      if (!apiKey || apiKey === "your-api-key-here") {
+        throw new Error(
+          isUsingOpenRouter
+            ? "OpenRouter API key is not configured"
+            : "OpenAI API key is not configured"
+        );
       }
 
       // Prepare headers based on API provider
       const headers = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       };
 
       // Add OpenRouter-specific headers for app attribution (optional)
       if (isUsingOpenRouter) {
-        headers['HTTP-Referer'] = 'https://pocketfiler.app';
-        headers['X-Title'] = 'PocketFiler';
+        headers["HTTP-Referer"] = "https://pocketfiler.app";
+        headers["X-Title"] = "PocketFiler";
       }
 
       const reviewPrompt = `Please review this contract and provide detailed suggestions for improvement. Analyze the contract for:
@@ -208,11 +217,12 @@ Please provide your analysis in a structured format with clear sections.`;
         model: model,
         messages: [
           {
-            role: 'system',
-            content: 'You are a professional legal contract reviewer with expertise in contract law and best practices.',
+            role: "system",
+            content:
+              "You are a professional legal contract reviewer with expertise in contract law and best practices.",
           },
           {
-            role: 'user',
+            role: "user",
             content: reviewPrompt,
           },
         ],
@@ -220,25 +230,25 @@ Please provide your analysis in a structured format with clear sections.`;
         temperature: temperature,
       };
 
-      console.log('📤 Sending AI Review Request...');
+      console.log("📤 Sending AI Review Request...");
 
       // Real API call (OpenRouter or OpenAI)
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: headers,
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ AI Review API Error:', errorData);
+        console.error("❌ AI Review API Error:", errorData);
 
         let errorMessage = API_ERROR_MESSAGES.API_REQUEST_FAILED;
 
         if (response.status === 401) {
           errorMessage = isUsingOpenRouter
-            ? 'Invalid OpenRouter API key. Please check your API key.'
-            : 'Invalid API key. Please check your OpenAI API key.';
+            ? "Invalid OpenRouter API key. Please check your API key."
+            : "Invalid API key. Please check your OpenAI API key.";
         } else if (response.status === 429) {
           errorMessage = API_ERROR_MESSAGES.RATE_LIMIT;
         } else if (response.status === 402) {
@@ -249,35 +259,35 @@ Please provide your analysis in a structured format with clear sections.`;
       }
 
       const data = await response.json();
-      console.log('✅ AI Review Response Data:', data);
+      console.log("✅ AI Review Response Data:", data);
 
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         throw new Error(API_ERROR_MESSAGES.INVALID_RESPONSE);
       }
 
       const aiResponse = data.choices[0].message.content;
-      console.log('🤖 AI Review Content:', aiResponse);
+      console.log("🤖 AI Review Content:", aiResponse);
 
       return {
         success: true,
         suggestions: aiResponse,
-        message: 'Contract review completed'
+        message: "Contract review completed",
       };
     } catch (error) {
-      console.error('❌ Contract review error:', error);
+      console.error("❌ Contract review error:", error);
       return {
         success: false,
-        error: error.message || API_ERROR_MESSAGES.GENERIC_ERROR
+        error: error.message || API_ERROR_MESSAGES.GENERIC_ERROR,
       };
     }
   }
 
   // Generate contract clauses using direct API calls
-  static async generateClauses(contractType, requirements = '') {
+  static async generateClauses(contractType, requirements = "") {
     try {
       const prompt = `Generate legal clauses for a ${contractType} contract. Requirements: ${requirements}`;
-      
-      console.log('📋 Generating clauses for:', contractType);
+
+      console.log("📋 Generating clauses for:", contractType);
 
       // Check if using OpenRouter or OpenAI
       const isUsingOpenRouter = API_CONFIG.USE_OPENROUTER;
@@ -298,33 +308,36 @@ Please provide your analysis in a structured format with clear sections.`;
         : API_CONFIG.OPENAI_TEMPERATURE;
 
       // Check if API key is configured
-      if (!apiKey || apiKey === 'your-api-key-here') {
-        throw new Error(isUsingOpenRouter
-          ? 'OpenRouter API key is not configured'
-          : 'OpenAI API key is not configured');
+      if (!apiKey || apiKey === "your-api-key-here") {
+        throw new Error(
+          isUsingOpenRouter
+            ? "OpenRouter API key is not configured"
+            : "OpenAI API key is not configured"
+        );
       }
 
       // Prepare headers based on API provider
       const headers = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       };
 
       // Add OpenRouter-specific headers for app attribution (optional)
       if (isUsingOpenRouter) {
-        headers['HTTP-Referer'] = 'https://pocketfiler.app';
-        headers['X-Title'] = 'PocketFiler';
+        headers["HTTP-Referer"] = "https://pocketfiler.app";
+        headers["X-Title"] = "PocketFiler";
       }
 
       const requestBody = {
         model: model,
         messages: [
           {
-            role: 'system',
-            content: 'You are a professional legal contract writer with expertise in creating comprehensive, legally sound contract clauses.',
+            role: "system",
+            content:
+              "You are a professional legal contract writer with expertise in creating comprehensive, legally sound contract clauses.",
           },
           {
-            role: 'user',
+            role: "user",
             content: prompt,
           },
         ],
@@ -334,19 +347,19 @@ Please provide your analysis in a structured format with clear sections.`;
 
       // Real API call (OpenRouter or OpenAI)
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: headers,
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate clauses');
+        throw new Error("Failed to generate clauses");
       }
 
       const data = await response.json();
 
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error('Invalid response from AI service');
+        throw new Error("Invalid response from AI service");
       }
 
       const aiResponse = data.choices[0].message.content;
@@ -354,13 +367,13 @@ Please provide your analysis in a structured format with clear sections.`;
       return {
         success: true,
         clauses: aiResponse,
-        message: 'Clauses generated successfully'
+        message: "Clauses generated successfully",
       };
     } catch (error) {
-      console.error('❌ Clause generation error:', error);
+      console.error("❌ Clause generation error:", error);
       return {
         success: false,
-        error: error.message || API_ERROR_MESSAGES.GENERIC_ERROR
+        error: error.message || API_ERROR_MESSAGES.GENERIC_ERROR,
       };
     }
   }
@@ -369,10 +382,10 @@ Please provide your analysis in a structured format with clear sections.`;
   static async translateContract(content, targetLanguage) {
     try {
       if (!content || !targetLanguage) {
-        throw new Error('Content and target language are required');
+        throw new Error("Content and target language are required");
       }
 
-      console.log('🌐 Translating contract to:', targetLanguage);
+      console.log("🌐 Translating contract to:", targetLanguage);
 
       // Check if using OpenRouter or OpenAI
       const isUsingOpenRouter = API_CONFIG.USE_OPENROUTER;
@@ -393,33 +406,36 @@ Please provide your analysis in a structured format with clear sections.`;
         : API_CONFIG.OPENAI_TEMPERATURE;
 
       // Check if API key is configured
-      if (!apiKey || apiKey === 'your-api-key-here') {
-        throw new Error(isUsingOpenRouter
-          ? 'OpenRouter API key is not configured'
-          : 'OpenAI API key is not configured');
+      if (!apiKey || apiKey === "your-api-key-here") {
+        throw new Error(
+          isUsingOpenRouter
+            ? "OpenRouter API key is not configured"
+            : "OpenAI API key is not configured"
+        );
       }
 
       // Prepare headers based on API provider
       const headers = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       };
 
       // Add OpenRouter-specific headers for app attribution (optional)
       if (isUsingOpenRouter) {
-        headers['HTTP-Referer'] = 'https://pocketfiler.app';
-        headers['X-Title'] = 'PocketFiler';
+        headers["HTTP-Referer"] = "https://pocketfiler.app";
+        headers["X-Title"] = "PocketFiler";
       }
 
       const requestBody = {
         model: model,
         messages: [
           {
-            role: 'system',
-            content: 'You are a professional translator with expertise in legal document translation.',
+            role: "system",
+            content:
+              "You are a professional translator with expertise in legal document translation.",
           },
           {
-            role: 'user',
+            role: "user",
             content: `Translate this contract content to ${targetLanguage}: ${content}`,
           },
         ],
@@ -429,19 +445,19 @@ Please provide your analysis in a structured format with clear sections.`;
 
       // Real API call (OpenRouter or OpenAI)
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: headers,
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to translate contract');
+        throw new Error("Failed to translate contract");
       }
 
       const data = await response.json();
 
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error('Invalid response from AI service');
+        throw new Error("Invalid response from AI service");
       }
 
       const aiResponse = data.choices[0].message.content;
@@ -449,13 +465,13 @@ Please provide your analysis in a structured format with clear sections.`;
       return {
         success: true,
         translatedContent: aiResponse,
-        message: `Contract translated to ${targetLanguage}`
+        message: `Contract translated to ${targetLanguage}`,
       };
     } catch (error) {
-      console.error('❌ Translation error:', error);
+      console.error("❌ Translation error:", error);
       return {
         success: false,
-        error: error.message || API_ERROR_MESSAGES.GENERIC_ERROR
+        error: error.message || API_ERROR_MESSAGES.GENERIC_ERROR,
       };
     }
   }
@@ -463,107 +479,126 @@ Please provide your analysis in a structured format with clear sections.`;
   // Check AI service status by calling backend AI endpoint (mobile-compatible)
   static async checkAIService() {
     try {
-      console.log('🔍 Checking AI service status via /contract/checkWithAi ...');
+      console.log(
+        "🔍 Checking AI service status via /contract/checkWithAi ..."
+      );
 
       // Feature flag
       if (!API_CONFIG.ENABLE_AI_FEATURES) {
-        return { available: false, error: 'AI features are disabled' };
+        return { available: false, error: "AI features are disabled" };
       }
 
       // Build a lightweight payload for a non-invasive health check
       const requestData = {
-        text: 'health-check',
-        prompt: 'ping'
+        text: "health-check",
+        prompt: "ping",
       };
 
-      const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+      const token =
+        localStorage.getItem("token") || localStorage.getItem("accessToken");
 
       const url = `${API_CONFIG.API_URL}${API_ENDPOINTS.CONTRACT.CHECK_WITH_AI}`;
-      console.log('📤 Pinging AI endpoint:', url);
+      console.log("📤 Pinging AI endpoint:", url);
 
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` })
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
-        body: JSON.stringify(requestData)
+        body: JSON.stringify(requestData),
       });
 
       if (response.ok) {
-        return { available: true, message: 'AI service is available' };
+        return { available: true, message: "AI service is available" };
       }
 
       // Non-200 response from backend
-      const errorText = await response.text().catch(() => '');
+      const errorText = await response.text().catch(() => "");
       return {
         available: false,
-        error: `AI endpoint responded with ${response.status}. ${errorText || ''}`.trim()
+        error: `AI endpoint responded with ${response.status}. ${
+          errorText || ""
+        }`.trim(),
       };
-
     } catch (error) {
-      console.error('❌ AI service status check failed:', error);
-      return { available: false, error: error.message || 'Service check failed' };
+      console.error("❌ AI service status check failed:", error);
+      return {
+        available: false,
+        error: error.message || "Service check failed",
+      };
     }
   }
 
   // Check contract clauses with AI using the backend API (Mobile-compatible endpoint)
-  static async checkWithAi(contractText, prompt = '') {
+  static async checkWithAi(contractText, prompt = "") {
     try {
-      console.log("🔍 Starting AI contract analysis with text length:", contractText?.length || 0);
+      console.log(
+        "🔍 Starting AI contract analysis with text length:",
+        contractText?.length || 0
+      );
       console.log("📤 Base API URL:", API_CONFIG.API_URL);
-      console.log("📝 Contract text preview:", contractText?.substring(0, 100) + "...");
+      console.log(
+        "📝 Contract text preview:",
+        contractText?.substring(0, 100) + "..."
+      );
       console.log("📝 AI Prompt:", prompt);
 
       // Get auth token from localStorage
-      const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+      const token =
+        localStorage.getItem("token") || localStorage.getItem("accessToken");
       console.log("🔑 Auth token available:", !!token);
 
       // Use the /contract/checkWithAi endpoint (mobile-compatible)
       console.log("🔄 Using /contract/checkWithAi endpoint...");
-      
+
       // Prepare request data exactly like mobile version
       const requestData = {
-        text: contractText || 'Contract content will be added here...',
-        prompt: prompt
+        text: contractText || "Contract content will be added here...",
+        prompt: prompt,
       };
 
-      console.log('📤 Sending AI Request to backend:', {
+      console.log("📤 Sending AI Request to backend:", {
         url: `${API_CONFIG.API_URL}/contract/checkWithAi`,
-        data: requestData
+        data: requestData,
       });
 
-      const response = await fetch(`${API_CONFIG.API_URL}/contract/checkWithAi`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` })
-        },
-        body: JSON.stringify(requestData)
-      });
+      const response = await fetch(
+        `${API_CONFIG.API_URL}/contract/checkWithAi`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
 
       console.log("📥 Response status:", response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error("❌ Server error response:", errorText);
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+        throw new Error(
+          `API request failed with status ${response.status}: ${errorText}`
+        );
       }
 
       const data = await response.json();
-      console.log('✅ AI Response from backend:', data);
-      console.log('📊 Response structure:', {
+      console.log("✅ AI Response from backend:", data);
+      console.log("📊 Response structure:", {
         hasData: !!data,
         dataType: typeof data,
         keys: data ? Object.keys(data) : [],
         message: data?.message,
         data: data?.data,
-        result: data?.result
+        result: data?.result,
       });
 
       // Handle different response structures exactly like mobile version
-      let aiResponse = '';
-      
+      let aiResponse = "";
+
       if (data) {
         // Try different possible response structures (mobile-compatible)
         if (data.botResponse) {
@@ -582,27 +617,36 @@ Please provide your analysis in a structured format with clear sections.`;
           aiResponse = data.text;
         } else if (data.analysis) {
           aiResponse = data.analysis;
-        } else if (typeof data === 'string') {
+        } else if (typeof data === "string") {
           aiResponse = data;
-      } else {
-          aiResponse = 'AI analysis completed successfully';
+        } else {
+          aiResponse = "AI analysis completed successfully";
         }
       }
 
       // Clean up the AI response - remove markdown code blocks if present (mobile-compatible)
       let cleanAiResponse = aiResponse;
-      console.log('🔧 Original AI Response:', aiResponse.substring(0, 200) + '...');
-      
-      if (aiResponse.includes('```html')) {
+      console.log(
+        "🔧 Original AI Response:",
+        aiResponse.substring(0, 200) + "..."
+      );
+
+      if (aiResponse.includes("```html")) {
         // Extract content between ```html and ```
         const htmlMatch = aiResponse.match(/```html\s*([\s\S]*?)\s*```/);
         if (htmlMatch) {
           cleanAiResponse = htmlMatch[1];
-          console.log('📝 Extracted HTML content:', cleanAiResponse.substring(0, 200) + '...');
+          console.log(
+            "📝 Extracted HTML content:",
+            cleanAiResponse.substring(0, 200) + "..."
+          );
         }
       }
-      
-      console.log('🎯 Final content to insert:', cleanAiResponse.substring(0, 200) + '...');
+
+      console.log(
+        "🎯 Final content to insert:",
+        cleanAiResponse.substring(0, 200) + "..."
+      );
 
       // Extract highlighted sections if available
       let highlightedSections = [];
@@ -616,23 +660,31 @@ Please provide your analysis in a structured format with clear sections.`;
           text: correction.original || correction.incorrect,
           originalText: correction.original || correction.incorrect,
           correctedText: correction.corrected || correction.suggestion,
-          type: 'spelling',
+          type: "spelling",
           lineNumber: index + 1,
           title: `Grammar Error ${index + 1}`,
-          description: correction.explanation || `Should be: ${correction.corrected || correction.suggestion}`
+          description:
+            correction.explanation ||
+            `Should be: ${correction.corrected || correction.suggestion}`,
         }));
       } else if (data.suggestions && Array.isArray(data.suggestions)) {
         // Handle the actual API response format
         highlightedSections = data.suggestions.map((suggestion, index) => {
-          const originalText = data.originalText.substring(suggestion.start, suggestion.end);
-        return {
+          const originalText = data.originalText.substring(
+            suggestion.start,
+            suggestion.end
+          );
+          return {
             text: originalText,
             originalText: originalText,
             correctedText: suggestion.suggestion || originalText,
-            type: 'spelling',
+            type: "spelling",
             lineNumber: index + 1,
             title: `Grammar Error ${index + 1}`,
-            description: suggestion.issue || suggestion.shortMessage || 'Spelling error detected'
+            description:
+              suggestion.issue ||
+              suggestion.shortMessage ||
+              "Spelling error detected",
           };
         });
       }
@@ -644,22 +696,21 @@ Please provide your analysis in a structured format with clear sections.`;
         success: true,
         analysis: cleanAiResponse,
         highlightedSections: highlightedSections,
-        message: 'AI contract analysis completed successfully'
+        message: "AI contract analysis completed successfully",
       };
-
     } catch (error) {
-      console.error('❌ AI Contract Analysis Error:', error);
-      console.error('❌ Error details:', {
+      console.error("❌ AI Contract Analysis Error:", error);
+      console.error("❌ Error details:", {
         message: error.message,
         stack: error.stack,
-        name: error.name
+        name: error.name,
       });
-      
+
       return {
         success: false,
-        analysis: '',
+        analysis: "",
         highlightedSections: [],
-        message: error.message || 'Failed to analyze contract with AI'
+        message: error.message || "Failed to analyze contract with AI",
       };
     }
   }
@@ -667,42 +718,52 @@ Please provide your analysis in a structured format with clear sections.`;
   // Check contract clauses with AI using the backend API (Legacy grammar endpoint)
   static async checkClausesWithAI(contractText) {
     try {
-      console.log("🔍 Starting grammar check with text length:", contractText?.length || 0);
+      console.log(
+        "🔍 Starting grammar check with text length:",
+        contractText?.length || 0
+      );
       console.log("📤 Base API URL:", API_CONFIG.API_URL);
-      console.log("📝 Contract text preview:", contractText?.substring(0, 100) + "...");
+      console.log(
+        "📝 Contract text preview:",
+        contractText?.substring(0, 100) + "..."
+      );
 
       // Get auth token from localStorage
-      const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+      const token =
+        localStorage.getItem("token") || localStorage.getItem("accessToken");
       console.log("🔑 Auth token available:", !!token);
 
       // Use the /contract/checkGrammar endpoint
       console.log("🔄 Using /contract/checkGrammar endpoint...");
-      // Use direct fetch with hardcoded URL
-      console.log("🔄 Using direct fetch with hardcoded URL...");
-      const response = await fetch('http://13.57.230.64:4000/contract/checkGrammar', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` })
-        },
-        body: JSON.stringify({
-          text: contractText
-        })
-      });
+      const response = await fetch(
+        `${API_CONFIG.API_URL}/contract/checkGrammar`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          body: JSON.stringify({
+            text: contractText,
+          }),
+        }
+      );
 
       console.log("📥 Response status:", response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error("❌ Server error response:", errorText);
-        throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+        throw new Error(
+          `API request failed with status ${response.status}: ${errorText}`
+        );
       }
 
       const data = await response.json();
       console.log("🤖 Response data received:", data);
 
       // Extract analysis text from various possible response structures
-      let analysis = '';
+      let analysis = "";
       if (data.response) {
         analysis = data.response;
       } else if (data.message) {
@@ -717,7 +778,7 @@ Please provide your analysis in a structured format with clear sections.`;
         analysis = data.botResponse;
       } else if (data.result) {
         analysis = data.result;
-      } else if (typeof data === 'string') {
+      } else if (typeof data === "string") {
         analysis = data;
       } else {
         analysis = JSON.stringify(data);
@@ -735,23 +796,31 @@ Please provide your analysis in a structured format with clear sections.`;
           text: correction.original || correction.incorrect,
           originalText: correction.original || correction.incorrect,
           correctedText: correction.corrected || correction.suggestion,
-          type: 'spelling',
+          type: "spelling",
           lineNumber: index + 1,
           title: `Grammar Error ${index + 1}`,
-          description: correction.explanation || `Should be: ${correction.corrected || correction.suggestion}`
+          description:
+            correction.explanation ||
+            `Should be: ${correction.corrected || correction.suggestion}`,
         }));
       } else if (data.suggestions && Array.isArray(data.suggestions)) {
         // Handle the actual API response format
         highlightedSections = data.suggestions.map((suggestion, index) => {
-          const originalText = data.originalText.substring(suggestion.start, suggestion.end);
+          const originalText = data.originalText.substring(
+            suggestion.start,
+            suggestion.end
+          );
           return {
             text: originalText,
             originalText: originalText,
             correctedText: suggestion.suggestion || originalText,
-            type: 'spelling',
+            type: "spelling",
             lineNumber: index + 1,
             title: `Grammar Error ${index + 1}`,
-            description: suggestion.issue || suggestion.shortMessage || 'Spelling error detected'
+            description:
+              suggestion.issue ||
+              suggestion.shortMessage ||
+              "Spelling error detected",
           };
         });
       }
@@ -763,22 +832,21 @@ Please provide your analysis in a structured format with clear sections.`;
         success: true,
         analysis: analysis,
         highlightedSections: highlightedSections,
-        message: 'Grammar check completed successfully'
+        message: "Grammar check completed successfully",
       };
-
     } catch (error) {
-      console.error('❌ Grammar Check Error:', error);
-      console.error('❌ Error details:', {
+      console.error("❌ Grammar Check Error:", error);
+      console.error("❌ Error details:", {
         message: error.message,
         stack: error.stack,
-        name: error.name
+        name: error.name,
       });
-      
+
       return {
         success: false,
-        analysis: '',
+        analysis: "",
         highlightedSections: [],
-        message: error.message || 'Failed to check grammar'
+        message: error.message || "Failed to check grammar",
       };
     }
   }
@@ -786,17 +854,20 @@ Please provide your analysis in a structured format with clear sections.`;
   // Helper method to format grammar corrections
   static formatGrammarCorrections(corrections) {
     if (!Array.isArray(corrections)) {
-      return 'Grammar check completed.';
+      return "Grammar check completed.";
     }
 
-    let formattedResponse = '1. **SPELLING & GRAMMAR ERRORS**:\n';
-    
+    let formattedResponse = "1. **SPELLING & GRAMMAR ERRORS**:\n";
+
     corrections.forEach((correction, index) => {
-      const original = correction.original || correction.incorrect || 'unknown';
-      const corrected = correction.corrected || correction.suggestion || 'corrected';
+      const original = correction.original || correction.incorrect || "unknown";
+      const corrected =
+        correction.corrected || correction.suggestion || "corrected";
       const explanation = correction.explanation || `Should be: ${corrected}`;
-      
-      formattedResponse += `${index + 1}. "${original}" should be "${corrected}" - ${explanation}\n`;
+
+      formattedResponse += `${
+        index + 1
+      }. "${original}" should be "${corrected}" - ${explanation}\n`;
     });
 
     return formattedResponse;
@@ -806,57 +877,57 @@ Please provide your analysis in a structured format with clear sections.`;
   static getContractTemplates() {
     return [
       {
-        id: 'nda',
-        title: 'NDA (Non-Disclosure Agreement)',
-        category: 'Confidentiality',
-        description: 'Protect confidential information and trade secrets',
+        id: "nda",
+        title: "NDA (Non-Disclosure Agreement)",
+        category: "Confidentiality",
+        description: "Protect confidential information and trade secrets",
         sections: [
-          'Confidentiality clauses',
-          'Non-use and non-disclosure terms',
-          'Return of materials',
-          'Governing law'
+          "Confidentiality clauses",
+          "Non-use and non-disclosure terms",
+          "Return of materials",
+          "Governing law",
         ],
-        keywords: ['nda', 'non-disclosure', 'confidentiality', 'secrets']
+        keywords: ["nda", "non-disclosure", "confidentiality", "secrets"],
       },
       {
-        id: 'employment',
-        title: 'Employment Agreement',
-        category: 'Employment',
-        description: 'Define employment terms and conditions',
+        id: "employment",
+        title: "Employment Agreement",
+        category: "Employment",
+        description: "Define employment terms and conditions",
         sections: [
-          'Position and duties',
-          'Compensation structure',
-          'Benefits and termination',
-          'Non-compete clauses'
+          "Position and duties",
+          "Compensation structure",
+          "Benefits and termination",
+          "Non-compete clauses",
         ],
-        keywords: ['employment', 'job', 'hire', 'employee', 'work']
+        keywords: ["employment", "job", "hire", "employee", "work"],
       },
       {
-        id: 'service',
-        title: 'Service Agreement',
-        category: 'Services',
-        description: 'Define service delivery terms',
+        id: "service",
+        title: "Service Agreement",
+        category: "Services",
+        description: "Define service delivery terms",
         sections: [
-          'Scope of services',
-          'Compensation terms',
-          'Deliverables timeline',
-          'Intellectual property rights'
+          "Scope of services",
+          "Compensation terms",
+          "Deliverables timeline",
+          "Intellectual property rights",
         ],
-        keywords: ['service', 'consulting', 'freelance', 'contractor']
+        keywords: ["service", "consulting", "freelance", "contractor"],
       },
       {
-        id: 'software',
-        title: 'Software Development',
-        category: 'Technology',
-        description: 'Software development and licensing terms',
+        id: "software",
+        title: "Software Development",
+        category: "Technology",
+        description: "Software development and licensing terms",
         sections: [
-          'Development phases',
-          'Project timeline',
-          'Deliverables',
-          'Warranties and support'
+          "Development phases",
+          "Project timeline",
+          "Deliverables",
+          "Warranties and support",
         ],
-        keywords: ['software', 'development', 'app', 'programming', 'code']
-      }
+        keywords: ["software", "development", "app", "programming", "code"],
+      },
     ];
   }
 
@@ -864,77 +935,77 @@ Please provide your analysis in a structured format with clear sections.`;
   static selectTemplate(prompt) {
     const templates = this.getContractTemplates();
     const promptLower = prompt.toLowerCase();
-    
+
     // Find best matching template
     let bestMatch = null;
     let bestScore = 0;
-    
-    templates.forEach(template => {
+
+    templates.forEach((template) => {
       let score = 0;
-      
+
       // Check keywords
-      template.keywords.forEach(keyword => {
+      template.keywords.forEach((keyword) => {
         if (promptLower.includes(keyword)) {
           score += 2;
         }
       });
-      
+
       // Check title
       if (promptLower.includes(template.title.toLowerCase())) {
         score += 3;
       }
-      
+
       // Check category
       if (promptLower.includes(template.category.toLowerCase())) {
         score += 1;
       }
-      
+
       if (score > bestScore) {
         bestScore = score;
         bestMatch = template;
       }
     });
-    
+
     return bestMatch || templates[0]; // Default to first template if no match
   }
 
   // Dynamic Content Generation (Mobile-compatible)
   static generateTemplateContent(template, userDetails = {}) {
     const { names = [], locations = [], companies = [] } = userDetails;
-    
+
     let content = `<h1>${template.title}</h1>`;
     content += `<p><strong>Category:</strong> ${template.category}</p>`;
     content += `<p><strong>Description:</strong> ${template.description}</p>`;
     content += `<hr>`;
-    
+
     // Add template-specific content
     switch (template.id) {
-      case 'nda':
+      case "nda":
         content += this.generateNDAContent(names, companies);
         break;
-      case 'employment':
+      case "employment":
         content += this.generateEmploymentContent(names, companies);
         break;
-      case 'service':
+      case "service":
         content += this.generateServiceContent(names, companies);
         break;
-      case 'software':
+      case "software":
         content += this.generateSoftwareContent(names, companies);
         break;
       default:
         content += this.generateGenericContent(names, companies);
     }
-    
+
     return content;
   }
 
   // Template-specific content generators
   static generateNDAContent(names, companies) {
-    const party1 = names[0] || '[PARTY 1 NAME]';
-    const party2 = names[1] || '[PARTY 2 NAME]';
-    const company1 = companies[0] || '[COMPANY 1]';
-    const company2 = companies[1] || '[COMPANY 2]';
-    
+    const party1 = names[0] || "[PARTY 1 NAME]";
+    const party2 = names[1] || "[PARTY 2 NAME]";
+    const company1 = companies[0] || "[COMPANY 1]";
+    const company2 = companies[1] || "[COMPANY 2]";
+
     return `
       <h2>NON-DISCLOSURE AGREEMENT</h2>
       
@@ -973,10 +1044,10 @@ Please provide your analysis in a structured format with clear sections.`;
   }
 
   static generateEmploymentContent(names, companies) {
-    const employee = names[0] || '[EMPLOYEE NAME]';
-    const employer = companies[0] || '[EMPLOYER COMPANY]';
-    const position = '[POSITION TITLE]';
-    
+    const employee = names[0] || "[EMPLOYEE NAME]";
+    const employer = companies[0] || "[EMPLOYER COMPANY]";
+    const position = "[POSITION TITLE]";
+
     return `
       <h2>EMPLOYMENT AGREEMENT</h2>
       
@@ -1015,9 +1086,9 @@ Please provide your analysis in a structured format with clear sections.`;
   }
 
   static generateServiceContent(names, companies) {
-    const serviceProvider = names[0] || companies[0] || '[SERVICE PROVIDER]';
-    const client = names[1] || companies[1] || '[CLIENT]';
-    
+    const serviceProvider = names[0] || companies[0] || "[SERVICE PROVIDER]";
+    const client = names[1] || companies[1] || "[CLIENT]";
+
     return `
       <h2>SERVICE AGREEMENT</h2>
       
@@ -1059,9 +1130,9 @@ Please provide your analysis in a structured format with clear sections.`;
   }
 
   static generateSoftwareContent(names, companies) {
-    const developer = names[0] || companies[0] || '[DEVELOPER]';
-    const client = names[1] || companies[1] || '[CLIENT]';
-    
+    const developer = names[0] || companies[0] || "[DEVELOPER]";
+    const client = names[1] || companies[1] || "[CLIENT]";
+
     return `
       <h2>SOFTWARE DEVELOPMENT AGREEMENT</h2>
       
@@ -1110,9 +1181,9 @@ Please provide your analysis in a structured format with clear sections.`;
   }
 
   static generateGenericContent(names, companies) {
-    const party1 = names[0] || '[PARTY 1]';
-    const party2 = names[1] || '[PARTY 2]';
-    
+    const party1 = names[0] || "[PARTY 1]";
+    const party2 = names[1] || "[PARTY 2]";
+
     return `
       <h2>CONTRACT AGREEMENT</h2>
       
@@ -1148,22 +1219,22 @@ Please provide your analysis in a structured format with clear sections.`;
   }
 
   // Mock AI Service for Free Testing (Mobile-compatible)
-  static async mockAIService(prompt, contractText = '') {
+  static async mockAIService(prompt, contractText = "") {
     try {
-      console.log('🤖 Using Mock AI Service for testing...');
-      console.log('📝 Prompt:', prompt);
-      console.log('📄 Contract text length:', contractText.length);
+      console.log("🤖 Using Mock AI Service for testing...");
+      console.log("📝 Prompt:", prompt);
+      console.log("📄 Contract text length:", contractText.length);
 
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Select template based on prompt
       const template = this.selectTemplate(prompt);
-      console.log('📋 Selected template:', template.title);
+      console.log("📋 Selected template:", template.title);
 
       // Extract user details
       const userDetails = this.extractUserDetails(prompt);
-      console.log('👥 Extracted details:', userDetails);
+      console.log("👥 Extracted details:", userDetails);
 
       // Generate content
       const content = this.generateTemplateContent(template, userDetails);
@@ -1172,11 +1243,13 @@ Please provide your analysis in a structured format with clear sections.`;
       const analysis = `
         <h2>AI Analysis Results</h2>
         <p><strong>Template Used:</strong> ${template.title}</p>
-        <p><strong>Analysis:</strong> This contract has been generated using the ${template.title} template. The content includes all standard legal sections and follows best practices for contract drafting.</p>
+        <p><strong>Analysis:</strong> This contract has been generated using the ${
+          template.title
+        } template. The content includes all standard legal sections and follows best practices for contract drafting.</p>
         
         <h3>Key Sections Included:</h3>
         <ul>
-          ${template.sections.map(section => `<li>${section}</li>`).join('')}
+          ${template.sections.map((section) => `<li>${section}</li>`).join("")}
         </ul>
         
         <h3>Recommendations:</h3>
@@ -1195,68 +1268,72 @@ Please provide your analysis in a structured format with clear sections.`;
         success: true,
         analysis: analysis,
         highlightedSections: [],
-        message: `Generated contract using ${template.title} template (Mock AI)`
+        message: `Generated contract using ${template.title} template (Mock AI)`,
       };
-
     } catch (error) {
-      console.error('❌ Mock AI Service Error:', error);
+      console.error("❌ Mock AI Service Error:", error);
       return {
         success: false,
-        analysis: '',
+        analysis: "",
         highlightedSections: [],
-        message: error.message || 'Mock AI service failed'
+        message: error.message || "Mock AI service failed",
       };
     }
   }
 
   // Enhanced contract generation with smart template selection (Mobile-compatible)
-  static async generateContractWithTemplates(prompt, existingContent = '') {
+  static async generateContractWithTemplates(prompt, existingContent = "") {
     try {
-      console.log('🤖 Starting smart contract generation with templates...');
-      console.log('📝 Prompt:', prompt);
-      
+      console.log("🤖 Starting smart contract generation with templates...");
+      console.log("📝 Prompt:", prompt);
+
       // Select appropriate template based on prompt
       const selectedTemplate = this.selectTemplate(prompt);
-      console.log('📋 Selected template:', selectedTemplate.title);
-      
+      console.log("📋 Selected template:", selectedTemplate.title);
+
       // Extract user details from prompt
       const userDetails = this.extractUserDetails(prompt);
-      console.log('👥 Extracted user details:', userDetails);
-      
+      console.log("👥 Extracted user details:", userDetails);
+
       // Generate template-based content
-      const templateContent = this.generateTemplateContent(selectedTemplate, userDetails);
-      
+      const templateContent = this.generateTemplateContent(
+        selectedTemplate,
+        userDetails
+      );
+
       // If we have existing content, merge it
       if (existingContent) {
         const enhancedPrompt = `Template: ${selectedTemplate.title}\n\nExisting Content:\n${existingContent}\n\nUser Request: ${prompt}\n\nPlease enhance the existing content based on the template structure and user requirements.`;
-        
+
         // Use AI to enhance the content
-        const aiResult = await this.generateContractContent(enhancedPrompt, existingContent);
-        
+        const aiResult = await this.generateContractContent(
+          enhancedPrompt,
+          existingContent
+        );
+
         if (aiResult.success) {
           return {
             success: true,
             content: aiResult.content,
             template: selectedTemplate,
-            message: `Generated contract using ${selectedTemplate.title} template`
+            message: `Generated contract using ${selectedTemplate.title} template`,
           };
         }
       }
-      
+
       // Return template content if no AI enhancement needed
       return {
         success: true,
         content: templateContent,
         template: selectedTemplate,
-        message: `Generated contract using ${selectedTemplate.title} template`
+        message: `Generated contract using ${selectedTemplate.title} template`,
       };
-      
     } catch (error) {
-      console.error('❌ Smart contract generation error:', error);
+      console.error("❌ Smart contract generation error:", error);
       return {
         success: false,
-        content: '',
-        error: error.message || 'Failed to generate contract with templates'
+        content: "",
+        error: error.message || "Failed to generate contract with templates",
       };
     }
   }
@@ -1267,37 +1344,38 @@ Please provide your analysis in a structured format with clear sections.`;
       names: [],
       companies: [],
       locations: [],
-      amounts: []
+      amounts: [],
     };
-    
+
     // Extract names (simple pattern matching)
     const namePattern = /\b([A-Z][a-z]+ [A-Z][a-z]+)\b/g;
     const names = prompt.match(namePattern);
     if (names) {
       details.names = names;
     }
-    
+
     // Extract companies
-    const companyPattern = /\b([A-Z][a-zA-Z\s&]+(?:Inc|Corp|LLC|Ltd|Company|Co))\b/g;
+    const companyPattern =
+      /\b([A-Z][a-zA-Z\s&]+(?:Inc|Corp|LLC|Ltd|Company|Co))\b/g;
     const companies = prompt.match(companyPattern);
     if (companies) {
       details.companies = companies;
     }
-    
+
     // Extract locations
     const locationPattern = /\b([A-Z][a-z]+(?: [A-Z][a-z]+)*,?\s*[A-Z]{2})\b/g;
     const locations = prompt.match(locationPattern);
     if (locations) {
       details.locations = locations;
     }
-    
+
     // Extract amounts
     const amountPattern = /\$[\d,]+(?:\.\d{2})?/g;
     const amounts = prompt.match(amountPattern);
     if (amounts) {
       details.amounts = amounts;
     }
-    
+
     return details;
   }
 
@@ -1308,9 +1386,11 @@ Please provide your analysis in a structured format with clear sections.`;
       useOpenRouter: API_CONFIG.USE_OPENROUTER,
       useMockAPI: API_CONFIG.USE_MOCK_API,
       debugMode: API_CONFIG.DEBUG_MODE,
-      model: API_CONFIG.USE_OPENROUTER ? API_CONFIG.OPENROUTER_MODEL : API_CONFIG.OPENAI_MODEL
+      model: API_CONFIG.USE_OPENROUTER
+        ? API_CONFIG.OPENROUTER_MODEL
+        : API_CONFIG.OPENAI_MODEL,
     };
   }
 }
 
-export default AIService; 
+export default AIService;

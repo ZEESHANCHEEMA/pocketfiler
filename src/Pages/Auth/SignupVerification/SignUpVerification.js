@@ -4,18 +4,18 @@ import Form from "react-bootstrap/Form";
 import "./SignUpVerify.css";
 import Button from "@mui/material/Button";
 import AccountSuccess from "../../../Components/Modals/AccountCreatedSuccess/AccountSuccess";
-import { useMediaQuery } from "react-responsive";
+// import { useMediaQuery } from "react-responsive";
 import { ErrorToast, SuccessToast } from "../../../Components/toast/Toast";
 import { useDispatch } from "react-redux";
 import { verifysignup } from "../../../services/redux/middleware/signin";
 import { updateverifycode } from "../../../services/redux/middleware/signin";
 import ScreenLoader from "../../../Components/loader/ScreenLoader";
 import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 export default function SignUpVerification() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
 
   const [modalShow, setModalShow] = useState(false);
@@ -65,6 +65,22 @@ export default function SignUpVerification() {
       return false;
     }
 
+    // Additional validation for code format
+    const code = otpinputValue.join("");
+    if (code.length !== 4) {
+      console.log("Code length validation error");
+      ErrorToast("Please Enter Complete 4-Character Code");
+      return false;
+    }
+
+    // Check if code contains only alphanumeric characters
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    if (!alphanumericRegex.test(code)) {
+      console.log("Code format validation error");
+      ErrorToast("Code should contain only letters and numbers");
+      return false;
+    }
+
     return true; // Return true if all inputs are filled
   };
   const { email } = useParams();
@@ -92,7 +108,7 @@ export default function SignUpVerification() {
           localStorage.setItem("role", res?.payload?.data?.role);
           localStorage.setItem(
             "Profile_Update_Status",
-            res?.payload?.data?.profileUpdate
+            res?.payload?.data?.profileUpdate?.toString()
           );
           localStorage.setItem("token", res?.payload?.token);
 

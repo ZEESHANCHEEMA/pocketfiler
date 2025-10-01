@@ -1,13 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AiBackgroundSVG } from '../../assets/svgs';
-import { useDispatch } from 'react-redux';
-import { newChat } from '../../services/redux/middleware/Project/aiChat';
-
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { newChat } from "../../services/redux/middleware/Project/aiChat";
+import Header from "../../Components/Header/Header";
 const AiAssistance = () => {
   const navigation = useNavigate();
   const dispatch = useDispatch();
- const handleStartChat = async () => {
+  const handleStartChat = async () => {
     console.log("handleStartChat");
     try {
       const data = {
@@ -26,28 +25,61 @@ const AiAssistance = () => {
     }
   };
   return (
-    <div className="flex-1 flex items-center justify-center bg-gray-50 min-h-screen p-4">
-      <div className="bg-white w-full max-w-lg mx-auto p-8 rounded-xl shadow-lg text-center">
-        <div className="flex justify-center mb-6">
-          <AiBackgroundSVG />
+    <>
+      <Header headername={"PocketFiler AI Assistance"} />
+      <div className="flex-1 flex items-center justify-center bg-gray-50 max-h-min p-4">
+        <div className="bg-white w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8 py-8 sm:py-10 md:py-12 rounded-xl">
+          <div className="flex flex-col items-center gap-6">
+            <img
+              src="/Images/ai/ai-pf-icon.svg"
+              alt="PocketFiler AI Logo"
+              className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24"
+            />
+          </div>
+          <div className="flex flex-col items-center gap-3 sm:gap-4 py-6 sm:py-8 md:py-10">
+            <h1
+              className="font-medium text-center text-[#0A1126] leading-tight tracking-normal"
+              style={{
+                fontFamily: "Clash Grotesk",
+                fontSize: "clamp(24px, 5vw, 40px)",
+                maxWidth: "100%",
+                width: "min(512px, 90vw)",
+              }}
+            >
+              Welcome to PocketFiler AI 👋
+            </h1>
+
+            <p
+              className="font-normal text-center text-[#858585] leading-relaxed tracking-normal"
+              style={{
+                fontFamily: "Poppins",
+                fontSize: "clamp(16px, 4vw, 20px)",
+                maxWidth: "100%",
+                width: "min(452px, 85vw)",
+              }}
+            >
+              PocketFiler AI Assistance can help you work on a project, write
+              contracts, and more.
+            </p>
+
+            <button
+              className="text-white font-semibold transition-colors duration-200 text-lg rounded-2xl"
+              style={{
+                width: "min(512px, 80vw)",
+                height: "clamp(48px, 8vw, 68px)",
+                borderRadius: "14.63px",
+                padding: "clamp(12px, 3vw, 21px) clamp(16px, 4vw, 24px)",
+                backgroundColor: "#166FBF",
+                fontSize: "clamp(16px, 3vw, 18px)",
+              }}
+              onClick={handleStartChat}
+            >
+              Start Chat
+            </button>
+          </div>
         </div>
-        
-        <h1 className="text-3xl font-medium text-gray-900 mb-6 leading-tight">
-          Welcome to PocketFiler AI 👋
-        </h1>
-        
-        <p className="text-sm font-medium text-gray-500 mb-8 leading-relaxed max-w-md mx-auto">
-          PocketFiler AI Assistance can help you work on a project, write contracts, and more.
-        </p>
-        
-        <button 
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm"
-          onClick={handleStartChat}
-        >
-          Start Chat
-        </button>
       </div>
-    </div>
+    </>
   );
 };
 

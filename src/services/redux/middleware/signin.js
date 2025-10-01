@@ -1,8 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 import api from "../../apiInterceptor";
 import { API_ENDPOINTS } from "../../../config/apiConfig";
-import { requestPermission } from "../../../utils/Firebase/firebase";
 
 export const signup = createAsyncThunk("signin", async (data) => {
   try {
@@ -106,7 +104,7 @@ export const signin = createAsyncThunk("signin", async (data) => {
 export const verifysignup = createAsyncThunk("verifysignup", async (data) => {
   try {
     console.log("Inside Sign-Up Verify");
-    const res = await axios.post(API_ENDPOINTS.AUTH.VERIFY_CODE, data);
+    const res = await api.post(API_ENDPOINTS.AUTH.VERIFY_CODE, data);
     console.log(res);
     return {
       status: res?.status,
@@ -126,7 +124,7 @@ export const updateverifycode = createAsyncThunk(
   async (data) => {
     try {
       console.log("Again sending verify code");
-      const res = await axios.post(
+      const res = await api.post(
         API_ENDPOINTS.AUTH.UPDATE_VERIFICATION_CODE,
         data
       );
@@ -218,9 +216,12 @@ export const addWalletAddress = createAsyncThunk(
   "addWalletAddress",
   async (data) => {
     try {
-      const res = await api.post(`${API_ENDPOINTS.USER.ADD_WALLET_ADDRESS}/${data.id}`, {
-        walletAddress: data.walletAddress,
-      });
+      const res = await api.post(
+        `${API_ENDPOINTS.USER.ADD_WALLET_ADDRESS}/${data.id}`,
+        {
+          walletAddress: data.walletAddress,
+        }
+      );
       return {
         status: res?.status,
         data: res?.data?.data,
@@ -261,10 +262,13 @@ export const addEmailAddress = createAsyncThunk(
   "addEmailAddressGoogle",
   async (data) => {
     try {
-      const res = await api.post(`${API_ENDPOINTS.USER.ADD_EMAIL_ADDRESS}/${data.id}`, {
-        email: data.email,
-        password: data?.password,
-      });
+      const res = await api.post(
+        `${API_ENDPOINTS.USER.ADD_EMAIL_ADDRESS}/${data.id}`,
+        {
+          email: data.email,
+          password: data?.password,
+        }
+      );
       return {
         status: res?.status,
         data: res?.data?.data,
@@ -301,7 +305,9 @@ export const getProfileImage = createAsyncThunk(
   "getProfileImage",
   async (data) => {
     try {
-      const res = await api.get(`${API_ENDPOINTS.USER.GET_PROFILE_IMAGE}/${data}`);
+      const res = await api.get(
+        `${API_ENDPOINTS.USER.GET_PROFILE_IMAGE}/${data}`
+      );
       return {
         status: res?.status,
         data: res?.data,

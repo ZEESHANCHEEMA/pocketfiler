@@ -3,26 +3,31 @@
   height: 38px !important;
 }
 .eye-share-dropimg {
-  padding-right: 11.28px !important;
+  width: 20px !important;
+  height: 20px !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
 }
-.drop-contract-dot{
+.drop-contract-dot {
   cursor: pointer;
 }
 .drop-contract-dot .dropdown-menu.show {
   box-shadow: 0px 0px 30px 0px #0000001f !important;
   /* border: none !important; */
-  border-radius: 18px 0px  18px 18px !important;
+  border-radius: 18px 0px 18px 18px !important;
   border: "1px solid #ECECEC" !important;
 }
 .drop-contract-dot .dropdown-item {
   font-family: "ClashGrotesk";
-
   font-size: 12px !important;
   font-weight: 500 !important;
   line-height: 14.76px !important;
   padding-top: 18px !important;
   padding-bottom: 18px !important;
   padding-left: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 .drop-contract-dot .dropdown-item:hover {
   border-radius: 10px !important;
@@ -34,11 +39,10 @@
     text-decoration: none;
 } */
 .drop-contract-dot .dropdown-item:active {
-    background-color: "red" !important;
-    color: var(--bs-dropdown-link-active-color);
-    text-decoration: none;
-    /* background-color: var(--bs-dropdown-link-active-bg); */
-
+  background-color: "red" !important;
+  color: var(--bs-dropdown-link-active-color);
+  text-decoration: none;
+  /* background-color: var(--bs-dropdown-link-active-bg); */
 }
 @media (max-width: 576px) {
   .css-g2z002-MuiSvgIcon-root-MuiPaginationItem-icon {
@@ -47,8 +51,7 @@
   }
 }
 
-
-.empty__state-contract{
+.empty__state-contract {
   width: 100%;
   height: 100%;
   display: flex;
@@ -56,22 +59,22 @@
   align-items: center;
   justify-content: center;
 }
-.empty__state-head-contract{
+.empty__state-head-contract {
   /* font-family: Clash Grotesk Variable; */
-font-size: 24px;
-font-weight: 600;
-line-height: 31.2px;
-letter-spacing: 1px;
-text-align: center;
-color: #1D1F2C;
-padding-top: 20px !important;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 31.2px;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #1d1f2c;
+  padding-top: 20px !important;
 }
-.empty__state-p-contract{
+.empty__state-p-contract {
   font-family: "Poppins";
-font-size: 12px;
-font-weight: 400;
-line-height: 15.6px;
-text-align: center;
-color: #606060;
-padding-top: 10px !important;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15.6px;
+  text-align: center;
+  color: #606060;
+  padding-top: 10px !important;
 }

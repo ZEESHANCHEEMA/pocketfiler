@@ -83,7 +83,8 @@ const appReducer = combineReducers({
 // Reset state when RESET_STORE is dispatched
 const rootReducer = (state, action) => {
   if (action.type === "RESET_STORE") {
-    return undefined; // Clears all Redux state
+    // Reset the entire Redux state by re-initializing reducers
+    return appReducer(undefined, action);
   }
   return appReducer(state, action);
 };

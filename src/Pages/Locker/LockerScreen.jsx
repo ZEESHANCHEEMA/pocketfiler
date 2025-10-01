@@ -60,6 +60,7 @@ function LockerScreen() {
   const [openItemMenuId, setOpenItemMenuId] = useState(null);
   // const [deleteItemTarget, setDeleteItemTarget] = useState(null);
   const [historyItems, setHistoryItems] = useState([]);
+  const [userDetailsMap, setUserDetailsMap] = useState({});
 
   React.useEffect(() => {
     setIsLoading(true);
@@ -223,6 +224,37 @@ function LockerScreen() {
                     dispatch(getLockerHistory({ lockerId })).then((res) => {
                       const items = res?.payload?.items || [];
                       setHistoryItems(items);
+
+                      // Get locker people to map userIds to names
+                      dispatch(getLockerPeople({ lockerId })).then(
+                        (peopleRes) => {
+                          const apiData = peopleRes?.payload?.data || {};
+                          const data = apiData?.data || apiData;
+                          const userMap = {};
+
+                          // Add owner to map
+                          if (data?.owner) {
+                            const ownerId = data.owner._id || data.owner.id;
+                            const ownerName = data.owner.fullname || "Owner";
+                            userMap[ownerId] = ownerName;
+                          }
+
+                          // Add associates to map
+                          if (Array.isArray(data?.associates)) {
+                            data.associates.forEach((assoc) => {
+                              const assocId = assoc._id || assoc.id;
+                              const assocName =
+                                assoc.fullname ||
+                                assoc.name ||
+                                assoc.email ||
+                                "User";
+                              userMap[assocId] = assocName;
+                            });
+                          }
+
+                          setUserDetailsMap(userMap);
+                        }
+                      );
                     });
                   }}
                   aria-label="History"
@@ -276,21 +308,33 @@ function LockerScreen() {
                       All the time locker timeline
                     </div>
                     <div className="ls-history-list">
-                      {historyItems.map((h, i) => (
-                        <div key={i} className="ls-history-item">
-                          <div>
-                            <div className="ls-history-actor">
-                              {h?.actor || "User"}
+                      {historyItems.map((h, i) => {
+                        // Get user name from the userDetailsMap
+                        const actorName =
+                          userDetailsMap[h?.userId] ||
+                          h?.actor?.fullname ||
+                          h?.actor?.name ||
+                          h?.actor?.email ||
+                          (typeof h?.actor === "string" ? h?.actor : null) ||
+                          h?.userName ||
+                          "User";
+
+                        return (
+                          <div key={i} className="ls-history-item">
+                            <div>
+                              <div className="ls-history-actor">
+                                {actorName}
+                              </div>
+                              <div className="ls-history-action">
+                                {h?.action || h?.event || "Activity"}
+                              </div>
                             </div>
-                            <div className="ls-history-action">
-                              {h?.action || h?.event || "Activity"}
+                            <div className="ls-history-time">
+                              {h?.at || h?.createdAt || ""}
                             </div>
                           </div>
-                          <div className="ls-history-time">
-                            {h?.at || h?.createdAt || ""}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

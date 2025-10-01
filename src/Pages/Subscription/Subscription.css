@@ -54,6 +54,70 @@ input:checked + .slider:before {
   background-color: #fff;
 }
 
+/* Modern Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 64px;
+  height: 32px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  border: 2px solid #166fbf;
+  transition: all 0.3s ease;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 3px;
+  bottom: 2px;
+  background-color: #166fbf;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #166fbf;
+  border-color: #166fbf;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(32px);
+  background-color: #fff;
+}
+
+.switch-label {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #6b7280;
+  transition: color 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch-label.active {
+  color: #0a1126;
+  font-weight: 600;
+}
+
 .Subscription__top-div {
   margin-top: 50px;
 }

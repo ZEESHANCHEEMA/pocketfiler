@@ -106,13 +106,21 @@ export default function AddClientOrg(props) {
         return;
       }
 
+      const safeProjectId = props.projectid || props?.project?._id;
+      if (!safeProjectId) {
+        ErrorToast("Project ID is missing. Please reopen from a project row.");
+        setLoader(false);
+        return;
+      }
+
       const data = {
-        projectId: props.projectid,
+        projectId: safeProjectId,
         clients: clientsInfo,
         userId: userID,
         email: email,
       };
 
+      console.log("Sending data to addProjectClient:", data);
       dispatch(addProjectClient(data)).then((res) => {
         if (res?.payload?.status === 200) {
           setLoader(false);

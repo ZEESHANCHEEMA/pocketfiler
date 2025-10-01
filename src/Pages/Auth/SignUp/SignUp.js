@@ -19,7 +19,7 @@ export default function SignUp() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
-  const paramsUserID = searchParams.get("userId");
+  const paramsUserID = searchParams.get("ref") || searchParams.get("userId");
 
   const [loader, setLoader] = useState(false);
   const [count, setcount] = useState(0);
@@ -66,7 +66,7 @@ export default function SignUp() {
           isGoogleSignIn: true,
           islinkedinSignIn: false,
           // organizationName: "abc",
-          accociateId: paramsUserID,
+          associateId: paramsUserID,
           role: "organization",
         };
         console.log(datas?.data);
@@ -116,7 +116,7 @@ export default function SignUp() {
           fullname: datas?.data?.name,
           isGoogleSignIn: true,
           islinkedinSignIn: false,
-          accociateId: paramsUserID,
+          associateId: paramsUserID,
           role: "user",
         };
         console.log(datas?.data);
@@ -153,7 +153,7 @@ export default function SignUp() {
     },
   });
   const debouncedLinkedInLogin = useCallback(
-    debounce((data) => {
+    (data) => {
       const datas = {
         code: data,
       };
@@ -177,11 +177,11 @@ export default function SignUp() {
           ErrorToast(res?.payload?.message);
         }
       });
-    }, 300),
-    []
+    },
+    [dispatch, navigate]
   );
   const debouncedLinkedInLoginWithOrg = useCallback(
-    debounce((data) => {
+    (data) => {
       const datas = {
         code: data,
         organizationName: "as",
@@ -198,7 +198,7 @@ export default function SignUp() {
 
           if (res?.payload?.data?.role !== "user") {
             navigate(`/OrgnizationDetails/${res?.payload?.data?.email}`);
-          } else if (res?.payload?.data?.profileUpdate == false) {
+          } else if (res?.payload?.data?.profileUpdate === false) {
             navigate("/Profile");
           } else {
             navigate("/Dashboard");
@@ -209,8 +209,8 @@ export default function SignUp() {
           ErrorToast(res?.payload?.message);
         }
       });
-    }, 300),
-    []
+    },
+    [dispatch, navigate]
   );
 
   const { linkedInLogin } = useLinkedIn({
@@ -222,11 +222,11 @@ export default function SignUp() {
     scope: "openid,profile,email",
     onSuccess: (code) => {
       try {
-        if (count == 0) {
+        if (count === 0) {
           console.log(code, "codecodecodecode");
-          debouncedLinkedInLogin(code);
+          debounce(debouncedLinkedInLogin, 300)(code);
         } else {
-          debouncedLinkedInLoginWithOrg(code);
+          debounce(debouncedLinkedInLoginWithOrg, 300)(code);
         }
       } catch (error) {
         console.error("Error:", error);
@@ -332,7 +332,7 @@ export default function SignUp() {
         email: email,
         password: password,
         fullname: fullname,
-        accociateId: paramsUserID,
+        associateId: paramsUserID,
       };
       dispatch(signup(data)).then((res) => {
         if (res?.payload?.status === 200) {
@@ -371,7 +371,7 @@ export default function SignUp() {
         password: passwordorg,
         fullname: usernameorg,
         organizationName: organizationName,
-        accociateId: paramsUserID,
+        associateId: paramsUserID,
         role: "organization",
       };
       dispatch(signup(data)).then((res) => {
@@ -398,23 +398,6 @@ export default function SignUp() {
       console.error("Error:", error);
     }
   }
-  const [isInputClicked, setIsInputClicked] = useState(false);
-
-  const handleInputClick = () => {
-    setIsInputClicked(true);
-  };
-  const [isPassClicked, setPassClicked] = useState(false);
-  const handlePassClick = () => {
-    setPassClicked(true);
-  };
-  const [isProfileClicked, setProfileClicked] = useState(false);
-  const handleProfileClick = () => {
-    setProfileClicked(true);
-  };
-  const [isOrgClicked, setOrgClicked] = useState(false);
-  const handleOrgClick = () => {
-    setOrgClicked(true);
-  };
 
   return (
     <>
@@ -633,9 +616,7 @@ export default function SignUp() {
                           );
                           return false;
                         }
-                        {
-                          linkedInLogin();
-                        }
+                        linkedInLogin();
                       }}
                       className="option-signup"
                     >
