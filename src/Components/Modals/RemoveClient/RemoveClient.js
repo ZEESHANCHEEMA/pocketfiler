@@ -29,7 +29,12 @@ export default function ResetPassSuccess(props) {
 
   async function RemoveClient() {
     try {
-      dispatch(removeClients(props?.removeassociate)).then((res) => {
+      const associationId = props?.removeassociate;
+      if (!associationId) {
+        ErrorToast("Missing association id. Please try again.");
+        return;
+      }
+      dispatch(removeClients(associationId)).then((res) => {
         if (res?.payload?.status === 200) {
           console.log(res.payload.message);
           SuccessToast("Client Removed Successfully");

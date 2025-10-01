@@ -359,7 +359,11 @@ const Clients = () => {
                             <p
                               onClick={() => {
                                 setRemoveClient(true);
-                                setRemoveAssociate(row?.associate?.id);
+                                setRemoveAssociate(
+                                  row?.associate?._id ||
+                                    row?.associate?.associateid ||
+                                    row?.associate?.id
+                                );
                                 setRemoveAssociateName(row?.user?.fullname);
                                 setRemoveProfile(row?.user?.profilePicture);
                               }}

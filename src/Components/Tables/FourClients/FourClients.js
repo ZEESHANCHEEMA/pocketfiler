@@ -142,7 +142,9 @@ function FourClients() {
                   <p
                     onClick={() => {
                       setRemoveClient(true);
-                      setRemoveAssociate(row?.associate?.id);
+                      setRemoveAssociate(
+                        row?.associate?.associateid || row?.associate?.id
+                      );
                       setRemoveAssociateName(row?.user?.fullname);
                     }}
                     style={{

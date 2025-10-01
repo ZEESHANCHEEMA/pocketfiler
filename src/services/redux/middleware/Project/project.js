@@ -87,8 +87,13 @@ export const updateproject = createAsyncThunk("updateproject", async (data) => {
       token: res?.data?.token,
     };
   } catch (error) {
+    const message =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      "Failed to update project";
     return {
-      message: error?.response?.data?.error,
+      message,
       status: error?.response?.status,
     };
   }
