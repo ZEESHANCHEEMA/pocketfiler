@@ -23,16 +23,15 @@ export default function AccountSuccess(props) {
     // Add error handling and fallback
     try {
       if (profileStatus === true) {
-        console.log("Navigating to Dashboard");
-        navigate("/Dashboard");
+        console.log("Navigating to login");
+        navigate("/login");
       } else {
-        console.log("Navigating to Profile");
-        navigate("/Profile");
+        console.log("Navigating to login");
+        navigate("/login");
       }
     } catch (error) {
       console.error("Navigation error:", error);
       // Fallback navigation
-      navigate("/Dashboard");
     }
   }
 

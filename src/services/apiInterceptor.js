@@ -79,21 +79,12 @@ api.interceptors.response.use(
       (error.response.status === HTTP_STATUS.UNAUTHORIZED ||
         error.response.status === HTTP_STATUS.FORBIDDEN)
     ) {
-      // Allow per-request opt-out to avoid hard redirects (e.g., soft-handle in UI)
-      if (
-        error.config &&
-        (error.config.skipAuthRedirect ||
-          error.config.headers?.["x-skip-auth-redirect"])
-      ) {
-        return Promise.reject(error);
-      }
       if (API_CONFIG.ENABLE_LOGGING) {
-        console.log("Authentication error, redirecting to login");
+        console.log("URL:", error.config?.url);
       }
 
-      // Clear stored data and redirect to login
-      localStorage.clear();
-      window.location.href = "/login";
+      // Don't redirect to login - let the component handle the error
+      // This allows components to show appropriate error messages or fallback data
     }
 
     // Handle network errors

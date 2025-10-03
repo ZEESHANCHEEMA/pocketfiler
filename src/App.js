@@ -80,6 +80,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Login />} />
+              <Route path="/login" element={<Login />} />
               <Route exact path="/linkedin" element={<LinkedInCallback />} />
 
               <Route path="/Editor" element={<TestingEditor />} />
