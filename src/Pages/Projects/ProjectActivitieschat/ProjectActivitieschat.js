@@ -39,19 +39,22 @@ const ProjectActivitiesChat = () => {
   const [modalShow, setModalShow] = useState(false);
   const { projectid } = useParams();
 
-  const ProjectData = useSelector(
-    (state) => state?.getviewproject?.viewProject?.data
-  );
+  const viewProjectState = useSelector((state) => state?.getviewproject);
+  const ProjectData =
+    viewProjectState?.viewProject?.data ??
+    viewProjectState?.viewProject ??
+    null;
   // console.log("Project",projectid, "Project DATA ", ProjectData);
 
   const ConvertDate = (originalDateStr) => {
+    if (!originalDateStr) return "-";
     const originalDate = new Date(originalDateStr);
-    const formattedDate = originalDate.toLocaleDateString("en-US", {
+    if (Number.isNaN(originalDate.getTime())) return "-";
+    return originalDate.toLocaleDateString("en-US", {
       month: "short",
       day: "2-digit",
       year: "numeric",
     });
-    return formattedDate;
   };
 
   useEffect(() => {
@@ -159,10 +162,13 @@ const ProjectActivitiesChat = () => {
           </div>
           <div className="ProjectActivities__box">
             <p className="ProjectActivities__box1">
-              Date <span>{ConvertDate(ProjectData?.createdAt)}</span>
+              Date{" "}
+              <span>
+                {ConvertDate(ProjectData?.createdAt || ProjectData?.updatedAt)}
+              </span>
             </p>
             <p className="ProjectActivities__box2">
-              Type <span>{ProjectData?.type}</span>
+              Type <span>{ProjectData?.type || "-"}</span>
             </p>
           </div>
           <div className="ProjectActivities__txt">

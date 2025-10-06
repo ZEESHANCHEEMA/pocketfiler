@@ -3,10 +3,10 @@ import Modal from "react-bootstrap/Modal";
 import { useState, useEffect } from "react";
 import "./updateproject.css";
 import * as React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { updateproject } from "../../../services/redux/middleware/Project/project";
 import { SuccessToast, ErrorToast } from "../../toast/Toast";
-import ScreenLoader from "../../loader/ScreenLoader";
+// import ScreenLoader from "../../loader/ScreenLoader";
 import { viewproject } from "../../../services/redux/middleware/Project/project";
 import { getAllProject } from "../../../services/redux/middleware/Project/project";
 // import { BorderBottom } from "@mui/icons-material";
@@ -17,7 +17,7 @@ export default function UpdateProject(props) {
   const [projectTitle, setProjectTitle] = useState();
   const [projectType, setProjectType] = useState();
   const [projectDescription, setProjectDescription] = useState();
-  const [loader, setLoader] = useState(false);
+  const [, setLoader] = useState(false);
 
   console.log("this is props", props);
 
@@ -36,12 +36,22 @@ export default function UpdateProject(props) {
   async function UpdateProject() {
     setLoader(true);
     try {
+      const projectId = props.projectid?._id || props.projectid?.id;
+
+      if (!projectId) {
+        setLoader(false);
+        ErrorToast("Invalid project ID");
+        return;
+      }
+
       const data = {
-        id: props.projectid.id,
+        id: projectId,
         userId: UserID,
-        title: projectTitle,
-        type: projectType,
-        description: projectDescription,
+        title: (projectTitle || "").trim(),
+        type: (projectType || "").trim(),
+        description: (projectDescription || "").trim(),
+        status: props.projectid?.status || "inprogress",
+        updatedAt: new Date().toISOString(),
       };
       const dataall = {
         id: UserID,
@@ -52,7 +62,7 @@ export default function UpdateProject(props) {
           setLoader(false);
           console.log("Updated Project Data", res?.payload?.data);
           dispatch(getAllProject(dataall));
-          dispatch(viewproject( props.projectid.id));
+          dispatch(viewproject(projectId));
           SuccessToast("Updated Successfully");
           props.onHide();
         } else {

@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,8 +10,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
 import Paper from "@mui/material/Paper";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+// import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+// import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import React from "react";
 import "./ContractProjectTable.css";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -23,21 +21,21 @@ import { useNavigate } from "react-router-dom";
 import AddClientOrg from "../../Modals/Organization/AddClientOrg/AddClientOrg";
 import UpdateProject from "../../Modals/UpdateProject/UpdateProject";
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
-  },
-  // hide last border
-  "&:last-child td, &:last-child th": {
-    border: 0,
-  },
-}));
+// const StyledTableRow = styled(TableRow)(({ theme }) => ({
+//   "&:nth-of-type(odd)": {
+//     backgroundColor: theme.palette.action.hover,
+//   },
+//   // hide last border
+//   "&:last-child td, &:last-child th": {
+//     border: 0,
+//   },
+// }));
 
 export default function ContractProjectTable() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [userId, setUserId] = useState();
-  const [contractowner, setContractOwner] = useState(false);
+  // const [contractowner, setContractOwner] = useState(false);
   const [selectedView, setSelectedView] = useState("");
   const [selectedEdit, setSelectedEdit] = useState("");
   const [selectedAddClient, setSelectedAddClient] = useState("");
@@ -54,7 +52,7 @@ export default function ContractProjectTable() {
     setUserId(userid);
     // setUserID(userid);
     dispatch(getfourProjects(userid));
-  }, []);
+  }, [dispatch]);
 
   const handleClient = (projectId) => {
     console.log("Selected Add client row is", projectId);
@@ -62,10 +60,16 @@ export default function ContractProjectTable() {
     setModalShowClient(true);
   };
 
-  const handleViewProject = (projectId) => {
-    console.log("Selected View Project Row is", projectId);
-    setSelectedView(projectId);
-    navigate(`/ProjectActivities/${projectId}`);
+  const handleViewProject = (projectLike) => {
+    const pid =
+      (projectLike && projectLike._id) ||
+      (projectLike && projectLike.id) ||
+      projectLike;
+    console.log("Selected View Project Row is", pid);
+    setSelectedView(pid);
+    if (pid) {
+      navigate(`/ProjectActivities/${pid}`);
+    }
   };
 
   const handleEditProject = (proId) => {
@@ -214,7 +218,7 @@ export default function ContractProjectTable() {
               // onClick={() => setOpen(!open)}
               style={{ background: "transparent" }}
             >
-              {row?.userId == userId && (
+              {row?.userId === userId && (
                 <img
                   src="/Images/Dashboard/edit-icon.svg"
                   alt="edit"
@@ -228,11 +232,11 @@ export default function ContractProjectTable() {
               // onClick={() => setOpen(!open)}
               style={{ background: "transparent", marginLeft: "20px" }}
             >
-              {row?.userId != userId ? (
+              {row?.userId !== userId ? (
                 <img
                   src="/Images/Projects/menu-eye-icon.svg"
                   alt="view"
-                  onClick={() => handleViewProject(row.id)}
+                  onClick={() => handleViewProject(row)}
                 />
               ) : (
                 <div>
@@ -261,7 +265,7 @@ export default function ContractProjectTable() {
                         style={{
                           borderBottom: "1px solid #ECECEC",
                         }}
-                        onClick={() => handleViewProject(row.id)}
+                        onClick={() => handleViewProject(row)}
                       >
                         <img
                           src="/Images/Contract/eye.svg"
@@ -473,7 +477,7 @@ export default function ContractProjectTable() {
         component={Paper}
         sx={{
           boxShadow: "none",
-          minHeight: userRole == "user" ? "300px" : "500px",
+          minHeight: userRole === "user" ? "300px" : "500px",
           height: "300px",
         }}
       >

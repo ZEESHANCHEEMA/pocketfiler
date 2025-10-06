@@ -225,8 +225,9 @@ const Vedio = () => {
   const navigate = useNavigate();
   const isConnected = useIsConnected();
   const appId = "a12a56624a2e4b0b8d522e6da5a4b5a3";
-  const channel = agoraData?.channel_name;
-  const token = agoraData?.channel_token;
+  const channel =
+    agoraData?.channel_name || agoraData?.uniqueVideoRoomID || undefined;
+  const token = agoraData?.channel_token || undefined;
   const [userNames, setUserNames] = useState({});
   const [calling, setCalling] = useState(true);
   const [micOn, setMic] = useState(true);

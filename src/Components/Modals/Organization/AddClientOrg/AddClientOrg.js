@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   addProjectClient,
   getContributors,
-  getContributorsNopaging,
 } from "../../../../services/redux/middleware/Project/project";
 import { SuccessToast, ErrorToast } from "../../../toast/Toast";
 import { userDetails } from "../../../../services/redux/middleware/signin";
@@ -39,24 +38,28 @@ export default function AddClientOrg(props) {
   };
   useEffect(() => {
     getAllCLient();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchDataAll = async () => {
     try {
       const data = {
         projectId: props.projectid,
+        page: 1,
       };
-      const res = await dispatch(getContributorsNopaging(data));
-      setAllContriButers(res?.payload?.data);
+      const res = await dispatch(getContributors(data));
+      setAllContriButers(res?.payload?.data?.contributors || []);
     } catch (error) {
-      console.log("Error fetching data:", error);
+      console.log("Error fetching contributors (using paged endpoint):", error);
+      setAllContriButers([]);
     }
   };
   useEffect(() => {
     fetchDataAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const allContributersEmailFilter = AllContriButers
+  const allContributersEmailFilter = Array.isArray(AllContriButers)
     ? AllContriButers.map((item) => item?.user?.email)
     : [];
   const handleSelectClientAgain = (item, index) => {
@@ -84,12 +87,6 @@ export default function AddClientOrg(props) {
         return;
       }
 
-      if (!email && clientsInfo.length === 0) {
-        ErrorToast("At least one of email or clients is required");
-        setLoader(false);
-        return;
-      }
-
       if (
         email &&
         !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
@@ -113,11 +110,25 @@ export default function AddClientOrg(props) {
         return;
       }
 
+      // Build clients payload to match API requirement: each client must have an email
+      const clientsFromSelection = (clientsInfo || [])
+        .filter((c) => !!c?.email)
+        .map((c) => ({ email: c.email, id: c.id }));
+
+      const clientsFromInvite = email ? [{ email: email.trim() }] : [];
+
+      const clientsPayload = email ? clientsFromInvite : clientsFromSelection;
+
+      if (!email && clientsPayload.length === 0) {
+        ErrorToast("At least one of email or clients is required");
+        setLoader(false);
+        return;
+      }
+
       const data = {
         projectId: safeProjectId,
-        clients: clientsInfo,
+        clients: clientsPayload,
         userId: userID,
-        email: email,
       };
 
       console.log("Sending data to addProjectClient:", data);
@@ -214,7 +225,7 @@ export default function AddClientOrg(props) {
                       Add client
                     </label>
                   )}
-                  {index == 0 && (
+                  {index === 0 && (
                     <label className="contract-name-head">Add client</label>
                   )}
 
@@ -231,9 +242,9 @@ export default function AddClientOrg(props) {
                         />
                       </Dropdown.Toggle>
 
-                      {index == 0 &&
+                      {index === 0 &&
                         client?.email &&
-                        clientsInfo?.length == 1 && (
+                        clientsInfo?.length === 1 && (
                           <img
                             src="/Images/Clients/cancel.svg"
                             alt="Cross"
@@ -257,7 +268,7 @@ export default function AddClientOrg(props) {
                               (item) =>
                                 !clientsInfo.some(
                                   (selectedClient) =>
-                                    selectedClient?.id == item?.user?.id
+                                    selectedClient?.id === item?.user?.id
                                 )
                             )
                             .filter(

@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import UploadDocument from "../Modals/UploadDocuments/UploadDocument";
 import {
   Call,
+  ChatCall,
   chatSendMsg,
   getChatHistory,
   getContributors,
@@ -36,6 +37,15 @@ const Chatbox = ({ disputing }) => {
 
   let audio = new Audio(MsgNotifySound);
   const messagesEndRef = useRef(null);
+
+  const generateRandomNumber = (length) => {
+    const digits = "0123456789";
+    let randomNumber = "";
+    for (let i = 0; i < length; i++) {
+      randomNumber += digits[Math.floor(Math.random() * digits.length)];
+    }
+    return randomNumber;
+  };
 
   const handleKeyDown = (e) => {
     if (e.keyCode === 13 && msgs.trim()) {
@@ -67,6 +77,7 @@ const Chatbox = ({ disputing }) => {
 
   useEffect(() => {
     getMessagesArray();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const GetMessengerHistory = async () => {
@@ -103,58 +114,77 @@ const Chatbox = ({ disputing }) => {
         socket.off("disconnect", (reason) => {});
       };
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectid]);
 
   async function handleJoinAudioRoom() {
     setLoader(true);
+    const currentUserId = localStorage.getItem("_id");
+    if (!currentUserId) {
+      ErrorToast("Missing user id. Please re-login and try again.");
+      setLoader(false);
+      return;
+    }
     if (MyContributors?.contributors?.length > 1) {
       try {
         const Contributors = MyContributors?.contributors;
 
-        const userIds = Contributors?.map((item) => item?.user.id).filter(
-          (id) => id != userId
+        const userIds = Array.from(
+          new Set(
+            (Contributors || [])
+              .map((item) => item?.user?._id)
+              .filter((id) => id && String(id) !== String(currentUserId))
+              .map((id) => String(id))
+          )
         );
+
+        if (!userIds || userIds.length === 0) {
+          ErrorToast("Please select at least one participant to start a call");
+          setLoader(false);
+          return;
+        }
+
+        const callUrl = JSON.stringify({
+          uniqueVideoRoomID: generateRandomNumber(7),
+          projectId: String(projectid),
+          username: String(currentUserId),
+        });
         const data = {
-          userId: userId,
-          users_ids: userIds,
-          call_type: "audio_call",
+          projectId: String(projectid),
+          userId: String(currentUserId),
+          status: "started",
+          activity: "Audio-Call",
+          callUrl,
         };
 
-        dispatch(Call(data)).then((res) => {
+        dispatch(ChatCall(data)).then((res) => {
           if (res?.payload?.status === 200) {
-            const tokenDetails = {
-              channel_name: res?.payload?.data?.tokenDetails?.channel_name,
-              channel_token: res?.payload?.data?.tokenDetails?.channel_token,
-            };
-            const msgdta = JSON.stringify(tokenDetails);
-
-            console.log("Audio Call Data", res?.payload?.data);
+            // Navigate immediately using the generated unique room id
+            const roomId = JSON.parse(callUrl)?.uniqueVideoRoomID;
+            const msgdta = callUrl; // pass the same callUrl to call screen
             const dataaudio = {
               projectId: projectid,
-              userId: userId,
+              userId: String(currentUserId),
               activityMsg: "Audio-Call",
               msgUrl: msgdta,
             };
-
             dispatch(chatSendMsg(dataaudio));
-            navigate(
-              `/ProjectActivities/AudioCall/${tokenDetails?.channel_name}`,
-              {
-                state: {
-                  callData: dataaudio,
-                  projectId: projectid,
-                },
-              }
-            );
+            navigate(`/ProjectActivities/AudioCall/${roomId}`, {
+              state: {
+                callData: dataaudio,
+                projectId: projectid,
+              },
+            });
             setLoader(false);
           } else {
-            ErrorToast(res?.payload?.message);
+            ErrorToast(res?.payload?.message || "Failed to start audio call");
             setLoader(false);
           }
           setLoader(false);
         });
       } catch (error) {
         console.error("Error:", error);
+        ErrorToast(error?.response?.data?.message || error?.message);
         setLoader(false);
       }
     } else {
@@ -165,51 +195,70 @@ const Chatbox = ({ disputing }) => {
 
   async function handleJoinVideoRoom() {
     setLoader(true);
+    const currentUserId = localStorage.getItem("_id");
+    if (!currentUserId) {
+      ErrorToast("Missing user id. Please re-login and try again.");
+      setLoader(false);
+      return;
+    }
     if (MyContributors?.contributors?.length > 1) {
       try {
         const Contributors = MyContributors?.contributors;
 
-        const userIds = Contributors?.map((item) => item?.user.id).filter(
-          (id) => id != userId
+        const userIds = Array.from(
+          new Set(
+            (Contributors || [])
+              .map((item) => item?.user?._id)
+              .filter((id) => id && String(id) !== String(currentUserId))
+              .map((id) => String(id))
+          )
         );
-        const data = {
-          userId: userId,
-          users_ids: userIds,
-          call_type: "video_call",
-        };
-        dispatch(Call(data)).then((res) => {
-          if (res?.payload?.status == 200) {
-            const tokenDetails = {
-              channel_name: res?.payload?.data?.tokenDetails?.channel_name,
-              channel_token: res?.payload?.data?.tokenDetails?.channel_token,
-            };
 
-            const msgdta = JSON.stringify(tokenDetails);
+        if (!userIds || userIds.length === 0) {
+          ErrorToast("Please select at least one participant to start a call");
+          setLoader(false);
+          return;
+        }
+
+        const callUrl = JSON.stringify({
+          uniqueVideoRoomID: generateRandomNumber(7),
+          projectId: String(projectid),
+          username: String(currentUserId),
+        });
+        const data = {
+          projectId: String(projectid),
+          userId: String(currentUserId),
+          status: "started",
+          activity: "Video-Call",
+          callUrl,
+        };
+        dispatch(ChatCall(data)).then((res) => {
+          if (res?.payload?.status === 200) {
+            // Navigate immediately using the generated unique room id
+            const roomId = JSON.parse(callUrl)?.uniqueVideoRoomID;
+            const msgdta = callUrl; // pass the same callUrl to call screen
             const datavideo = {
               projectId: projectid,
-              userId: userId,
+              userId: String(currentUserId),
               activityMsg: "Video-Call",
               msgUrl: msgdta,
             };
             dispatch(chatSendMsg(datavideo));
-            navigate(
-              `/ProjectActivities/VideoCall/${tokenDetails?.channel_name}`,
-              {
-                state: {
-                  callData: datavideo,
-                  projectId: projectid,
-                },
-              }
-            );
+            navigate(`/ProjectActivities/VideoCall/${roomId}`, {
+              state: {
+                callData: datavideo,
+                projectId: projectid,
+              },
+            });
             setLoader(false);
           } else {
-            ErrorToast(res?.payload?.message || "An error occurred");
+            ErrorToast(res?.payload?.message || "Failed to start video call");
             setLoader(false);
           }
         });
       } catch (error) {
         console.error("Error:", error);
-        ErrorToast(error.message || "An error occurred");
+        ErrorToast(error?.response?.data?.message || error?.message);
         setLoader(false);
       }
     } else {
@@ -283,7 +332,7 @@ const Chatbox = ({ disputing }) => {
       userId: userId,
       msgUrl: url,
     };
-    if (item?.activityMsg == "Audio-Call") {
+    if (item?.activityMsg === "Audio-Call") {
       navigate(`/ProjectActivities/AudioCall/${channel_name}`, {
         state: {
           callData: datavideo,
@@ -388,20 +437,20 @@ const Chatbox = ({ disputing }) => {
                     {item?.msg !== null && (
                       <div
                         className={
-                          item?.userId == userId
+                          item?.userId === userId
                             ? "chatBox__main-sms1"
                             : "chatBox__main-sms"
                         }
                       >
                         <div
                           className={
-                            item?.userId == userId
+                            item?.userId === userId
                               ? "chatBox__main-sms__box1"
                               : "chatBox__main-sms__box"
                           }
                         >
                           <div className="chatBox__main-sms__box-img">
-                            {item?.userId != userId && (
+                            {item?.userId !== userId && (
                               <img
                                 src={
                                   item?.user?.profilePicture
@@ -418,16 +467,16 @@ const Chatbox = ({ disputing }) => {
                             )}
                             <div
                               className={
-                                item?.userId == userId
+                                item?.userId === userId
                                   ? "chatBox__main-sms__box-text1"
                                   : "chatBox__main-sms__box-text"
                               }
                             >
                               <div className="userbox">
-                                {item?.userId != userId && (
+                                {item?.userId !== userId && (
                                   <p
                                     className={
-                                      item?.userId == userId
+                                      item?.userId === userId
                                         ? "chatBodate"
                                         : "chatBodate1"
                                     }
@@ -437,7 +486,7 @@ const Chatbox = ({ disputing }) => {
                                 )}
                                 <p
                                   className={
-                                    item?.userId == userId
+                                    item?.userId === userId
                                       ? "chatBodauser"
                                       : "chatBodauser1"
                                   }
@@ -446,14 +495,16 @@ const Chatbox = ({ disputing }) => {
                                 </p>
                                 <p
                                   className={
-                                    item?.userId == userId ? "chate1" : "chate2"
+                                    item?.userId === userId
+                                      ? "chate1"
+                                      : "chate2"
                                   }
                                 >
                                   {formatMessageTime(item?.createdAt)}
                                 </p>
                               </div>
                             </div>
-                            {item?.userId == userId && (
+                            {item?.userId === userId && (
                               <img
                                 src={item?.user?.profilePicture}
                                 alt="profile"

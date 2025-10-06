@@ -19,7 +19,11 @@ const getContributorsSlice = createSlice({
     });
     builder.addCase(getContributors.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.error || "something wrong";
+      state.error =
+        action.payload?.message ||
+        action.error?.message ||
+        "Failed to load contributors";
+      // keep last successful myContributors; don't clear on error
     });
   },
 });

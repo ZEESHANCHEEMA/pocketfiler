@@ -5,10 +5,7 @@ import * as React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getContributors,
-  getContributorsNopaging,
-} from "../../../services/redux/middleware/Project/project";
+import { getContributors } from "../../../services/redux/middleware/Project/project";
 // import { getClient } from "../../../services/redux/middleware/getContract";
 import { RequestDoc } from "../../../services/redux/middleware/Project/project";
 import { SuccessToast, ErrorToast } from "../../toast/Toast";
@@ -31,7 +28,7 @@ export default function ReqDocument(props) {
   const handleSelectClient = (item) => {
     setUserClickID(item);
     console.log("this is items", item);
-    setSelectedClientID(item?.user?.id);
+    setSelectedClientID(item?.user?._id);
   };
 
   useEffect(() => {
@@ -40,26 +37,15 @@ export default function ReqDocument(props) {
     setUserID(userid);
     const data = {
       projectId: props.projectid,
-      // page: 1,
+      page: 1,
     };
     dispatch(getContributors(data));
-    console.log("user id ", data);
-  }, []);
+  }, [dispatch, props.projectid]);
 
-  const fetchDataAll = async () => {
-    try {
-      const data = {
-        projectId: props.projectid,
-      };
-      const res = await dispatch(getContributorsNopaging(data));
-      setAllContriButers(res?.payload?.data);
-    } catch (error) {
-      console.log("Error fetching data:", error);
-    }
-  };
   useEffect(() => {
-    fetchDataAll();
-  }, []);
+    const list = Clients?.contributors || [];
+    setAllContriButers(Array.isArray(list) ? list : []);
+  }, [Clients]);
 
   async function handleReqDoc() {
     try {
@@ -151,18 +137,15 @@ export default function ReqDocument(props) {
 
               <Dropdown.Menu className="w-100">
                 {AllContriButers?.length > 0
-                  ? AllContriButers?.map(
-                      (item, index) =>
-                        item?.user?.id != userID && (
-                          <Dropdown.Item
-                            key={index}
-                            // href={`#/action-${index + 1}`}
-
-                            onClick={() => handleSelectClient(item)}
-                          >
-                            {item?.user?.email}
-                          </Dropdown.Item>
-                        )
+                  ? AllContriButers.map((item, index) =>
+                      item?.user?._id !== userID ? (
+                        <Dropdown.Item
+                          key={index}
+                          onClick={() => handleSelectClient(item)}
+                        >
+                          {item?.user?.email}
+                        </Dropdown.Item>
+                      ) : null
                     )
                   : "No Client Found"}
               </Dropdown.Menu>

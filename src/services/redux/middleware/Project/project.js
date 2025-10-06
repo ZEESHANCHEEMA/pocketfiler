@@ -168,7 +168,34 @@ export const ChatCall = createAsyncThunk("ChatCall", async (data) => {
 });
 export const Call = createAsyncThunk("Call", async (data) => {
   try {
-    const res = await api.post(`${API_URL}/project/statingCall`, data);
+    // Match API spec: POST /project/statingCall
+    // Body: { callerId: string, projectId: string, participants: string[], callType: "audio" | "video" }
+    const participants = (data?.users_ids || data?.participants || [])?.map(
+      (id) => String(id)
+    );
+    const isVideo =
+      data?.call_type === "video_call" || data?.callType === "video";
+    const localUserId =
+      typeof window !== "undefined" ? localStorage.getItem("_id") : undefined;
+    const payload = {
+      callerId: String(data?.userId ?? localUserId ?? ""),
+      userId: String(data?.userId ?? localUserId ?? ""), // Backend expects this field
+      projectId: String(data?.projectId ?? ""),
+      participants,
+      callType: isVideo ? "video" : "audio",
+    };
+    if (!payload.callerId) {
+      return {
+        status: 400,
+        message: "Missing callerId. Please re-login and try again.",
+      };
+    }
+    console.log("data----------", data);
+    console.log("payload----------", payload);
+    console.log("localStorage _id:", localStorage.getItem("_id"));
+    console.log("data.userId:", data?.userId);
+    console.log("localUserId:", localUserId);
+    const res = await api.post(`${API_URL}/project/statingCall`, payload);
 
     return {
       status: res?.status,
@@ -176,8 +203,13 @@ export const Call = createAsyncThunk("Call", async (data) => {
       token: res?.data?.token,
     };
   } catch (error) {
+    const message =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      "Failed to start call";
     return {
-      message: error?.response?.data?.error,
+      message,
       status: error?.response?.status,
     };
   }
@@ -321,7 +353,7 @@ export const getSubscription = createAsyncThunk(
 
 export const getContributors = createAsyncThunk(
   "getContributors",
-  async (data) => {
+  async (data, { rejectWithValue }) => {
     try {
       let url = `${API_URL}/project/getContributors/${data?.projectId}`;
       const queryParams = new URLSearchParams();
@@ -345,10 +377,12 @@ export const getContributors = createAsyncThunk(
         data: res?.data?.data,
       };
     } catch (error) {
-      return {
-        message: error?.response?.data?.error,
-        status: error?.response?.status,
-      };
+      const message =
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to load contributors";
+      const status = error?.response?.status;
+      return rejectWithValue({ message, status });
     }
   }
 );

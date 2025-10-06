@@ -54,9 +54,22 @@ const ClientRequest = () => {
   );
   console.log("My Contributors are", MyContributors);
 
-  const filteredContributors = MyContributors?.contributors?.filter((row) =>
-    row?.user?.fullname?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredContributors = MyContributors?.contributors?.filter((row) => {
+    const hay = (row?.user?.fullname || row?.user?.email || "").toLowerCase();
+    const needle = (searchQuery || "").toLowerCase();
+    return hay.includes(needle);
+  });
+
+  const sortedContributors = (filteredContributors || [])
+    .slice()
+    .sort((a, b) => {
+      const aIsOwner = a?.user?.role === "organization" ? 1 : 0;
+      const bIsOwner = b?.user?.role === "organization" ? 1 : 0;
+      // Descending: owner first
+      if (aIsOwner !== bIsOwner) return bIsOwner - aIsOwner;
+      // Fallback sort by name to keep it stable
+      return (a?.user?.fullname || "").localeCompare(b?.user?.fullname || "");
+    });
 
   const handleSearchInput = () => {
     setOpenSearch((prevOpensearch) => !prevOpensearch);
@@ -227,7 +240,7 @@ const ClientRequest = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredContributors?.map((item, index) => (
+                {sortedContributors?.map((item, index) => (
                   <TableRow
                     key={index}
                     style={{
@@ -282,79 +295,26 @@ const ClientRequest = () => {
                     </TableCell>
 
                     <TableCell component="th" scope="row">
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "30px",
-                        }}
-                      >
-                        {item?.project?.owner !== null ? (
-                          <p
-                            style={{
-                              width: "128px",
-                              height: "39px",
-                              background: "#166FBF",
-                              color: "#FFFFFF",
-                              fontWeight: "500",
-                              fontSize: "14px",
-                              fontFamily: "ClashGrotesk",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              borderRadius: "50px",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Project Owner
-                          </p>
-                        ) : ProjectData?.userId === UserId ? (
-                          <p
-                            onClick={() => {
-                              setRemoveClient(true);
-                              setRemoveClientID(item?.user?.id);
-                              setRemoveClientName(item?.user?.fullname);
-                              setRemoveClientEmail(item?.user?.email);
-                              setRemoveClientProfile(
-                                item?.user?.profilePicture
-                              );
-                            }}
-                            style={{
-                              width: "128px",
-                              height: "39px",
-                              background: "#D32121",
-                              color: "#FFFFFF",
-                              fontWeight: "500",
-                              fontSize: "14px",
-                              fontFamily: "ClashGrotesk",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              borderRadius: "50px",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Remove
-                          </p>
-                        ) : (
-                          <p
-                            style={{
-                              width: "128px",
-                              height: "39px",
-                              backgroundColor: "ButtonFace",
-                              color: "ButtonText",
-                              fontWeight: "500",
-                              fontSize: "14px",
-                              fontFamily: "ClashGrotesk",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              borderRadius: "50px",
-                            }}
-                          >
-                            Member
-                          </p>
-                        )}
-                      </div>
+                      {item?.user?.role === "organization" && (
+                        <p
+                          style={{
+                            width: "128px",
+                            height: "39px",
+                            background: "#166FBF",
+                            color: "#FFFFFF",
+                            fontWeight: "500",
+                            fontSize: "14px",
+                            fontFamily: "ClashGrotesk",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            borderRadius: "50px",
+                            cursor: "default",
+                          }}
+                        >
+                          Project Owner
+                        </p>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

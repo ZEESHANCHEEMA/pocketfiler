@@ -38,30 +38,35 @@ const ProjectActivities = () => {
   const userId = localStorage.getItem("_id");
 
   const [completeModal, setcompleteModal] = useState(false);
-  const ProjectData = useSelector(
-    (state) => state?.getviewproject?.viewProject?.data
-  );
-
+  const viewProjectState = useSelector((state) => state?.getviewproject);
+  const ProjectData =
+    viewProjectState?.viewProject?.data ??
+    viewProjectState?.viewProject ??
+    null;
+  // const isLoadingProject = Boolean(viewProjectState?.loading);
+  // const projectError = viewProjectState?.error;
+  console.log("Project Data=======", ProjectData);
   const ConvertDate = (originalDateStr) => {
+    if (!originalDateStr) return "-";
     const originalDate = new Date(originalDateStr);
-    const formattedDate = originalDate.toLocaleDateString("en-US", {
+    if (Number.isNaN(originalDate.getTime())) return "-";
+    return originalDate.toLocaleDateString("en-US", {
       month: "short",
       day: "2-digit",
       year: "numeric",
     });
-    return formattedDate;
   };
 
   useEffect(() => {
     console.log("id is", projectid);
     dispatch(viewproject(projectid));
     console.log("viewing");
-  }, [projectid]);
+  }, [dispatch, projectid]);
 
   useEffect(() => {
     dispatch(viewProjectActivities(projectid));
     console.log("getting all activities");
-  }, [projectid]);
+  }, [dispatch, projectid]);
 
   const UserProjectActivity = useSelector(
     (state) => state?.getAllProjectActivity?.allProjectActivity?.data ?? []
@@ -105,28 +110,24 @@ const ProjectActivities = () => {
     }
   };
 
-  const handleClickCall = (url) => {
-    if (url) {
-      const fullUrl = url.startsWith("http") ? url : `http://${url}`;
-      window.open(fullUrl, "_blank");
-    }
-  };
+  // const handleClickCall = (url) => {
+  //   if (url) {
+  //     const fullUrl = url.startsWith("http") ? url : `http://${url}`;
+  //     window.open(fullUrl, "_blank");
+  //   }
+  // };
 
   const getIconByExtension = (url) => {
-    console.log(url.endsWith(".png"), "urlurlurlurl");
-    if (url.endsWith(".pdf")) {
-      return "/Images/File/PDF.svg";
-    } else if (url.endsWith(".doc") || url.endsWith(".docx")) {
+    if (typeof url !== "string") return "/Images/File/file.png";
+    const lower = url.toLowerCase();
+    if (lower.endsWith(".pdf")) return "/Images/File/PDF.svg";
+    if (lower.endsWith(".doc") || lower.endsWith(".docx"))
       return "/Images/File/DOC.svg";
-    } else if (url.endsWith(".jpg") || url.endsWith(".jpeg")) {
-      return url ? url : "/Images/File/JPG.svg";
-    } else if (url.endsWith(".png")) {
-      return "/Images/File/pngIcon.png";
-    } else if (url.endsWith(".txt")) {
-      return "/Images/File/TXT.svg";
-    } else {
-      return "/Images/File/file.png";
-    }
+    if (lower.endsWith(".jpg") || lower.endsWith(".jpeg"))
+      return "/Images/File/JPG.svg";
+    if (lower.endsWith(".png")) return "/Images/File/pngIcon.png";
+    if (lower.endsWith(".txt")) return "/Images/File/TXT.svg";
+    return "/Images/File/file.png";
   };
 
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -146,7 +147,7 @@ const ProjectActivities = () => {
     };
     try {
       dispatch(CompleteProject(apiData)).then((res) => {
-        if (res?.payload?.status == 200) {
+        if (res?.payload?.status === 200) {
           SuccessToast("Project Updated Successfully");
           CompleteProjectModal(false);
           dispatch(viewproject(projectid));
@@ -207,7 +208,7 @@ const ProjectActivities = () => {
               </div>
             </div>
             <div className="ProjectActivities__top-box_header-btn">
-              {userId == ProjectData?.userId && (
+              {userId === ProjectData?.userId && (
                 <img
                   style={{ cursor: "pointer" }}
                   src="/Images/Projects/edit-box.svg"
@@ -272,10 +273,15 @@ const ProjectActivities = () => {
           <div className="ProjectActivities__box-top">
             <div className="ProjectActivities__box">
               <p className="ProjectActivities__box1">
-                Date <span>{ConvertDate(ProjectData?.createdAt)}</span>
+                Date{" "}
+                <span>
+                  {ConvertDate(
+                    ProjectData?.createdAt || ProjectData?.updatedAt
+                  )}
+                </span>
               </p>
               <p className="ProjectActivities__box2">
-                Type <span>{ProjectData?.type}</span>
+                Type <span>{ProjectData?.type || "-"}</span>
               </p>
             </div>
             <div className="btn-contributor-div">
@@ -287,8 +293,8 @@ const ProjectActivities = () => {
               >
                 Contributors
               </button>
-              {ProjectData?.userId == userId &&
-                ProjectData?.status == "inprogress" && (
+              {ProjectData?.userId === userId &&
+                ProjectData?.status === "inprogress" && (
                   <button
                     className="ProjectActivities__box-btn"
                     style={{

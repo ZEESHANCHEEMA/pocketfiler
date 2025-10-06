@@ -88,10 +88,16 @@ const ProjectsTable = () => {
     setModalShowClient(true);
   };
 
-  const handleViewProject = (projectId) => {
-    console.log("Selected View Project Row is", projectId);
-    setSelectedView(projectId);
-    navigate(`/ProjectActivities/${projectId}`);
+  const handleViewProject = (projectLike) => {
+    const pid =
+      (projectLike && projectLike._id) ||
+      (projectLike && projectLike.id) ||
+      projectLike;
+    console.log("Selected View Project Row is", pid);
+    setSelectedView(pid);
+    if (pid) {
+      navigate(`/ProjectActivities/${pid}`);
+    }
   };
 
   const handleEditProject = (proId) => {
@@ -304,7 +310,7 @@ const ProjectsTable = () => {
                           {ProjectAllData?.data?.projects.map((row, index) => (
                             <TableRow
                               style={{ height: "75px" }}
-                              onClick={() => handleViewProject(row?.id)}
+                              onClick={() => handleViewProject(row)}
                             >
                               <TableCell
                                 component="th"
@@ -455,7 +461,7 @@ const ProjectsTable = () => {
                                     <img
                                       src="/Images/Projects/menu-eye-icon.svg"
                                       alt="view"
-                                      onClick={() => handleViewProject(row?.id)}
+                                      onClick={() => handleViewProject(row)}
                                     />
                                   ) : (
                                     <div>
