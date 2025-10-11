@@ -13,7 +13,10 @@ import {
 } from "../../services/redux/middleware/getContract";
 import { useNavigate } from "react-router-dom";
 import ScreenLoader from "../../Components/loader/ScreenLoader";
-import { getfourProjects } from "../../services/redux/middleware/Project/project";
+import {
+  getfourProjects,
+  getFourProjectsAsContributor,
+} from "../../services/redux/middleware/Project/project";
 import { getTotalCount } from "../../services/redux/middleware/Project/project";
 import AddContract from "../../Components/Modals/AddContract/AddContract";
 import Button from "@mui/material/Button";
@@ -40,6 +43,11 @@ export default function Dashboard() {
     (state) => state?.getfourProject?.myFourProjects?.data
   );
 
+  const FourProjectDataAsContributor = useSelector(
+    (state) =>
+      state?.getFourProjectsAsContributor?.myFourProjectsAsContributor?.data
+  );
+
   const ClientDataMap = useSelector(
     (state) => state?.getAllClient?.allClient?.data
   );
@@ -56,8 +64,9 @@ export default function Dashboard() {
     dispatch(getTotalCount(userid));
     dispatch(getContract(userid));
     dispatch(getfourProjects(userid));
+    dispatch(getFourProjectsAsContributor(userid));
     dispatch(LatestProjContract(userid));
-  }, []);
+  }, [dispatch]);
   const LatestContract = useSelector(
     (state) => state?.getLatestProjCon?.myData?.data?.contract
   );
@@ -86,7 +95,7 @@ export default function Dashboard() {
 
     dispatch(getClient(data));
     dispatch(getAcceptClient(data));
-  }, []);
+  }, [dispatch]);
 
   const dashBoardCountGet = async () => {
     const userid = localStorage.getItem("_id");
@@ -94,9 +103,7 @@ export default function Dashboard() {
       const res = await dispatch(dashboardCountApi(userid));
 
       setdashboadData(res?.payload?.data);
-    } catch (error) {
-      console.log(error, "errorerrorerrorerrorerrorerror");
-    }
+    } catch (error) {}
   };
   useEffect(() => {
     dashBoardCountGet();
@@ -333,7 +340,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {FourProjectData?.projects?.length > 0 ? (
+        {FourProjectData?.projects?.length > 0 ||
+        FourProjectDataAsContributor?.projects?.length > 0 ? (
           <div className="contract-project-contain">
             <div className="contract-r1">
               <p className="contract-head">Projects</p>
@@ -347,7 +355,7 @@ export default function Dashboard() {
                     />
                   </p>
                 </div>
-                {userRole == "organization" ? (
+                {userRole === "organization" ? (
                   <div className="projecttable__main-headingbtn">
                     <button onClick={() => AddProj()}>Add project</button>
                   </div>

@@ -22,6 +22,7 @@ import getviewproject from "./reducer/getviewproject";
 import addprojectdocument from "./reducer/addprojectdocument";
 import getAllProjectActivity from "./reducer/getAllProjectActivity";
 import getfourProject from "./reducer/getfourProject";
+import getFourProjectsAsContributor from "./reducer/getFourProjectsAsContributor";
 import getChathistory from "./reducer/getChathistory";
 import getcontributors from "./reducer/getcontributors";
 import getAllProjectdispute from "./reducer/getAllProjectdispute";
@@ -37,6 +38,7 @@ import contractTemplates from "./reducer/contractTemplates";
 import aiChat from "./reducer/aiChat";
 import lockers from "./reducer/lockers";
 import lockerPeople from "./reducer/lockerPeople";
+import payment from "./slices/Payment/paymentSlice";
 
 // Combine all reducers
 const appReducer = combineReducers({
@@ -63,6 +65,7 @@ const appReducer = combineReducers({
   addprojectdocument,
   getAllProjectActivity,
   getfourProject,
+  getFourProjectsAsContributor,
   getChathistory,
   getcontributors,
   getAllProjectdispute,
@@ -78,6 +81,7 @@ const appReducer = combineReducers({
   aiChat, // Add the AI chat reducer
   lockers,
   lockerPeople,
+  payment, // Add the payment reducer
 });
 
 // Reset state when RESET_STORE is dispatched

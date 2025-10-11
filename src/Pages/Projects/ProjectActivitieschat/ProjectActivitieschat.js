@@ -93,20 +93,7 @@ const ProjectActivitiesChat = () => {
 
   return (
     <>
-      <Header
-        headername={
-          <>
-            <img
-              src="/Images/Clients/backarrow.svg"
-              alt="/"
-              style={{ zIndex: 1500, position: "relative" }}
-              className="header__arrow-img"
-              onClick={() => navigate(-1)}
-            />{" "}
-            Projects
-          </>
-        }
-      />
+      <Header headername={"Projects"} showBack onBack={() => navigate(-1)} />
 
       <>
         <div className="ProjectActivities__top-box ">

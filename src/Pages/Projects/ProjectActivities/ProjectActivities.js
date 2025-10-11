@@ -19,6 +19,10 @@ import CompleteProjectModal from "./CompleteProjectModal";
 import { ErrorToast, SuccessToast } from "../../../Components/toast/Toast";
 import { toSentenceCase } from "../../../utils/helperFunction";
 import FilePreviewModal from "./FilePreviewModal";
+// Payment UI removed per design update
+import { getContributors } from "../../../services/redux/middleware/Project/project";
+import ProjectPayment from "../../../Components/Modals/ProjectPayment/ProjectPayment";
+import RequestPayment from "../../../Components/Modals/Organization/RequestPayment/RequestPayment";
 
 const ProjectActivities = () => {
   const isMobile = useMediaQuery({
@@ -36,16 +40,31 @@ const ProjectActivities = () => {
   const [showPreviewModal, setshowPreviewModal] = useState(false);
   const [selectedImage, setselectedImage] = useState("");
   const userId = localStorage.getItem("_id");
+  const currentUserRole = localStorage.getItem("role");
 
   const [completeModal, setcompleteModal] = useState(false);
+  const [paymentModalShow, setPaymentModalShow] = useState(false);
+  const [requestPaymentShow, setRequestPaymentShow] = useState(false);
   const viewProjectState = useSelector((state) => state?.getviewproject);
   const ProjectData =
     viewProjectState?.viewProject?.data ??
     viewProjectState?.viewProject ??
     null;
+  const projectOwnerRole =
+    ProjectData?.creator?.role ||
+    ProjectData?.owner?.role ||
+    ProjectData?.user?.role ||
+    undefined;
+  const canComplete =
+    ProjectData?.status === "inprogress" &&
+    currentUserRole &&
+    projectOwnerRole &&
+    currentUserRole === projectOwnerRole;
+  const canMakePayment =
+    String(ProjectData?.userId) === String(userId) ||
+    currentUserRole === "organization";
   // const isLoadingProject = Boolean(viewProjectState?.loading);
   // const projectError = viewProjectState?.error;
-  console.log("Project Data=======", ProjectData);
   const ConvertDate = (originalDateStr) => {
     if (!originalDateStr) return "-";
     const originalDate = new Date(originalDateStr);
@@ -68,11 +87,33 @@ const ProjectActivities = () => {
     console.log("getting all activities");
   }, [dispatch, projectid]);
 
+  // Load contributors for first 3 avatars
+  useEffect(() => {
+    if (!projectid) return;
+    const payload = { projectId: projectid, page: 1 };
+    dispatch(getContributors(payload));
+  }, [dispatch, projectid]);
+
   const UserProjectActivity = useSelector(
     (state) => state?.getAllProjectActivity?.allProjectActivity?.data ?? []
   );
 
   console.log("Project Activity user", UserProjectActivity);
+
+  // Contributors (for avatars)
+  const contributorsData = useSelector(
+    (state) => state?.getcontributors?.myContributors?.data
+  );
+  const topThreeContributors =
+    contributorsData?.contributors?.slice(0, 3) || [];
+
+  // Determine if current user is a contributor on this project
+  const isContributor = Boolean(
+    contributorsData?.contributors?.some((c) => {
+      const contributorId = c?.user?._id || c?._id || c?.userId;
+      return String(contributorId) === String(userId);
+    })
+  );
 
   const formatTime = (createdAt) => {
     if (!createdAt) return "";
@@ -163,20 +204,7 @@ const ProjectActivities = () => {
   };
   return (
     <>
-      <Header
-        headername={
-          <>
-            <img
-              src="/Images/Clients/backarrow.svg"
-              alt="/"
-              style={{ zIndex: 1500, position: "relative" }}
-              className="header__arrow-img"
-              onClick={() => navigate(-1)}
-            />{" "}
-            Projects
-          </>
-        }
-      />
+      <Header headername={"Projects"} showBack onBack={() => navigate(-1)} />
       <>
         <div className="ProjectActivities__top-box ">
           <div className="ProjectActivities__top-box_header">
@@ -208,15 +236,6 @@ const ProjectActivities = () => {
               </div>
             </div>
             <div className="ProjectActivities__top-box_header-btn">
-              {userId === ProjectData?.userId && (
-                <img
-                  style={{ cursor: "pointer" }}
-                  src="/Images/Projects/edit-box.svg"
-                  alt="edit"
-                  className="project-edit-img"
-                  onClick={() => setModalShowUpdate(true)}
-                />
-              )}
               <img
                 style={{ cursor: "pointer" }}
                 onClick={() => {
@@ -249,12 +268,6 @@ const ProjectActivities = () => {
                   >
                     Upload documents
                   </button>
-                  <button
-                    className="ProjectActivities__top-box_header-btn2"
-                    onClick={() => setReqModalShow(true)}
-                  >
-                    Request documents
-                  </button>
                 </>
               )}
 
@@ -283,30 +296,34 @@ const ProjectActivities = () => {
               <p className="ProjectActivities__box2">
                 Type <span>{ProjectData?.type || "-"}</span>
               </p>
+              <p className="ProjectActivities__box2" style={{ marginLeft: 24 }}>
+                Organization{" "}
+                <span>
+                  {ProjectData?.organization ||
+                    ProjectData?.organizationName ||
+                    ProjectData?.orgName ||
+                    ProjectData?.creator?.organizationName ||
+                    ProjectData?.owner?.organizationName ||
+                    "-"}
+                </span>
+              </p>
             </div>
             <div className="btn-contributor-div">
-              <button
-                className="ProjectActivities__box-btn"
-                onClick={() => {
-                  OnProjectContributor();
-                }}
-              >
-                Contributors
-              </button>
-              {ProjectData?.userId === userId &&
-                ProjectData?.status === "inprogress" && (
-                  <button
-                    className="ProjectActivities__box-btn"
-                    style={{
-                      marginLeft: 24,
-                    }}
-                    onClick={() => {
-                      setcompleteModal(true);
-                    }}
-                  >
-                    Complete Project
-                  </button>
-                )}
+              {canComplete && (
+                <button
+                  className="ProjectActivities__box-btn"
+                  style={{
+                    marginLeft: 24,
+                  }}
+                  onClick={() => {
+                    setcompleteModal(true);
+                  }}
+                  tabIndex="0"
+                  aria-label="Complete project"
+                >
+                  Complete Project
+                </button>
+              )}
 
               <CompleteProjectModal
                 modalVisible={completeModal}
@@ -315,18 +332,98 @@ const ProjectActivities = () => {
                   setcompleteModal(false);
                 }}
               />
+
+              {/* Payment components removed per design update */}
+              <RequestPayment
+                show={requestPaymentShow}
+                onHide={() => setRequestPaymentShow(false)}
+                projectData={ProjectData}
+                clientName={ProjectData?.clientName}
+              />
+
+              {/* Top 3 contributors avatars; click navigates to contributors screen */}
+              {topThreeContributors?.length > 0 && (
+                <div
+                  className="contributors-avatars"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0,
+                    marginLeft: 24,
+                  }}
+                >
+                  {topThreeContributors.map((c, idx) => (
+                    <img
+                      key={c?.user?._id || idx}
+                      src={
+                        c?.user?.profilePicture ||
+                        "/Images/profile-default-avatar.jpg"
+                      }
+                      alt={c?.user?.fullname || "contributor"}
+                      onClick={() => OnProjectContributor()}
+                      style={{
+                        height: 48,
+                        width: 48,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        marginLeft: idx === 0 ? 0 : -12,
+                        border: "3px solid #fff",
+                        cursor: "pointer",
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+              <ProjectPayment
+                show={paymentModalShow}
+                onHide={() => setPaymentModalShow(false)}
+                projectData={ProjectData}
+              />
             </div>
           </div>
           <div className="ProjectActivities__txt">
             <p>{ProjectData?.description}</p>
           </div>
+          <div>
+            <button
+              className="ProjectActivities__top-box_header-btn2"
+              onClick={() => setReqModalShow(true)}
+            >
+              Request documents
+            </button>
+          </div>
         </div>
         {UserProjectActivity?.length > 0 ? (
           <div className="ProjectActivities__main ">
-            <div className="ProjectActivities__main-txt">
-              <h1>Project activities</h1>
-              <p>Below is a breakdown of recent activities in your project</p>
+            <div className="flex justify-between items-center">
+              <div className="ProjectActivities__main-txt">
+                <h1>Project activities</h1>
+                <p>Below is a breakdown of recent activities in your project</p>
+              </div>
+              {/* Payment CTA - show only for project contributors */}
+              {isContributor && currentUserRole === "user" ? (
+                <button
+                  className="pay-primary-btn"
+                  style={{ marginLeft: 24 }}
+                  onClick={() => setRequestPaymentShow(true)}
+                  tabIndex="0"
+                  aria-label="Withdraw payment"
+                >
+                  Withdraw payment
+                </button>
+              ) : isContributor && canMakePayment ? (
+                <button
+                  className="pay-primary-btn"
+                  style={{ marginLeft: 24 }}
+                  onClick={() => setPaymentModalShow(true)}
+                  tabIndex="0"
+                  aria-label="Make payment"
+                >
+                  Make Payment
+                </button>
+              ) : null}
             </div>
+
             <div>
               {UserProjectActivity?.map((items, index) => {
                 return (

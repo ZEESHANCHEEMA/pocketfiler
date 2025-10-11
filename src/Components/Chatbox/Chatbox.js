@@ -547,12 +547,12 @@ const Chatbox = ({ disputing }) => {
 
       <div className="chatBox__main-send">
         <textarea
-          class="form-control"
+          className="form-control"
           placeholder="Type here..."
           onChange={(e) => setmsg(e.target.value)}
           value={msgs}
           onKeyDown={handleKeyDown}
-          style={{ paddingRight: 66 }}
+          style={{ paddingRight: 66, display: "block" }}
           name=""
           id=""
           rows="2"

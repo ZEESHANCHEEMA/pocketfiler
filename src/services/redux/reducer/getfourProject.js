@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { getfourProjects } from "../middleware/Project/project";
 
 const initialState = {
@@ -20,7 +20,10 @@ const getfourProjectsSlice = createSlice({
     });
     builder.addCase(getfourProjects.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.error || "something wrong";
+      state.error =
+        action.payload?.message ||
+        action.error?.message ||
+        "Failed to fetch projects";
     });
   },
 });

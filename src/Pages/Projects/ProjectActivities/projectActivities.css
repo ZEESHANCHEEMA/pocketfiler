@@ -85,6 +85,7 @@ h6 {
   line-height: 21px;
   text-align: center;
   color: #ffffff;
+  margin: 20px;
 }
 .ProjectActivities__box {
   display: flex;
@@ -200,6 +201,36 @@ h6 {
   line-height: 24px;
   text-align: left;
   color: #858585;
+}
+
+/* Payment/Actions custom buttons */
+/* Hide Stripe branding button */
+.__PrivateStripeElement iframe,
+[class*="stripe-badge"],
+[class*="StripeBadge"],
+button[aria-label*="Stripe"] {
+  display: none !important;
+}
+
+.pay-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 24px;
+  height: 48px;
+  background: #0a1126;
+  color: #ffffff;
+  border: 1px solid rgba(22, 111, 191, 0.04);
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  text-decoration: none;
+}
+.pay-primary-btn:hover {
+  background: #111827;
+  color: #ffffff;
+  border-color: #0a1126;
 }
 
 /* for dropdown */
@@ -472,9 +503,6 @@ h6 {
 
   .show1 .dropdown-item {
     padding: 0px !important;
-  }
-  .dropdown__image-project-arrow {
-    /* display: none !important; */
   }
   .ProjectActivities__box-btn {
     width: 100% !important;

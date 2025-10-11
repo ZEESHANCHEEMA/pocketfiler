@@ -119,18 +119,9 @@ const ClientRequest = () => {
   return (
     <>
       <Header
-        headername={
-          <>
-            <img
-              src="/Images/Clients/backarrow.svg"
-              alt="/"
-              style={{ zIndex: 1500, position: "relative" }}
-              className="header__arrow-img"
-              onClick={() => navigate(-1)}
-            />{" "}
-            Project Contributors{" "}
-          </>
-        }
+        headername={"Project Contributors"}
+        showBack
+        onBack={() => navigate(-1)}
       />
       <div className="Dash-body">
         <div className="contract-contain pb-allcontract">

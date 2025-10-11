@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../../apiInterceptor";
 import { API_URL } from "../../../client";
+import { API_CONFIG } from "../../../../config/apiConfig";
 
 export const createproject = createAsyncThunk("createproject", async (data) => {
   try {
@@ -245,17 +246,55 @@ export const getfourProjects = createAsyncThunk(
   "getfourProjects",
   async (data) => {
     try {
-      const res = await api.get(`${API_URL}/project/getfourProject/${data}`);
-      // localStorage.setItem("token", res?.data?.token);
-      console.log("Inside Get 4 Project Modal", res);
+      const endpoint = `${API_URL}${API_CONFIG.PROJECT.GET_FOUR_PROJECTS}/${data}`;
+      const res = await api.get(endpoint);
+
       return {
         status: res?.status,
         data: res?.data?.data,
       };
     } catch (error) {
+      console.error("Get 4 Projects API Error:", error);
+      console.error("Error response:", error?.response?.data);
       return {
-        message: error?.response?.data?.error,
-        status: error?.response?.status,
+        message:
+          error?.response?.data?.error ||
+          error?.message ||
+          "Failed to fetch projects",
+        status: error?.response?.status || 500,
+      };
+    }
+  }
+);
+
+export const getFourProjectsAsContributor = createAsyncThunk(
+  "getFourProjectsAsContributor",
+  async (data) => {
+    try {
+      const endpoint = `${API_URL}/project/getProjectsWithOutPagination/${data}`;
+      const res = await api.get(endpoint);
+
+      const allProjects = res?.data?.data?.projects || [];
+      const contributorProjects = allProjects
+        .filter((project) => {
+          const isOwner = project.owner === data || project.userId === data;
+          return !isOwner;
+        })
+        .slice(0, 4);
+
+      return {
+        status: res?.status,
+        data: { ...res?.data?.data, projects: contributorProjects },
+      };
+    } catch (error) {
+      console.error("Get 4 Projects As Contributor API Error:", error);
+      console.error("Error response:", error?.response?.data);
+      return {
+        message:
+          error?.response?.data?.error ||
+          error?.message ||
+          "Failed to fetch contributor projects",
+        status: error?.response?.status || 500,
       };
     }
   }

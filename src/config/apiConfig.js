@@ -30,11 +30,17 @@ export const API_CONFIG = {
   // API_URL: "https://api.pocketfiler.com",
 
   // API Timeout
-  TIMEOUT: 10000,
+  TIMEOUT: 30000, // Increased to 30 seconds for slower endpoints
 
   // Feature Flags
   DEBUG_MODE: true, // Enable detailed logging for testing
   ENABLE_LOGGING: true, // Enable API request/response logging
+
+  // Stripe Configuration
+  STRIPE_PUBLISHABLE_KEY:
+    process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY ||
+    "pk_test_51Q5WJ5CkCZumzTPVdMhS4RroKxzWzgtKqpcxInefZVpXUAtrbD4NRCiC5VMyilCIOirrfEMqxTnIvW12tbeZYhq800uJnVns6s",
+  ENABLE_STRIPE: true, // Set to false to disable Stripe payments
 
   // AI Configuration
   ENABLE_AI_FEATURES: true, // Set to false to disable AI features
@@ -109,6 +115,7 @@ export const API_ENDPOINTS = {
     GET_PROJECTS: "/project/getProjects",
     CREATE_PROJECT: "/project/create",
     GET_PROJECT_BY_ID: "/project/getProjectById",
+    GET_FOUR_PROJECTS: "/project/getfourProject",
   },
   AI: {
     CHAT: "/api/chat",
@@ -118,6 +125,12 @@ export const API_ENDPOINTS = {
     GET_REWARDS: "/auth/referral/rewards",
     GET_LIST: "/auth/referral/list",
     REDEEM: "/auth/referral/redeem",
+  },
+  PAYMENT: {
+    CREATE_PROJECT_PAYMENT_INTENT: "/payment/create-project-payment-intent",
+    CONFIRM_PROJECT_PAYMENT: "/payment/confirm-project-payment",
+    GET_PAYMENT_STATUS: "/payment/status",
+    GET_PROJECT_PAYMENTS: "/payment/project",
   },
 };
 

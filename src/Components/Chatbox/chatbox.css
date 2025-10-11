@@ -163,6 +163,18 @@
   border-radius: 15px;
   padding-left: 30px;
 }
+.chatBox__main-send textarea.form-control {
+  height: 63px;
+  width: 100%;
+  border: 1px solid #166fbf;
+  border-radius: 15px;
+  padding-left: 30px;
+  padding-right: 66px; /* space for send button */
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 63px; /* vertically center text */
+  resize: none;
+}
 .chatBox__main-send button {
   position: absolute;
   /* transform: translateY(-50%); */

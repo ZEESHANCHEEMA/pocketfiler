@@ -72,18 +72,9 @@ const Disputing = () => {
   return (
     <>
       <Header
-        headername={
-          <>
-            <img
-              src="/Images/Clients/backarrow.svg"
-              alt="/"
-              style={{ zIndex: 1500, position: "relative" }}
-              className="header__arrow-img"
-              onClick={() => navigate(-1)}
-            />{" "}
-            Dispute details
-          </>
-        }
+        headername={"Dispute details"}
+        showBack
+        onBack={() => navigate(-1)}
       />
       <>
         <div className="ProjectActivities__top-box ">

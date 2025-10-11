@@ -44,18 +44,24 @@ export default function ContractProjectTable() {
   const FourProjectData = useSelector(
     (state) => state?.getfourProject?.myFourProjects?.data
   );
-  console.log("My Own Projects in table", FourProjectData);
+  const FourProjectDataAsContributor = useSelector(
+    (state) =>
+      state?.getFourProjectsAsContributor?.myFourProjectsAsContributor?.data
+  );
+
+  const ownProjects = FourProjectData?.projects || [];
+  const contributorProjects = FourProjectDataAsContributor?.projects || [];
+  const tableProjects =
+    ownProjects.length > 0 ? ownProjects : contributorProjects;
 
   useEffect(() => {
     const userid = localStorage.getItem("_id");
-    console.log("user id ", userid);
     setUserId(userid);
     // setUserID(userid);
     dispatch(getfourProjects(userid));
   }, [dispatch]);
 
   const handleClient = (projectId) => {
-    console.log("Selected Add client row is", projectId);
     setSelectedAddClient(projectId);
     setModalShowClient(true);
   };
@@ -65,7 +71,6 @@ export default function ContractProjectTable() {
       (projectLike && projectLike._id) ||
       (projectLike && projectLike.id) ||
       projectLike;
-    console.log("Selected View Project Row is", pid);
     setSelectedView(pid);
     if (pid) {
       navigate(`/ProjectActivities/${pid}`);
@@ -73,7 +78,6 @@ export default function ContractProjectTable() {
   };
 
   const handleEditProject = (proId) => {
-    console.log("Project ID:", proId);
     setSelectedEdit(proId);
     setModalShowUpdate(true);
   };
@@ -539,10 +543,8 @@ export default function ContractProjectTable() {
               borderBottomRightRadius: "15px",
             }}
           >
-            {FourProjectData?.projects &&
-              FourProjectData?.projects?.map((row) => (
-                <Row key={row.date} row={row} />
-              ))}
+            {tableProjects &&
+              tableProjects?.map((row) => <Row key={row.date} row={row} />)}
             {/* {rows.map((row) => (
               <Row key={row.date} row={row} />
             ))} */}

@@ -1,20 +1,19 @@
 .request-pay-modal .modal-dialog {
-  max-width: 398px !important;
+  max-width: 560px !important;
 }
 .request-pay-modal .modal-header {
   border-radius: 20px 20px 0 0 !important;
   border-bottom: none !important;
-  display: none !important;
+  padding: 16px 24px !important;
 }
 .request-pay-modal .modal-body {
   padding: 0px !important;
-  padding-top: 50px !important;
-
-  padding-bottom: 50px !important;
+  padding-top: 16px !important;
+  padding-bottom: 16px !important;
 }
 .request-pay-modal .modal-content {
   border-radius: 20px !important;
-  height: 491px;
+  min-height: 420px;
 }
 .email-sent-body {
   display: flex;
@@ -31,8 +30,8 @@
   line-height: 29.52px;
   text-align: center;
   color: #242a31;
-  padding-bottom: 16px !important;
-  padding-top: 40px !important;
+  padding-bottom: 12px !important;
+  padding-top: 8px !important;
 }
 
 .email-msg {
@@ -42,6 +41,8 @@
   line-height: 24px;
   text-align: center;
   color: #676666;
+  max-width: 338px;
+  margin: 0 auto;
 }
 
 .email-span {
@@ -67,13 +68,46 @@
   font-weight: 500 !important;
   line-height: 27px !important;
   color: #ffffff !important;
-  margin-top: 50px !important;
+  margin-top: 20px !important;
 }
 .btn-request-pay:hover {
   border: 1px solid #0a1126 !important;
   background-color: #ffffff !important;
   color: #0a1126 !important;
 }
+
+.request-payment-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+/* chip under icon */
+.chip-send-payment {
+  margin-top: 24px;
+  padding: 8px 16px;
+  background: #e6f0fe;
+  color: #1e40af;
+  border: 0;
+  border-radius: 20px;
+  font-family: "Poppins";
+  font-size: 14px;
+}
+
+/* escrow amount badge */
+.escrow-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: #f6f7fb;
+  color: #111827;
+  border-radius: 12px;
+  font-family: "Poppins";
+  font-size: 16px;
+}
+
 .top-pd {
   padding-top: 40px !important;
 }
@@ -86,6 +120,10 @@
     margin-bottom: 0px !important;
     font-size: 16px !important;
     line-height: 24px !important;
+  }
+
+  .request-payment-buttons {
+    margin-top: 30px;
   }
   .email-msg br {
     display: none;
