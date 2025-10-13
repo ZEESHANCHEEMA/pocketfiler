@@ -1,4 +1,3 @@
-import api from "./apiInterceptor";
 import {
   API_CONFIG,
   API_ENDPOINTS,
@@ -971,7 +970,7 @@ Please provide your analysis in a structured format with clear sections.`;
 
   // Dynamic Content Generation (Mobile-compatible)
   static generateTemplateContent(template, userDetails = {}) {
-    const { names = [], locations = [], companies = [] } = userDetails;
+    const { names = [], companies = [] } = userDetails;
 
     let content = `<h1>${template.title}</h1>`;
     content += `<p><strong>Category:</strong> ${template.category}</p>`;

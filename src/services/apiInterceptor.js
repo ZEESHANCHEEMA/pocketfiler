@@ -36,6 +36,8 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
       if (API_CONFIG.ENABLE_LOGGING) {
         console.log("Token added to request");
+        console.log("🔑 Token preview:", token.substring(0, 20) + "...");
+        console.log("📋 Full headers:", config.headers);
       }
     } else {
       if (API_CONFIG.ENABLE_LOGGING) {

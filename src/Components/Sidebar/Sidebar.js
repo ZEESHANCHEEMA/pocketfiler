@@ -27,6 +27,7 @@ import { Menu } from "@mui/material";
 import { useMediaQuery } from "react-responsive";
 // import { requestPermission } from "../../utils/Firebase/firebase";
 import { store } from "../../services/redux/store";
+import LoginService from "../../services/loginService";
 
 const drawerWidth = 310;
 
@@ -289,19 +290,47 @@ export default function Sidebar({ children, showSidebar, PageName }) {
     userRoles === "user" ? userMenuItems : organizationMenuItems;
   const icons = userRoles === "user" ? userIcons : organizationIcons;
 
-  const handleLogout = () => {
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutResponse, setLogoutResponse] = useState(null);
+
+  const handleLogout = async () => {
     try {
-      setShowModal(false);
-      localStorage.clear();
+      setLoggingOut(true);
+
+      // Call logout API
+      const result = await LoginService.logout();
+
+      console.log("📊 [LOGOUT RESPONSE]:", result);
+      setLogoutResponse(result);
+
+      // Clear Redux store
       store.dispatch({ type: "RESET_STORE" });
-      navigate("/");
+
+      // Navigate to login page after a brief delay to show the response
+      setTimeout(() => {
+        setShowModal(false);
+        setLoggingOut(false);
+        navigate("/");
+      }, 1500);
     } catch (err) {
-      console.error("Logout error:", err);
-      navigate("/");
+      console.error("❌ [LOGOUT ERROR]:", err);
+      setLogoutResponse({
+        success: false,
+        message: "Logout error: " + err.message,
+      });
+
+      // Still navigate even if error
+      setTimeout(() => {
+        setShowModal(false);
+        setLoggingOut(false);
+        navigate("/");
+      }, 1500);
     }
   };
+
   async function Logout() {
     setShowModal(true);
+    setLogoutResponse(null);
   }
   return (
     <>
@@ -916,7 +945,7 @@ export default function Sidebar({ children, showSidebar, PageName }) {
         )}
         <Modal
           show={showModal}
-          onHide={() => setShowModal(false)}
+          onHide={() => !loggingOut && setShowModal(false)}
           centered
           backdrop="static"
           keyboard={false}
@@ -929,19 +958,45 @@ export default function Sidebar({ children, showSidebar, PageName }) {
                 style={{ width: "80px", height: "80px" }}
               />
             </div>
-            <h5 className="mb-3">Are you sure you want to logout?</h5>
-            <p className="text-muted">
-              You will be logged out from your account.
-            </p>
+
+            {!logoutResponse ? (
+              <>
+                <h5 className="mb-3">Are you sure you want to logout?</h5>
+                <p className="text-muted">
+                  You will be logged out from your account.
+                </p>
+              </>
+            ) : (
+              <>
+                <h5 className="mb-3">✅ Logged Out Successfully</h5>
+                <p className="text-success" style={{ fontSize: "14px" }}>
+                  You have been logged out of your account.
+                </p>
+                <p className="text-muted" style={{ fontSize: "12px" }}>
+                  Redirecting to login page...
+                </p>
+              </>
+            )}
           </Modal.Body>
-          <Modal.Footer className="border-0 d-flex justify-content-center">
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              No, Stay Logged In
-            </Button>
-            <Button variant="danger" onClick={handleLogout}>
-              Yes, Logout
-            </Button>
-          </Modal.Footer>
+
+          {!logoutResponse && (
+            <Modal.Footer className="border-0 d-flex justify-content-center">
+              <Button
+                variant="secondary"
+                onClick={() => setShowModal(false)}
+                disabled={loggingOut}
+              >
+                No, Stay Logged In
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleLogout}
+                disabled={loggingOut}
+              >
+                {loggingOut ? "Logging out..." : "Yes, Logout"}
+              </Button>
+            </Modal.Footer>
+          )}
         </Modal>
       </ThemeProvider>
     </>

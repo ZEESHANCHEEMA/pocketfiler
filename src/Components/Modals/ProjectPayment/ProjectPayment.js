@@ -79,6 +79,15 @@ const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
 
     setLoading(true);
 
+    // Infer payee (contractor/receiver) from available project fields
+    const inferredPayeeId =
+      projectData?.contractorId ||
+      projectData?.contractor_id ||
+      projectData?.createdBy ||
+      projectData?.ownerId ||
+      projectData?.userId ||
+      projectData?.user_id;
+
     const paymentData = {
       title:
         (title && title.trim()) ||
@@ -90,6 +99,7 @@ const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
       currency: "usd",
       project_id: projectData?._id || projectData?.id,
       payer_user_id: userId,
+      payee_id: inferredPayeeId,
     };
 
     // Only add customer_id if it's a valid Stripe customer ID (starts with 'cus_')
@@ -109,11 +119,18 @@ const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
         customer_id: !!paymentData.customer_id,
         project_id: !!paymentData.project_id,
         payer_user_id: !!paymentData.payer_user_id,
+        payee_id: !!paymentData.payee_id,
       },
       note: !paymentData.customer_id
         ? "customer_id omitted - backend will create/find customer"
         : "customer_id included",
     });
+
+    if (!paymentData.payee_id) {
+      console.warn(
+        "⚠️ [PAYMENT] Unable to infer payee_id from projectData. Please ensure project contains contractorId/createdBy/ownerId/userId."
+      );
+    }
 
     dispatch(createProjectPaymentIntent(paymentData))
       .then(async (res) => {

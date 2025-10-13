@@ -76,6 +76,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: "/auth/login",
     SIGNUP: "/auth/signup",
+    LOGOUT: "/auth/logout",
     FORGOT_PASSWORD: "/auth/forgot",
     RESET_PASSWORD: "/auth/resetpassword",
     VERIFY_CODE: "/auth/verify/code",
@@ -127,10 +128,16 @@ export const API_ENDPOINTS = {
     REDEEM: "/auth/referral/redeem",
   },
   PAYMENT: {
-    CREATE_PROJECT_PAYMENT_INTENT: "/payment/create-project-payment-intent",
+    CREATE_PROJECT_PAYMENT_INTENT: "/api/stripe/project/payment-intent",
     CONFIRM_PROJECT_PAYMENT: "/payment/confirm-project-payment",
     GET_PAYMENT_STATUS: "/payment/status",
     GET_PROJECT_PAYMENTS: "/payment/project",
+    WITHDRAW_PAYMENT: "/api/stripe/withdraw",
+  },
+  STRIPE_CONNECT: {
+    CREATE_ACCOUNT: "/api/stripe/connect/account",
+    CREATE_ACCOUNT_LINK: "/api/stripe/connect/account-link",
+    GET_ACCOUNT_STATUS: "/api/stripe/account/status",
   },
 };
 

@@ -94,6 +94,8 @@ const ProjectActivities = () => {
     dispatch(getContributors(payload));
   }, [dispatch, projectid]);
 
+  // Call Stripe payments APIs on page view to aid debugging/visibility
+
   const UserProjectActivity = useSelector(
     (state) => state?.getAllProjectActivity?.allProjectActivity?.data ?? []
   );
@@ -131,6 +133,7 @@ const ProjectActivities = () => {
 
     return `${hours}:${minutes} ${ampm}`;
   };
+  // Note: Stripe payments listing and intent detail calls are moved to their own flow.
 
   function OnChatBox() {
     if (dispute === "true") {

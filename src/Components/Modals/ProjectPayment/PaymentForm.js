@@ -5,8 +5,6 @@ import {
   PaymentElement,
 } from "@stripe/react-stripe-js";
 import { Button } from "react-bootstrap";
-import { useDispatch } from "react-redux";
-import { confirmProjectPayment } from "../../../services/redux/middleware/Payment/payment";
 
 const PaymentForm = ({
   projectData,
@@ -17,7 +15,6 @@ const PaymentForm = ({
 }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const dispatch = useDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
@@ -81,47 +78,14 @@ const PaymentForm = ({
           const confirmedPaymentIntent = error.payment_intent;
           setPaymentCompleted(true);
 
-          const confirmData = {
-            projectId: projectData?._id || projectData?.id,
-            paymentIntentId: confirmedPaymentIntent.id,
-            amount: parseFloat(amount),
-            description: description,
-          };
-
-          dispatch(confirmProjectPayment(confirmData))
-            .then((res) => {
-              setIsProcessing(false);
-              if (
-                res?.payload?.status === 200 ||
-                res?.payload?.status === 201
-              ) {
-                console.log("✅ [BACKEND] Payment confirmed successfully");
-                onSuccess();
-              } else if (res?.payload?.status === 404) {
-                console.warn(
-                  "⚠️ [BACKEND] Endpoint not found, but payment succeeded on Stripe"
-                );
-                onSuccess();
-              } else {
-                setErrorMessage(
-                  res?.payload?.message || "Failed to confirm payment"
-                );
-              }
-            })
-            .catch((err) => {
-              setIsProcessing(false);
-              console.error("❌ [BACKEND] Confirmation error:", err);
-              if (err?.response?.status === 404) {
-                console.warn(
-                  "⚠️ [BACKEND] Endpoint not found, but payment succeeded on Stripe"
-                );
-                onSuccess();
-              } else {
-                setErrorMessage(
-                  "Payment succeeded on Stripe, but backend confirmation failed"
-                );
-              }
-            });
+          console.log(
+            "✅ [STRIPE] Payment succeeded. Skipping backend confirm.",
+            {
+              paymentIntentId: confirmedPaymentIntent?.id,
+            }
+          );
+          setIsProcessing(false);
+          onSuccess();
           return;
         }
 
@@ -132,57 +96,19 @@ const PaymentForm = ({
         (paymentIntent.status === "succeeded" ||
           paymentIntent.status === "processing")
       ) {
-        // Payment succeeded or is processing, confirm in backend
-        console.log("✅ [STRIPE] Payment confirmed by Stripe:", {
-          paymentIntentId: paymentIntent.id,
-          status: paymentIntent.status,
-          amount: paymentIntent.amount,
-        });
+        // Payment succeeded or is processing; do not call backend confirm
+        console.log(
+          "✅ [STRIPE] Payment confirmed by Stripe (no backend confirm):",
+          {
+            paymentIntentId: paymentIntent.id,
+            status: paymentIntent.status,
+            amount: paymentIntent.amount,
+          }
+        );
 
         setPaymentCompleted(true); // Mark as completed to prevent duplicates
-
-        const confirmData = {
-          projectId: projectData?._id || projectData?.id,
-          paymentIntentId: paymentIntent.id,
-          amount: parseFloat(amount),
-          description: description,
-        };
-
-        console.log("🔄 [BACKEND] Confirming with backend:", confirmData);
-
-        // Skip backend confirmation if endpoint doesn't exist (404)
-        dispatch(confirmProjectPayment(confirmData))
-          .then((res) => {
-            setIsProcessing(false);
-            if (res?.payload?.status === 200 || res?.payload?.status === 201) {
-              console.log("✅ [BACKEND] Payment confirmed successfully");
-              onSuccess();
-            } else if (res?.payload?.status === 404) {
-              console.warn(
-                "⚠️ [BACKEND] Endpoint not found, but payment succeeded on Stripe"
-              );
-              onSuccess(); // Still show success since Stripe confirmed
-            } else {
-              setErrorMessage(
-                res?.payload?.message || "Failed to confirm payment"
-              );
-            }
-          })
-          .catch((err) => {
-            setIsProcessing(false);
-            console.error("❌ [BACKEND] Confirmation error:", err);
-            // If it's just a 404, still show success since Stripe payment worked
-            if (err?.response?.status === 404) {
-              console.warn(
-                "⚠️ [BACKEND] Endpoint not found, but payment succeeded on Stripe"
-              );
-              onSuccess();
-            } else {
-              setErrorMessage(
-                "Payment succeeded on Stripe, but backend confirmation failed"
-              );
-            }
-          });
+        setIsProcessing(false);
+        onSuccess();
       } else {
         setIsProcessing(false);
         setErrorMessage("Payment processing failed. Please try again.");

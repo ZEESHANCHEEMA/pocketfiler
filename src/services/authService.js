@@ -1,22 +1,22 @@
-import api from './apiInterceptor';
-import { API_ENDPOINTS, API_ERROR_MESSAGES } from '../config/apiConfig';
+import api from "./apiInterceptor";
+import { API_ENDPOINTS, API_ERROR_MESSAGES } from "../config/apiConfig";
 
 class AuthService {
   // Store token
   static setToken(token) {
     try {
-      localStorage.setItem('token', token);
+      localStorage.setItem("token", token);
     } catch (error) {
-      console.error('Error storing token:', error);
+      console.error("Error storing token:", error);
     }
   }
 
   // Get token
   static getToken() {
     try {
-      return localStorage.getItem('token');
+      return localStorage.getItem("token");
     } catch (error) {
-      console.error('Error getting token:', error);
+      console.error("Error getting token:", error);
       return null;
     }
   }
@@ -24,19 +24,19 @@ class AuthService {
   // Store user data
   static setUser(user) {
     try {
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
     } catch (error) {
-      console.error('Error storing user:', error);
+      console.error("Error storing user:", error);
     }
   }
 
   // Get user data
   static getUser() {
     try {
-      const user = localStorage.getItem('user');
+      const user = localStorage.getItem("user");
       return user ? JSON.parse(user) : null;
     } catch (error) {
-      console.error('Error getting user:', error);
+      console.error("Error getting user:", error);
       return null;
     }
   }
@@ -47,7 +47,7 @@ class AuthService {
       const token = this.getToken();
       return !!token;
     } catch (error) {
-      console.error('Error checking authentication:', error);
+      console.error("Error checking authentication:", error);
       return false;
     }
   }
@@ -55,14 +55,14 @@ class AuthService {
   // Clear all auth data
   static clearAuth() {
     try {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('_id');
-      localStorage.removeItem('profileupdate');
-      localStorage.removeItem('role');
-      localStorage.removeItem('name');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("_id");
+      localStorage.removeItem("profileupdate");
+      localStorage.removeItem("role");
+      localStorage.removeItem("name");
     } catch (error) {
-      console.error('Error clearing auth data:', error);
+      console.error("Error clearing auth data:", error);
     }
   }
 
@@ -71,14 +71,14 @@ class AuthService {
     try {
       const token = this.getToken();
       const user = this.getUser();
-      
+
       return {
         token,
         user,
         isAuthenticated: !!token,
       };
     } catch (error) {
-      console.error('Error initializing auth:', error);
+      console.error("Error initializing auth:", error);
       return {
         token: null,
         user: null,
@@ -99,7 +99,8 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
@@ -116,7 +117,8 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
@@ -124,7 +126,10 @@ class AuthService {
 
   static async googleSignup(userData) {
     try {
-      const response = await api.post(API_ENDPOINTS.AUTH.GOOGLE_SIGNUP, userData);
+      const response = await api.post(
+        API_ENDPOINTS.AUTH.GOOGLE_SIGNUP,
+        userData
+      );
       return {
         success: true,
         data: response.data,
@@ -133,7 +138,8 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
@@ -141,7 +147,10 @@ class AuthService {
 
   static async linkedinLogin(linkedinData) {
     try {
-      const response = await api.post(API_ENDPOINTS.AUTH.LINKEDIN_LOGIN, linkedinData);
+      const response = await api.post(
+        API_ENDPOINTS.AUTH.LINKEDIN_LOGIN,
+        linkedinData
+      );
       return {
         success: true,
         data: response.data,
@@ -150,7 +159,8 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
@@ -158,7 +168,9 @@ class AuthService {
 
   static async forgotPassword(email) {
     try {
-      const response = await api.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
+      const response = await api.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, {
+        email,
+      });
       return {
         success: true,
         data: response.data,
@@ -167,7 +179,8 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
@@ -175,7 +188,10 @@ class AuthService {
 
   static async resetPassword(resetData) {
     try {
-      const response = await api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, resetData);
+      const response = await api.post(
+        API_ENDPOINTS.AUTH.RESET_PASSWORD,
+        resetData
+      );
       return {
         success: true,
         data: response.data,
@@ -184,7 +200,8 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
@@ -192,7 +209,10 @@ class AuthService {
 
   static async verifyCode(verificationData) {
     try {
-      const response = await api.post(API_ENDPOINTS.AUTH.VERIFY_CODE, verificationData);
+      const response = await api.post(
+        API_ENDPOINTS.AUTH.VERIFY_CODE,
+        verificationData
+      );
       return {
         success: true,
         data: response.data,
@@ -201,7 +221,8 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
@@ -209,7 +230,10 @@ class AuthService {
 
   static async updateVerificationCode(email) {
     try {
-      const response = await api.post(API_ENDPOINTS.AUTH.UPDATE_VERIFICATION_CODE, { email });
+      const response = await api.post(
+        API_ENDPOINTS.AUTH.UPDATE_VERIFICATION_CODE,
+        { email }
+      );
       return {
         success: true,
         data: response.data,
@@ -218,7 +242,8 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
@@ -226,7 +251,9 @@ class AuthService {
 
   static async getUserById(userId) {
     try {
-      const response = await api.get(`${API_ENDPOINTS.AUTH.GET_USER_BY_ID}/${userId}`);
+      const response = await api.get(
+        `${API_ENDPOINTS.AUTH.GET_USER_BY_ID}/${userId}`
+      );
       return {
         success: true,
         data: response.data,
@@ -235,7 +262,8 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
@@ -243,7 +271,9 @@ class AuthService {
 
   static async getTermsAndConditions() {
     try {
-      const response = await api.get(API_ENDPOINTS.AUTH.GET_TERMS_AND_CONDITIONS);
+      const response = await api.get(
+        API_ENDPOINTS.AUTH.GET_TERMS_AND_CONDITIONS
+      );
       return {
         success: true,
         data: response.data,
@@ -252,11 +282,31 @@ class AuthService {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
+        status: error.response?.status,
+      };
+    }
+  }
+
+  static async logout() {
+    try {
+      const response = await api.post(API_ENDPOINTS.AUTH.LOGOUT);
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+        message: response.data?.message || "Logged out successfully",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error.response?.data?.error || API_ERROR_MESSAGES.GENERIC_ERROR,
         status: error.response?.status,
       };
     }
   }
 }
 
-export default AuthService; 
+export default AuthService;

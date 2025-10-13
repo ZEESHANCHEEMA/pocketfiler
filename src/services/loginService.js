@@ -1,5 +1,5 @@
-import AuthService from './authService';
-import { ErrorToast, SuccessToast } from '../Components/toast/Toast';
+import AuthService from "./authService";
+import { ErrorToast, SuccessToast } from "../Components/toast/Toast";
 
 class LoginService {
   // Regular email/password login
@@ -12,48 +12,54 @@ class LoginService {
       };
 
       const result = await AuthService.login(credentials);
-      
+
       if (result.success) {
         // Store user data
         AuthService.setToken(result.data.token);
         AuthService.setUser(result.data.data);
-        
+
         // Store additional data for backward compatibility
         localStorage.setItem("_id", result.data.data?.id);
         localStorage.setItem("profileupdate", result.data.data?.profileUpdate);
         localStorage.setItem("role", result.data.data?.role);
         localStorage.setItem("name", result.data.data?.fullname);
-        
+        localStorage.setItem("email", result.data.data?.email || email);
+
         SuccessToast("Signed In Successfully");
-        
+
         return {
           success: true,
           data: result.data,
-          redirectTo: result.data.data?.profileUpdate ? "/Dashboard" : "/Profile"
+          redirectTo: result.data.data?.profileUpdate
+            ? "/Dashboard"
+            : "/Profile",
         };
       } else {
         // Handle specific error cases
-        if (result.message === "Email not verified. Verification code sent to your email.") {
+        if (
+          result.message ===
+          "Email not verified. Verification code sent to your email."
+        ) {
           return {
             success: false,
             message: result.message,
             redirectTo: `/SignUp-Verify/${email}`,
-            requiresVerification: true
+            requiresVerification: true,
           };
         }
-        
+
         ErrorToast(result.message);
         return {
           success: false,
-          message: result.message
+          message: result.message,
         };
       }
     } catch (error) {
-      console.error('Login error:', error);
-      ErrorToast('An error occurred during login. Please try again.');
+      console.error("Login error:", error);
+      ErrorToast("An error occurred during login. Please try again.");
       return {
         success: false,
-        message: 'An error occurred during login. Please try again.'
+        message: "An error occurred during login. Please try again.",
       };
     }
   }
@@ -69,38 +75,44 @@ class LoginService {
       };
 
       const result = await AuthService.googleSignup(userData);
-      
+
       if (result.success) {
         // Store user data
         AuthService.setToken(result.data.token);
         AuthService.setUser(result.data.data);
-        
+
         // Store additional data for backward compatibility
         localStorage.setItem("_id", result.data.data?.id);
         localStorage.setItem("profileupdate", result.data.data?.profileUpdate);
         localStorage.setItem("role", result.data.data?.role);
         localStorage.setItem("name", result.data.data?.fullname);
-        
+        localStorage.setItem(
+          "email",
+          result.data.data?.email || googleData.email
+        );
+
         SuccessToast("Google Login Success");
-        
+
         return {
           success: true,
           data: result.data,
-          redirectTo: result.data.data?.profileUpdate ? "/Dashboard" : "/Profile"
+          redirectTo: result.data.data?.profileUpdate
+            ? "/Dashboard"
+            : "/Profile",
         };
       } else {
         ErrorToast(result.message);
         return {
           success: false,
-          message: result.message
+          message: result.message,
         };
       }
     } catch (error) {
-      console.error('Google login error:', error);
-      ErrorToast('An error occurred during Google login. Please try again.');
+      console.error("Google login error:", error);
+      ErrorToast("An error occurred during Google login. Please try again.");
       return {
         success: false,
-        message: 'An error occurred during Google login. Please try again.'
+        message: "An error occurred during Google login. Please try again.",
       };
     }
   }
@@ -113,38 +125,41 @@ class LoginService {
       };
 
       const result = await AuthService.linkedinLogin(linkedinData);
-      
+
       if (result.success) {
         // Store user data
         AuthService.setToken(result.data.token);
         AuthService.setUser(result.data.data);
-        
+
         // Store additional data for backward compatibility
         localStorage.setItem("_id", result.data.data?.id);
         localStorage.setItem("profileupdate", result.data.data?.profileUpdate);
         localStorage.setItem("role", result.data.data?.role);
         localStorage.setItem("name", result.data.data?.fullname);
-        
+        localStorage.setItem("email", result.data.data?.email);
+
         SuccessToast("LinkedIn Login Success");
-        
+
         return {
           success: true,
           data: result.data,
-          redirectTo: result.data.data?.profileUpdate ? "/Dashboard" : "/Profile"
+          redirectTo: result.data.data?.profileUpdate
+            ? "/Dashboard"
+            : "/Profile",
         };
       } else {
         ErrorToast(result.message);
         return {
           success: false,
-          message: result.message
+          message: result.message,
         };
       }
     } catch (error) {
-      console.error('LinkedIn login error:', error);
-      ErrorToast('An error occurred during LinkedIn login. Please try again.');
+      console.error("LinkedIn login error:", error);
+      ErrorToast("An error occurred during LinkedIn login. Please try again.");
       return {
         success: false,
-        message: 'An error occurred during LinkedIn login. Please try again.'
+        message: "An error occurred during LinkedIn login. Please try again.",
       };
     }
   }
@@ -153,26 +168,26 @@ class LoginService {
   static async forgotPassword(email) {
     try {
       const result = await AuthService.forgotPassword(email);
-      
+
       if (result.success) {
         SuccessToast("Password reset email sent successfully");
         return {
           success: true,
-          message: "Password reset email sent successfully"
+          message: "Password reset email sent successfully",
         };
       } else {
         ErrorToast(result.message);
         return {
           success: false,
-          message: result.message
+          message: result.message,
         };
       }
     } catch (error) {
-      console.error('Forgot password error:', error);
-      ErrorToast('An error occurred. Please try again.');
+      console.error("Forgot password error:", error);
+      ErrorToast("An error occurred. Please try again.");
       return {
         success: false,
-        message: 'An error occurred. Please try again.'
+        message: "An error occurred. Please try again.",
       };
     }
   }
@@ -181,26 +196,26 @@ class LoginService {
   static async resetPassword(resetData) {
     try {
       const result = await AuthService.resetPassword(resetData);
-      
+
       if (result.success) {
         SuccessToast("Password reset successfully");
         return {
           success: true,
-          message: "Password reset successfully"
+          message: "Password reset successfully",
         };
       } else {
         ErrorToast(result.message);
         return {
           success: false,
-          message: result.message
+          message: result.message,
         };
       }
     } catch (error) {
-      console.error('Reset password error:', error);
-      ErrorToast('An error occurred. Please try again.');
+      console.error("Reset password error:", error);
+      ErrorToast("An error occurred. Please try again.");
       return {
         success: false,
-        message: 'An error occurred. Please try again.'
+        message: "An error occurred. Please try again.",
       };
     }
   }
@@ -209,26 +224,26 @@ class LoginService {
   static async verifyEmailCode(verificationData) {
     try {
       const result = await AuthService.verifyCode(verificationData);
-      
+
       if (result.success) {
         SuccessToast("Email verified successfully");
         return {
           success: true,
-          data: result.data
+          data: result.data,
         };
       } else {
         ErrorToast(result.message);
         return {
           success: false,
-          message: result.message
+          message: result.message,
         };
       }
     } catch (error) {
-      console.error('Email verification error:', error);
-      ErrorToast('An error occurred during verification. Please try again.');
+      console.error("Email verification error:", error);
+      ErrorToast("An error occurred during verification. Please try again.");
       return {
         success: false,
-        message: 'An error occurred during verification. Please try again.'
+        message: "An error occurred during verification. Please try again.",
       };
     }
   }
@@ -237,44 +252,66 @@ class LoginService {
   static async updateVerificationCode(email) {
     try {
       const result = await AuthService.updateVerificationCode(email);
-      
+
       if (result.success) {
         SuccessToast("Verification code sent successfully");
         return {
           success: true,
-          message: "Verification code sent successfully"
+          message: "Verification code sent successfully",
         };
       } else {
         ErrorToast(result.message);
         return {
           success: false,
-          message: result.message
+          message: result.message,
         };
       }
     } catch (error) {
-      console.error('Update verification code error:', error);
-      ErrorToast('An error occurred. Please try again.');
+      console.error("Update verification code error:", error);
+      ErrorToast("An error occurred. Please try again.");
       return {
         success: false,
-        message: 'An error occurred. Please try again.'
+        message: "An error occurred. Please try again.",
       };
     }
   }
 
   // Logout
-  static logout() {
+  static async logout() {
     try {
+      // Clear auth data locally (primary action)
       AuthService.clearAuth();
+
+      // Try to call logout API (optional - won't block if it fails)
+      try {
+        const result = await AuthService.logout();
+        if (result.success) {
+          console.log("✅ [LOGOUT] Server notified successfully");
+        }
+      } catch (apiError) {
+        // Silently fail - logout is primarily client-side
+        console.log(
+          "ℹ️ [LOGOUT] Server notification skipped (endpoint may not exist)"
+        );
+      }
+
       SuccessToast("Logged out successfully");
       return {
         success: true,
-        message: "Logged out successfully"
+        message: "Logged out successfully",
       };
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("❌ [LOGOUT] Error:", error);
+      // Still try to clear auth
+      try {
+        AuthService.clearAuth();
+      } catch (e) {
+        // Ignore
+      }
+      SuccessToast("Logged out successfully");
       return {
-        success: false,
-        message: 'An error occurred during logout.'
+        success: true,
+        message: "Logged out successfully",
       };
     }
   }
@@ -295,4 +332,4 @@ class LoginService {
   }
 }
 
-export default LoginService; 
+export default LoginService;

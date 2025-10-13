@@ -19,9 +19,9 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
-  
+
   // Get auth state from Redux
-  const { error } = useSelector(state => state.auth);
+  const { error } = useSelector((state) => state.auth);
 
   const input1 = "/Images/Auth/at-sign1.svg";
   const input2 = "/Images/Auth/Icon.svg";
@@ -68,6 +68,8 @@ export default function Login() {
 
             localStorage.setItem("_id", res?.payload?.data?.id);
             localStorage.setItem("token", res?.payload?.token);
+            localStorage.setItem("email", res?.payload?.data?.email);
+            localStorage.setItem("user", JSON.stringify(res?.payload?.data));
             localStorage.setItem(
               "profileupdate",
               res?.payload?.data?.profileUpdate
@@ -98,6 +100,8 @@ export default function Login() {
           setLoader(false);
           localStorage.setItem("_id", res?.payload?.data?.id);
           localStorage.setItem("token", res?.payload?.token);
+          localStorage.setItem("email", res?.payload?.data?.email);
+          localStorage.setItem("user", JSON.stringify(res?.payload?.data));
           SuccessToast("Linkedin login");
 
           if (res?.payload?.data?.profileUpdate) {
@@ -182,6 +186,8 @@ export default function Login() {
           localStorage.setItem("token", res?.payload?.token);
           localStorage.setItem("role", res?.payload?.data?.role);
           localStorage.setItem("name", res?.payload?.data?.fullname);
+          localStorage.setItem("email", res?.payload?.data?.email || email);
+          localStorage.setItem("user", JSON.stringify(res?.payload?.data));
 
           SuccessToast("Signed In Successfully");
           navigate("/Dashboard");
