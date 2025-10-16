@@ -154,6 +154,12 @@
     line-height: 29.52px;
     padding-left: 35px !important;
   }
+  .back-btn {
+    height: 44px;
+    width: 44px;
+    padding: 12px;
+    margin-left: 20px; /* bring it away from the edge */
+  }
   .notification-img-unread {
     padding: 13px;
   }

@@ -302,8 +302,8 @@ const Profile = () => {
             {!!userData?.isGoogleSignIn ||
             !!userData?.islinkedinSignIn ? null : (
               <div>
-                <h5 className="mb-3">Update Password</h5>
-                <div style={{ display: "flex", gap: "24px" }}>
+                <h5 className="mb-3 ">Update Password</h5>
+                <div className="password-grid">
                   <div className="profile__main-input3">
                     <label htmlFor="currentPassword">Current Password</label>
                     <input
@@ -360,9 +360,9 @@ const Profile = () => {
             )}
           </div>
 
-          <div className="profile__main-btn">
+          <div className="profile__main-btn profile-actions">
             <button
-              className="m-4"
+              className="profile-actions-btn"
               disabled={!hasChanges()}
               style={{ backgroundColor: !hasChanges() ? "gray" : "" }}
               onClick={updateUser}

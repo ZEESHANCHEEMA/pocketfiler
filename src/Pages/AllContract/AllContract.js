@@ -97,28 +97,24 @@ export default function AllContract() {
 
       <div className="Dash-body">
         <div className="contract-contain pb-allcontract">
-          <div className="contract-r1 pb-0">
+          <div className="contract-r1 pb-0 clients-toolbar">
             <p className="contract-head">Contracts</p>
 
             <div className="contract-rhs">
-              <div className="search-mb-contain">
-                <div
-                  className={isMobile ? "d-block" : "d-none"}
-                  onClick={handleSearchInput}
-                >
-                  <img src="/Images/Contract/search.svg" alt="search" />
-                </div>
-              </div>
-
-              <div className={isMobile ? "d-none" : "search-input-icon"}>
+              {/* mobile floating search icon removed; input is always visible */}
+              <div
+                className={
+                  isMobile ? "search-input-icon w-100" : "search-input-icon"
+                }
+              >
                 <img
                   src="/Images/Projects/search.svg"
                   alt="search-icon"
                   className="search-icon"
                   style={{
                     position: "absolute",
-                    left: "22px",
-                    top: "45%",
+                    left: isMobile ? "14px" : "22px",
+                    top: "50%",
                     transform: "translateY(-50%)",
                   }}
                 />
@@ -126,6 +122,7 @@ export default function AllContract() {
                   type="text"
                   placeholder="Search contracts..."
                   className="search-input-contract "
+                  style={isMobile ? { paddingLeft: "48px" } : undefined}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
@@ -148,22 +145,31 @@ export default function AllContract() {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <div style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-                      <button 
+                    <div
+                      style={{
+                        padding: "10px",
+                        borderBottom: "1px solid #eee",
+                      }}
+                    >
+                      <button
                         onClick={handleClearYearFilter}
                         style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#007bff',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          padding: '5px 10px',
-                          borderRadius: '4px',
-                          width: '100%',
-                          textAlign: 'left'
+                          background: "none",
+                          border: "none",
+                          color: "#007bff",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          padding: "5px 10px",
+                          borderRadius: "4px",
+                          width: "100%",
+                          textAlign: "left",
                         }}
-                        onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                        onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+                        onMouseOver={(e) =>
+                          (e.target.style.backgroundColor = "#f8f9fa")
+                        }
+                        onMouseOut={(e) =>
+                          (e.target.style.backgroundColor = "transparent")
+                        }
                       >
                         Clear Filter (Show All Years)
                       </button>

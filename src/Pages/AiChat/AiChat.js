@@ -418,22 +418,22 @@ const AiChat = () => {
 
                 <button
                   onClick={() => handleReaction(message._id, "like")}
-                  className={`p-1 rounded transition-colors ${
-                    reaction === "like" ? "bg-blue-100" : "hover:bg-gray-200"
-                  }`}
+                  className={`p-1 rounded transition-colors hover:bg-gray-200`}
                   title="Like"
                 >
-                  <ThumbsUp />
+                  <ThumbsUp
+                    color={reaction === "like" ? "#16a34a" : "#0A1126"}
+                  />
                 </button>
 
                 <button
                   onClick={() => handleReaction(message._id, "dislike")}
-                  className={`p-1 rounded transition-colors ${
-                    reaction === "dislike" ? "bg-red-100" : "hover:bg-gray-200"
-                  }`}
+                  className={`p-1 rounded transition-colors hover:bg-gray-200`}
                   title="Dislike"
                 >
-                  <ThumbsDown />
+                  <ThumbsDown
+                    color={reaction === "dislike" ? "#dc2626" : "#0A1126"}
+                  />
                 </button>
               </div>
             )}
@@ -672,7 +672,7 @@ const AiChat = () => {
           </div>
 
           {/* Input */}
-          <div className="border-t border-gray-200 p-5">
+          <div className="border-t border-gray-200 p-3 lg:p-5">
             <div className="flex items-end gap-3">
               <div className="flex-1">
                 <div

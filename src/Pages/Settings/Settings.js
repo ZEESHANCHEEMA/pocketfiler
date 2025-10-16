@@ -6,6 +6,8 @@ import "./Settings.css";
 const Settings = () => {
   const navigate = useNavigate();
 
+  const role = localStorage.getItem("role");
+
   return (
     <>
       <Header headername={"Settings"} />
@@ -19,13 +21,15 @@ const Settings = () => {
             <img src="/Images/Clients/arrow.svg" alt="go" />
           </button>
 
-          <button
-            className="settings__card"
-            onClick={() => navigate("/ReferFriend")}
-          >
-            <span className="settings__card-text">Refer a friend</span>
-            <img src="/Images/Clients/arrow.svg" alt="go" />
-          </button>
+          {role !== "organization" && (
+            <button
+              className="settings__card"
+              onClick={() => navigate("/ReferFriend")}
+            >
+              <span className="settings__card-text">Refer a friend</span>
+              <img src="/Images/Clients/arrow.svg" alt="go" />
+            </button>
+          )}
 
           <button
             className="settings__card"

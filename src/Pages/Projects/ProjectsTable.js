@@ -171,29 +171,26 @@ const ProjectsTable = () => {
             style={{ overflowX: "auto" }}
           >
             <div className="profit-table__main-data">
-              <div className="table-above-row-info">
+              <div className="table-above-row-info clients-toolbar">
                 <div>
                   <h6 className="user-heading mb-0"> Projects </h6>
                 </div>
 
                 <div className="projecttable__main-head">
-                  <div className="search-mb-contain">
-                    <div
-                      className={isMobile ? "d-block" : "d-none"}
-                      onClick={handleSearchInput}
-                    >
-                      <img src="/Images/Contract/search.svg" alt="search" />
-                    </div>
-                  </div>
-                  <div className={isMobile ? "d-none" : "search-input-icon"}>
+                  {/* mobile floating search icon removed */}
+                  <div
+                    className={
+                      isMobile ? "search-input-icon w-100" : "search-input-icon"
+                    }
+                  >
                     <img
                       src="/Images/Projects/search.svg"
                       alt="search-icon"
                       className="search-icon"
                       style={{
                         position: "absolute",
-                        left: "22px",
-                        top: "45%",
+                        left: isMobile ? "14px" : "22px",
+                        top: "50%",
                         transform: "translateY(-50%)",
                       }}
                     />
@@ -201,6 +198,7 @@ const ProjectsTable = () => {
                       type="text"
                       placeholder="Search projects..."
                       className="search-input-contract"
+                      style={isMobile ? { paddingLeft: "48px" } : undefined}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>

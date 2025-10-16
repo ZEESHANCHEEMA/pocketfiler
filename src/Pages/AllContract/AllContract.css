@@ -94,18 +94,38 @@
   .Add-con-btn-div {
     width: 100% !important;
   }
+  .contract-r1.clients-toolbar .contract-rhs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+  .contract-r1.clients-toolbar .search-input-icon {
+    grid-column: 1 / -1;
+  }
+  .contract-r1.clients-toolbar .drop-main {
+    grid-column: 1 / -1;
+  }
+  .contract-r1.clients-toolbar .Add-con-btn-div {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+  .contract-r1.clients-toolbar #dropdown-basic {
+    width: 100% !important;
+  }
+  .contract-r1.clients-toolbar .dropdown-week {
+    width: 100% !important;
+    height: 44px !important;
+    border-radius: 50px !important;
+  }
   /* 
   .contract-rhs {
     flex-wrap: wrap;
     gap: 12px;
   } */
-  .contract-r1 {
-    /* justify-content: center; */
-    /* flex-direction: column; */
-    /* gap: 12px; */
-  }
+  /* Show year text on small devices */
   .dropdown-week span {
-    display: none;
+    display: inline-block !important;
   }
   .calendar-dropimg {
     width: 13.09px;
@@ -136,6 +156,16 @@
   .search-icon-allcontract {
     left: 12px !important;
     /* top: 60%; */
+  }
+
+  /* Force full-width year filter when using toolbar grid on mobile */
+  .contract-r1.clients-toolbar #dropdown-basic {
+    width: 100% !important;
+  }
+  .contract-r1.clients-toolbar .dropdown-week {
+    width: 100% !important;
+    height: 44px !important;
+    border-radius: 50px !important;
   }
 }
 

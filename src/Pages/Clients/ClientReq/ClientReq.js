@@ -160,7 +160,7 @@ const ClientReq = () => {
 
       <div className="Dash-body">
         <div className="contract-contain pb-allcontract">
-          <div className="contract-r1 pb-0">
+          <div className="contract-r1 pb-0 clients-toolbar">
             {userRoles === "organization" ? (
               <p className="contract-head">Clients Requests</p>
             ) : (
@@ -168,16 +168,12 @@ const ClientReq = () => {
             )}
 
             <div className="contract-rhs">
-              <div className="search-mb-contain">
-                <div
-                  className={isMobile ? "d-block" : "d-none"}
-                  onClick={handleSearchInput}
-                >
-                  <img src="/Images/Contract/search.svg" alt="search" />
-                </div>
-              </div>
-
-              <div className={isMobile ? "d-none" : "search-input-icon"}>
+              {/* mobile floating search icon removed; search is always visible */}
+              <div
+                className={
+                  isMobile ? "search-input-icon w-100" : "search-input-icon"
+                }
+              >
                 <img
                   src="/Images/Projects/search.svg"
                   alt="search-icon"

@@ -135,6 +135,49 @@ const ProjectActivities = () => {
   };
   // Note: Stripe payments listing and intent detail calls are moved to their own flow.
 
+  // Responsive styles for the Chat CTA
+  const chatBtnStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: isMobile ? 6 : 8,
+    backgroundColor: "#0A2540",
+    color: "#fff",
+    border: "none",
+    borderRadius: 9999,
+    padding: isMobile ? "8px 12px" : "10px 16px",
+    cursor: "pointer",
+    boxShadow: "0 4px 12px rgba(10,37,64,0.15)",
+    transition: "transform .15s ease, box-shadow .15s ease",
+  };
+  const chatLabelStyle = {
+    fontWeight: 500,
+    fontSize: isMobile ? 14 : 16,
+    lineHeight: 1,
+  };
+  const chatIconStyle = {
+    width: isMobile ? 16 : 18,
+    height: isMobile ? 16 : 18,
+  };
+
+  // Reusable action button style (Upload, etc.) for responsive design
+  const actionBtnStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: isMobile ? 6 : 8,
+    backgroundColor: "#0A2540",
+    color: "#fff",
+    border: "none",
+    borderRadius: 9999,
+    padding: isMobile ? "10px 14px" : "12px 24px",
+    cursor: "pointer",
+    boxShadow: "0 4px 12px rgba(10,37,64,0.15)",
+  };
+  const actionLabelStyle = {
+    fontWeight: 500,
+    fontSize: isMobile ? 14 : 16,
+    lineHeight: 1,
+  };
+
   function OnChatBox() {
     if (dispute === "true") {
       navigate(`/HelpCenter/Dispute/${projectid}`);
@@ -239,39 +282,29 @@ const ProjectActivities = () => {
               </div>
             </div>
             <div className="ProjectActivities__top-box_header-btn">
-              <img
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  OnChatBox();
-                }}
-                src="/Images/Projects/chat.svg"
-                alt="chat"
-                className="project-edit-img"
-              />
               {isMobile ? (
-                <>
-                  <img
-                    src="/Images/Projects/upload-btn-mb.svg"
-                    alt="upload document"
-                    className="project-edit-img"
-                    onClick={() => setModalShow(true)}
-                  />
-                  <img
-                    src="/Images/Projects/request-btn.svg"
-                    alt="Request document"
-                    className="project-edit-img"
-                    onClick={() => setReqModalShow(true)}
-                  />
-                </>
+                <button
+                  onClick={() => setModalShow(true)}
+                  style={actionBtnStyle}
+                  aria-label="Upload documents"
+                >
+                  <span style={actionLabelStyle}>Upload documents</span>
+                </button>
               ) : (
-                <>
-                  <button
-                    className="ProjectActivities__top-box_header-btn1"
-                    onClick={() => setModalShow(true)}
-                  >
-                    Upload documents
-                  </button>
-                </>
+                <button
+                  className="ProjectActivities__top-box_header-btn1"
+                  onClick={() => setModalShow(true)}
+                  style={{
+                    backgroundColor: "#0A2540",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 9999,
+                    padding: "12px 24px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Upload documents
+                </button>
               )}
 
               <ReqDocument
@@ -369,8 +402,10 @@ const ProjectActivities = () => {
                         width: 48,
                         borderRadius: "50%",
                         objectFit: "cover",
-                        marginLeft: idx === 0 ? 0 : -12,
-                        border: "3px solid #fff",
+                        marginLeft: idx === 0 ? 0 : -22,
+                        border: "none",
+                        position: "relative",
+                        zIndex: idx === 0 ? 3 : idx === 1 ? 2 : 1,
                         cursor: "pointer",
                       }}
                     />
@@ -387,14 +422,14 @@ const ProjectActivities = () => {
           <div className="ProjectActivities__txt">
             <p>{ProjectData?.description}</p>
           </div>
-          <div>
+          {/* <div>
             <button
               className="ProjectActivities__top-box_header-btn2"
               onClick={() => setReqModalShow(true)}
             >
               Request documents
             </button>
-          </div>
+          </div> */}
         </div>
         {UserProjectActivity?.length > 0 ? (
           <div className="ProjectActivities__main ">
@@ -403,27 +438,57 @@ const ProjectActivities = () => {
                 <h1>Project activities</h1>
                 <p>Below is a breakdown of recent activities in your project</p>
               </div>
-              {/* Payment CTA - show only for project contributors */}
-              {isContributor && currentUserRole === "user" ? (
-                <button
-                  className="pay-primary-btn"
-                  style={{ marginLeft: 24 }}
-                  onClick={() => setRequestPaymentShow(true)}
-                  tabIndex="0"
-                  aria-label="Withdraw payment"
+              {/* Chat CTA - show for contributors and organizations */}
+              {currentUserRole === "organization" ||
+              (isContributor && currentUserRole === "user") ? (
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
                 >
-                  Withdraw payment
-                </button>
+                  <button
+                    type="button"
+                    onClick={OnChatBox}
+                    aria-label="Open chat"
+                    style={chatBtnStyle}
+                  >
+                    <img
+                      src="/Images/Projects/chat.svg"
+                      alt=""
+                      aria-hidden="true"
+                      style={chatIconStyle}
+                    />
+                    <span style={chatLabelStyle}>Chat</span>
+                  </button>
+                  {/* <button
+                    className="pay-primary-btn"
+                    onClick={() => setRequestPaymentShow(true)}
+                    tabIndex="0"
+                    aria-label="Withdraw payment"
+                  >
+                    Withdraw payment
+                  </button> */}
+                </div>
               ) : isContributor && canMakePayment ? (
-                <button
-                  className="pay-primary-btn"
-                  style={{ marginLeft: 24 }}
-                  onClick={() => setPaymentModalShow(true)}
-                  tabIndex="0"
-                  aria-label="Make payment"
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
                 >
-                  Make Payment
-                </button>
+                  <img
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      OnChatBox();
+                    }}
+                    src="/Images/Projects/chat.svg"
+                    alt="chat"
+                    className="project-edit-img"
+                  />
+                  {/* <button
+                    className="pay-primary-btn"
+                    onClick={() => setPaymentModalShow(true)}
+                    tabIndex="0"
+                    aria-label="Make payment"
+                  >
+                    Make Payment
+                  </button> */}
+                </div>
               ) : null}
             </div>
 

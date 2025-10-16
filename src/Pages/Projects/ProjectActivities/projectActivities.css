@@ -185,6 +185,7 @@ h6 {
   flex-direction: column;
   gap: 5px;
   margin-bottom: 40px;
+  width: 70%;
 }
 .ProjectActivities__main-txt h1 {
   /* font-family: Clash Grotesk Variable; */
@@ -515,6 +516,7 @@ button[aria-label*="Stripe"] {
     margin-right: 30px;
     margin-top: 10px;
     width: 100%;
+    overflow: visible;
   }
 }
 

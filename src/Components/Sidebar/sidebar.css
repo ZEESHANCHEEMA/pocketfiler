@@ -365,7 +365,7 @@
 .css-mrxozk-MuiDrawer-docked .MuiDrawer-paper {
   width: 280px;
   box-sizing: border-box;
-  z-index: 1 !important;
+  z-index: 1100 !important; /* ensure above main but below overlays that use 1200+ */
 }
 
 .css-9mgopn-MuiDivider-root {
@@ -439,7 +439,7 @@
   flex-direction: column;
   height: 100%;
   flex: 1 0 auto;
-  z-index: 1200;
+  z-index: 1100; /* align with docked drawer */
   position: fixed;
   top: 0;
   outline: 0;

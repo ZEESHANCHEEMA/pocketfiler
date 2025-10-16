@@ -264,91 +264,31 @@ export default function RequestPayment(props) {
               bro.
             </p>
             <div
-              className="escrow-badge"
+              className=""
               aria-label={`${
                 selectedPayment ? "Selected amount" : "Amount in escrow"
               }: ${formatCurrency(escrowAmount)}`}
               style={{
-                backgroundColor: selectedPayment ? "#0A2540" : undefined,
-                color: selectedPayment ? "white" : undefined,
+                padding: "20px",
+                textAlign: "center",
+                marginTop: "20px",
+                backgroundColor: "#f8f9fa",
+                borderRadius: "8px",
+                border: "1px dashed #dee2e6",
               }}
             >
               {selectedPayment ? "Selected amount" : "Amount in escrow"}:{" "}
-              {formatCurrency(escrowAmount)}
+              {formatCurrency(selectedPayment?.amount || escrowAmount)}
             </div>
 
             {/* Compact payment summary (no manual selection) */}
             {!fetchingPayments &&
               myPayments &&
               myPayments.length > 0 &&
-              selectedPayment && (
-                <div
-                  style={{
-                    marginTop: "16px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "16px",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    backgroundColor: "#f9f9f9",
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: "22px",
-                      fontWeight: "700",
-                      color: "#28a745",
-                      marginBottom: 0,
-                    }}
-                  >
-                    {formatCurrency(selectedPayment.amount / 100)}
-                  </p>
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      padding: "6px 12px",
-                      borderRadius: "6px",
-                      backgroundColor:
-                        selectedPayment.status === "succeeded"
-                          ? "#d4edda"
-                          : selectedPayment.status === "pending"
-                          ? "#fff3cd"
-                          : selectedPayment.status === "released"
-                          ? "#d1ecf1"
-                          : "#f8d7da",
-                      color:
-                        selectedPayment.status === "succeeded"
-                          ? "#155724"
-                          : selectedPayment.status === "pending"
-                          ? "#856404"
-                          : selectedPayment.status === "released"
-                          ? "#0c5460"
-                          : "#721c24",
-                      fontWeight: "600",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {selectedPayment.status}
-                  </span>
-                </div>
-              )}
+              selectedPayment && <div></div>}
 
             {!fetchingPayments && (!myPayments || myPayments.length === 0) && (
-              <div
-                style={{
-                  padding: "20px",
-                  textAlign: "center",
-                  marginTop: "20px",
-                  backgroundColor: "#f8f9fa",
-                  borderRadius: "8px",
-                  border: "1px dashed #dee2e6",
-                }}
-              >
-                <p style={{ color: "#666", fontSize: "14px", marginBottom: 0 }}>
-                  No payments available for withdrawal
-                </p>
-              </div>
+              <div></div>
             )}
 
             <div
@@ -362,7 +302,6 @@ export default function RequestPayment(props) {
                   loading ||
                   checkingAccount ||
                   fetchingPayments ||
-                  // Disable only when Stripe is fully connected AND there's no payment
                   (isStripeConnected &&
                     detailsSubmitted &&
                     chargesEnabled &&

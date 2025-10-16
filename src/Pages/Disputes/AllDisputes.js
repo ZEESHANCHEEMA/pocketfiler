@@ -121,33 +121,34 @@ const AllDisputes = () => {
             style={{ overflowX: "auto" }}
           >
             <div className="profit-table__main-data">
-              <div className="table-above-row-info pb-0">
+              <div className="table-above-row-info pb-0 clients-toolbar">
                 <div>
                   <h6 className="user-heading mb-0"> Disputes </h6>
                 </div>
 
                 <div className="projecttable__main-head">
-                  <div className="search-mb-contain">
-                    <div className={isMobile ? "d-block" : "d-none"}>
-                      <img src="/Images/Contract/search.svg" alt="search" />
-                    </div>
-                  </div>
-                  <div className={isMobile ? "d-none" : "search-input-icon"}>
+                  {/* mobile floating search icon removed; input always visible */}
+                  <div
+                    className={
+                      isMobile ? "search-input-icon w-100" : "search-input-icon"
+                    }
+                  >
                     <img
                       src="/Images/Projects/search.svg"
                       alt="search-icon"
                       className="search-icon"
                       style={{
                         position: "absolute",
-                        left: "22px",
-                        top: "45%",
+                        left: isMobile ? "14px" : "22px",
+                        top: "50%",
                         transform: "translateY(-50%)",
                       }}
                     />
                     <input
                       type="text"
                       placeholder="Search disputes..."
-                      className="search-input"
+                      className="search-input-contract"
+                      style={isMobile ? { paddingLeft: "48px" } : undefined}
                       onChange={(e) => searchData(e.target.value)}
                     />
                   </div>

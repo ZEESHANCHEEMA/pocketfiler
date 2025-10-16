@@ -32,10 +32,11 @@ export default function HelpCenter() {
   const [loader, setLoader] = useState(false);
   const [modalShow, setModalShow] = useState(false);
 
+  // Always show Help Center contact info (not user's info)
   useEffect(() => {
-    setEmail(userData?.email ?? "");
-    setPhoneNo(userData?.phoneNo ?? "");
-  }, [userData]);
+    setEmail("info@pocketfiller.com");
+    setPhoneNo("123-876-0987");
+  }, []);
   const handlePhoneNoChange = (e) => {
     const value = e.target.value.replace(/\D/g, ""); // Allow only numeric values
     setPhoneNo(value);
@@ -48,9 +49,6 @@ export default function HelpCenter() {
     } else if (!phoneno) {
       ErrorToast("Please Enter Contact Number");
       return false;
-    } else if (!description.trim()) {
-      ErrorToast("Please Enter Description");
-      return false;
     }
     return true;
   };
@@ -62,13 +60,12 @@ export default function HelpCenter() {
     }
     setLoader(true);
     try {
-      const data = { email, contactNo: phoneno, description };
+      const data = { email, contactNo: phoneno };
       await dispatch(helpCenter(data)).then((res) => {
         console.log(res, "resuuuuuuuuuu");
         setLoader(false);
         if (res?.payload?.status == 201) {
           SuccessToast("Details Submitted Successfully");
-          setDescription("");
           // setModalShow(true);
         } else {
           ErrorToast(res?.payload?.message || "Something went wrong");
@@ -86,7 +83,7 @@ export default function HelpCenter() {
       <Header headername={"Help center"} />
       <div className="help-body">
         <div className="help-r1">
-          <Form.Group className="email-div">
+          <Form.Group className="email-div" style={{ flex: 1, minWidth: 280 }}>
             <Form.Label className="common-label">Email address</Form.Label>
             <div className="email-input-contain">
               <Form.Control
@@ -98,11 +95,11 @@ export default function HelpCenter() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+          </Form.Group>
 
-            <Form.Label className="common-label mt-2">
-              Contact number
-            </Form.Label>
-            <div className="email-input-contain mt-2">
+          <Form.Group className="email-div" style={{ flex: 1, minWidth: 280 }}>
+            <Form.Label className="common-label">Contact number</Form.Label>
+            <div className="email-input-contain">
               <Form.Control
                 type="text"
                 disabled
@@ -110,18 +107,6 @@ export default function HelpCenter() {
                 className="email-input-noicon"
                 value={phoneno}
                 onChange={handlePhoneNoChange}
-              />
-            </div>
-
-            <Form.Label className="common-label mt-2">Description</Form.Label>
-            <div className="email-input-contain mt-2">
-              <Form.Control
-                as="textarea"
-                rows={6} // Big text area for description
-                placeholder="Enter Description"
-                className="email-input-noicon"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
           </Form.Group>
@@ -140,11 +125,8 @@ export default function HelpCenter() {
           </p>
         </div>
 
-        <button
-          className="helpCenter__btn"
-          onClick={!loader ? () => handleDisputes() : () => {}}
-        >
-          Submit
+        <button className="helpCenter__btn" onClick={() => setModalShow(true)}>
+          Disputes
         </button>
         {modalShow && (
           <Dispute show={modalShow} onHide={() => setModalShow(false)} />

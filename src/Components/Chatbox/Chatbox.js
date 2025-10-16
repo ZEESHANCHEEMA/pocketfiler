@@ -529,7 +529,6 @@ const Chatbox = ({ disputing }) => {
                             {" "}
                             {item?.user?.fullname}{" "}
                           </span>{" "}
-                          started
                           <span className="text-call-name">
                             {" "}
                             {item?.activityMsg}{" "}

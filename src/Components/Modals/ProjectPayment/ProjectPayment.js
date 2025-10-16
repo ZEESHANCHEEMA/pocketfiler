@@ -5,19 +5,13 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { API_CONFIG } from "../../../config/apiConfig";
 import PaymentForm from "./PaymentForm";
-import {
-  createProjectPaymentIntent,
-  confirmProjectPayment,
-} from "../../../services/redux/middleware/Payment/payment";
+import { createProjectPaymentIntent } from "../../../services/redux/middleware/Payment/payment";
 import { clearPaymentState } from "../../../services/redux/slices/Payment/paymentSlice";
+import { getContributors } from "../../../services/redux/middleware/Project/project";
 import ScreenLoader from "../../loader/ScreenLoader";
 import "./ProjectPayment.css";
 
 // Initialize Stripe with publishable key
-console.log(
-  "🔑 [STRIPE] Initializing Stripe with key:",
-  API_CONFIG.STRIPE_PUBLISHABLE_KEY?.substring(0, 20) + "..."
-);
 const stripePromise = loadStripe(API_CONFIG.STRIPE_PUBLISHABLE_KEY);
 
 const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
@@ -38,30 +32,17 @@ const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
     error,
   } = paymentState;
 
-  // Debug: Log Redux state whenever it changes
-  useEffect(() => {
-    console.log("🔄 [REDUX STATE] Payment state updated:", {
-      hasClientSecret: !!clientSecret,
-      hasPaymentIntentId: !!payment_intent_id,
-      isLoading: paymentLoading,
-      hasError: !!error,
-      fullState: paymentState,
-    });
-  }, [paymentState, clientSecret, payment_intent_id, paymentLoading, error]);
+  useEffect(() => {}, [
+    paymentState,
+    clientSecret,
+    payment_intent_id,
+    paymentLoading,
+    error,
+  ]);
 
   useEffect(() => {
-    console.log("🔍 [USE EFFECT] clientSecret changed:", {
-      clientSecret: clientSecret ? "***PRESENT***" : "NULL/UNDEFINED",
-      clientSecretValue: clientSecret,
-      payment_intent_id: payment_intent_id,
-      willOpenStripeForm: !!clientSecret,
-    });
-
     if (clientSecret) {
-      console.log("🎯 [STRIPE FORM] Opening Stripe payment sheet now!");
       setClientSecretLocal(clientSecret);
-    } else {
-      console.log("⏳ [STRIPE FORM] Waiting for clientSecret from Redux...");
     }
   }, [clientSecret, payment_intent_id]);
 
@@ -71,22 +52,52 @@ const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
     }
   }, [paymentAmount]);
 
-  const handleCreatePaymentIntent = () => {
-    console.log("[ProjectPayment] Make payment clicked", { amount, title });
+  const handleCreatePaymentIntent = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       return;
     }
 
     setLoading(true);
 
-    // Infer payee (contractor/receiver) from available project fields
+    // First, fetch contributors to find the contractor (payee)
+    let contractorId = null;
+    try {
+      const contributorsRes = await dispatch(
+        getContributors({
+          projectId: projectData?._id || projectData?.id,
+          page: 1,
+        })
+      );
+
+      const contributors = contributorsRes?.payload?.data?.contributors || [];
+
+      if (contributors.length > 0) {
+        // Use the first contributor as the contractor (payee)
+        contractorId =
+          contributors[0]?.user?._id ||
+          contributors[0]?.user?.id ||
+          contributors[0]?._id ||
+          contributors[0]?.id;
+      } else {
+        // no contributors found
+      }
+    } catch (error) {
+      // swallow contributor fetch errors to avoid blocking UI
+    }
+
+    // derive payee from contributors or known fields
+
+    // Use the contractor ID from contributors, or fallback to project data fields
     const inferredPayeeId =
+      contractorId ||
       projectData?.contractorId ||
       projectData?.contractor_id ||
-      projectData?.createdBy ||
-      projectData?.ownerId ||
-      projectData?.userId ||
-      projectData?.user_id;
+      projectData?.contractor?._id ||
+      projectData?.contractor?.id ||
+      projectData?.contributor?._id ||
+      projectData?.contributor?.id ||
+      projectData?.assignedTo?._id ||
+      projectData?.assignedTo?.id;
 
     const paymentData = {
       title:
@@ -109,66 +120,31 @@ const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
       paymentData.customer_id = customerId;
     }
 
-    console.log("🔍 [PAYMENT DATA CHECK] All fields being sent:", {
-      ...paymentData,
-      allFieldsPresent: {
-        title: !!paymentData.title,
-        description: !!paymentData.description,
-        amount: !!paymentData.amount,
-        currency: !!paymentData.currency,
-        customer_id: !!paymentData.customer_id,
-        project_id: !!paymentData.project_id,
-        payer_user_id: !!paymentData.payer_user_id,
-        payee_id: !!paymentData.payee_id,
-      },
-      note: !paymentData.customer_id
-        ? "customer_id omitted - backend will create/find customer"
-        : "customer_id included",
-    });
+    // basic validation done above
 
     if (!paymentData.payee_id) {
-      console.warn(
-        "⚠️ [PAYMENT] Unable to infer payee_id from projectData. Please ensure project contains contractorId/createdBy/ownerId/userId."
-      );
+      setLoading(false);
+      return;
     }
 
     dispatch(createProjectPaymentIntent(paymentData))
       .then(async (res) => {
-        console.log("📦 [RESPONSE] Full response from API:", res);
-        console.log("📦 [RESPONSE] Payload:", res?.payload);
-        console.log("📦 [RESPONSE] Client Secret:", res?.payload?.clientSecret);
-        console.log(
-          "📦 [RESPONSE] Payment Intent ID:",
-          res?.payload?.payment_intent_id
-        );
-
         if (res?.payload?.status === 200 || res?.payload?.status === 201) {
-          console.log("✅ Payment intent created successfully");
-
           const clientSecret = res?.payload?.clientSecret;
           if (!clientSecret) {
-            console.error("⚠️ WARNING: clientSecret is missing from response!");
             setLoading(false);
             return;
           }
-
-          // Trigger Stripe Payment Sheet using client_secret
-          console.log("🚀 [STRIPE] Opening Stripe Payment Sheet...");
 
           // Store clientSecret to trigger the Elements UI (Stripe's payment form)
           setClientSecretLocal(clientSecret);
           setLoading(false);
         } else {
-          console.error(
-            "❌ Payment intent creation failed:",
-            res?.payload?.message
-          );
           setLoading(false);
         }
       })
       .catch((err) => {
         setLoading(false);
-        console.error("❌ Payment intent creation error:", err);
       });
   };
 
@@ -178,7 +154,6 @@ const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
   };
 
   const handleClose = () => {
-    console.log("🔄 [CLEANUP] Clearing payment state and closing modal");
     dispatch(clearPaymentState());
     setClientSecretLocal(null);
     setTitle("");
@@ -207,16 +182,7 @@ const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
     appearance,
   };
 
-  // Log when options are created
-  useEffect(() => {
-    if (clientSecretLocal) {
-      console.log("⚡ [ELEMENTS] Creating Stripe Elements with options:", {
-        hasClientSecret: !!clientSecretLocal,
-        clientSecretPreview: clientSecretLocal?.substring(0, 30) + "...",
-        appearance: appearance.theme,
-      });
-    }
-  }, [clientSecretLocal]);
+  useEffect(() => {}, [clientSecretLocal]);
 
   return (
     <Modal
@@ -362,9 +328,6 @@ const ProjectPayment = ({ show, onHide, projectData, paymentAmount }) => {
           </div>
         ) : (
           <div className="stripe-payment-container">
-            {console.log(
-              "🎨 [UI RENDER] Rendering Stripe payment form section"
-            )}
             <div className="payment-summary">
               <h6>Payment Summary</h6>
               <div className="summary-row">

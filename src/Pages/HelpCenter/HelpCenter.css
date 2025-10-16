@@ -6,7 +6,7 @@
 .help-r1 {
   display: flex;
   gap: 40px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .email-input-noicon {
@@ -16,7 +16,7 @@
   padding-bottom: 20px !important;
   padding-left: 22px !important;
   /* font-family: "Montserrat", sans-serif !important; */
-  width: 480px !important;
+  width: 100% !important;
   height: 67px;
   position: relative;
   font-size: 18px !important;
@@ -24,6 +24,7 @@
   line-height: 27px !important;
   color: #0a1126 !important;
   font-family: "Poppins";
+  background-color: #ffffff !important; /* force white bg for disabled inputs */
 }
 .email-input-noicon::placeholder {
   font-family: "Poppins";
@@ -58,26 +59,26 @@
   background-color: #ffff;
   border-radius: 20px;
 }
-.helpCenter__btn{
-  background-color: #0A1126;
+.helpCenter__btn {
+  background-color: #0a1126;
   width: 338px;
   height: 67px;
   border-radius: 12px;
   font-family: "Poppins";
-font-size: 18px;
-font-weight: 500;
-line-height: 27px;
-text-align: center;
-color: #FFFFFF;
-margin-top: 60px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 27px;
+  text-align: center;
+  color: #ffffff;
+  margin-top: 60px;
 }
-@media (max-width: 768px) {
+/* Stack fields below 992px */
+@media (max-width: 991px) {
   .help-body {
     padding-top: 30px;
     padding-left: 12px;
   }
   .email-input-noicon {
-    width: 100% !important;
     font-size: 16px !important;
     line-height: 24px !important;
     height: 65px !important;
@@ -89,6 +90,7 @@ margin-top: 60px;
   }
   .help-r1 {
     gap: 25px;
+    flex-wrap: wrap;
   }
   .imp-subtxt br {
     display: none;
@@ -105,10 +107,9 @@ margin-top: 60px;
     font-size: 16px;
     line-height: 37px;
   }
-  
 }
 @media (max-width: 440px) {
-  .helpCenter__btn{
+  .helpCenter__btn {
     width: 100% !important;
   }
 }

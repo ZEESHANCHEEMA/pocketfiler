@@ -103,7 +103,7 @@ const Clients = () => {
       <>{ClientData?.loading && <ScreenLoader />}</>
       <div className="Dash-body">
         <div className="contract-contain pb-allcontract">
-          <div className="contract-r1 pb-0">
+          <div className="contract-r1 pb-0 clients-toolbar">
             {userRoles === "organization" ? (
               <p className="contract-head">Clients</p>
             ) : (
@@ -111,24 +111,22 @@ const Clients = () => {
             )}
 
             <div className="contract-rhs">
-              <div className="search-mb-contain">
-                <div
-                  className={isMobile ? "d-block" : "d-none"}
-                  onClick={handleSearchInput}
-                >
-                  <img src="/Images/Contract/search.svg" alt="search" />
-                </div>
-              </div>
+              {/* remove mobile floating search icon - search bar is always visible now */}
+              <div className="search-mb-contain d-none"></div>
 
-              <div className={isMobile ? "d-none" : "search-input-icon"}>
+              <div
+                className={
+                  isMobile ? "search-input-icon w-200" : "search-input-icon"
+                }
+              >
                 <img
                   src="/Images/Projects/search.svg"
                   alt="search-icon"
                   className="search-icon"
                   style={{
                     position: "absolute",
-                    left: "22px",
-                    top: "45%",
+                    left: isMobile ? "14px" : "22px",
+                    top: "50%",
                     transform: "translateY(-50%)",
                   }}
                 />
@@ -140,6 +138,7 @@ const Clients = () => {
                       : "Search Clients..."
                   }
                   className="search-input-contract"
+                  style={isMobile ? { paddingLeft: "8px" } : undefined}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>

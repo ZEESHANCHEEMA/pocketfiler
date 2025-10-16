@@ -348,7 +348,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-left: 12px;
   }
   .Add-project-inner {
     background: #ffffffb2;
@@ -381,6 +380,32 @@
     flex-wrap: wrap;
     padding-bottom: 0px;
     gap: 10px;
+  }
+  /* Stack toolbar (search, filter, button) in a single column when clients-toolbar is present */
+  .table-above-row-info.clients-toolbar .projecttable__main-head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+  .table-above-row-info.clients-toolbar .search-input-icon {
+    grid-column: 1 / -1;
+  }
+  .table-above-row-info.clients-toolbar .drop-main {
+    grid-column: 1 / -1;
+  }
+  .table-above-row-info.clients-toolbar .projecttable__main-headingbtn {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    display: flex;
+  }
+  .table-above-row-info.clients-toolbar #dropdown-basic {
+    width: 100% !important;
+  }
+  .table-above-row-info.clients-toolbar .dropdown-week {
+    width: 100% !important;
+    height: 44px !important;
+    border-radius: 50px !important;
   }
   .project-table-container {
     margin-top: 10px;
